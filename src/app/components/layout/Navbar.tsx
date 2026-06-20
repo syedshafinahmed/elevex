@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { trunkey } from "@/lib/fonts";
+import { sansation, trunkey } from "@/lib/fonts";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -24,7 +24,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="w-full bg-background">
+    <header className={`${sansation.className} w-full bg-background`}>
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
         {/* Left links */}
         <ul className="hidden items-center gap-8 md:flex">
@@ -76,7 +76,7 @@ export default function Navbar() {
           <li>
             <Link
               href="/login"
-              className="rounded-2xl bg-primary px-6 py-3 text-base font-semibold text-mist transition-opacity hover:opacity-90"
+              className="rounded-2xl bg-primary px-6 py-3 text-base font-semibold text-foreground hover:-translate-y-0.5 transition-all"
             >
               Login
             </Link>
@@ -153,7 +153,7 @@ export default function Navbar() {
             <Link
               href="/login"
               onClick={() => setMenuOpen(false)}
-              className="block rounded-full bg-primary px-4 py-2.5 text-center text-sm font-semibold text-mist"
+              className="rounded-2xl bg-primary px-6 py-3 text-base font-semibold text-foreground hover:-translate-y-0.5 transition-all"
             >
               Login
             </Link>
