@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import { Sansation } from "next/font/google";
 
 export const trunkey = localFont({
   src: [
@@ -18,4 +19,8 @@ export const pinkAverage = localFont({
       style: "normal",
     },
   ],
+});
+
+export const sansation = Sansation({
+  weight: "400",
 });

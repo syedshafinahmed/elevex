@@ -1,6 +1,8 @@
+import { sansation } from "@/lib/fonts";
+
 const Banner = () => {
   return (
-    <div>
+    <div className={`${sansation.className}`}>
       Banner
     </div>
   );
