@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./components/layout/Navbar";
 import { pinkAverage } from "@/lib/fonts";
+import Footer from "./components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={`min-h-full flex flex-col ${pinkAverage.className}`}>
         <Navbar />
         <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );

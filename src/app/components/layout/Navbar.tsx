@@ -76,7 +76,7 @@ export default function Navbar() {
           <li>
             <Link
               href="/login"
-              className="rounded-2xl bg-primary px-6 py-3 text-base font-semibold text-foreground hover:-translate-y-0.5 transition-all"
+              className="rounded-xl bg-primary px-6 py-3 text-base font-semibold text-foreground hover:-translate-y-0.5 transition-all"
             >
               Login
             </Link>
