@@ -50,7 +50,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <p className={`${trunkey.className} text-5xl font-extrabold text-primary`}>elevex</p>
+          <p className={`${trunkey.className} text-7xl font-extrabold text-primary`}>elevex</p>
         </Link>
 
         {/* Right links */}
