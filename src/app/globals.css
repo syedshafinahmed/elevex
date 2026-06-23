@@ -3,29 +3,22 @@
 :root {
   --background: #cfcfcf;
   --foreground: #141414;
-
-  /* Brand palette */
-  --color-noir: #141414;
-  --color-amethyst: #7e49b3;
-  --color-mist: #cfcfcf;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --color-noir: var(--color-noir);
-  --color-amethyst: var(--color-amethyst);
-  --color-mist: var(--color-mist);
+  --color-noir: #141414;
+  --color-amethyst: #7e49b3;
+  --color-mist: #cfcfcf;
 
   --color-primary: var(--color-amethyst);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #141414;
-    --foreground: #cfcfcf;
-  }
+.dark {
+  --background: #141414;
+  --foreground: #cfcfcf;
 }
 
 body {

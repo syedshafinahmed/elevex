@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "./components/layout/Navbar";
 import { pinkAverage } from "@/lib/fonts";
 import Footer from "./components/layout/Footer";
+import { ThemeProvider } from "next-themes";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,11 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className={`min-h-full flex flex-col ${pinkAverage.className}`}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <Navbar />
         <main>{children}</main>
         <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
