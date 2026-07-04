@@ -1,49 +1,35 @@
 import { pinkAverage, sansation } from "@/lib/fonts";
-import { MapPin, Clock, ShieldCheck, ArrowUpRight } from "lucide-react";
-import { TbBrandGithubFilled } from "react-icons/tb";
+import { MapPin, Phone } from "lucide-react";
 import { SiGmail } from "react-icons/si";
-import { RiDiscordFill, RiFacebookFill, RiLinkedinFill } from "react-icons/ri";
+import { RiFacebookFill, RiInstagramFill, RiTwitterXFill, RiYoutubeFill, RiLinkedinFill } from "react-icons/ri";
 
-const contactReasons = [
+const contactDetails = [
   {
-    icon: ShieldCheck,
-    title: "Verified trade support",
-    desc: "Questions about exporter verification or escrow-protected settlements.",
+    icon: SiGmail,
+    title: "Email",
+    value: "shafinahmed.cse@gmail.com",
+    href: "mailto:shafinahmed.cse@gmail.com",
+  },
+  {
+    icon: Phone,
+    title: "Phone",
+    value: "+880 1630216932",
+    href: "tel:+8801630216932",
   },
   {
     icon: MapPin,
-    title: "Route & logistics help",
-    desc: "Need help finding the right trade route across our 62 active countries.",
-  },
-  {
-    icon: Clock,
-    title: "Response within 24 hours",
-    desc: "Our trade specialists respond to every message within one business day.",
+    title: "Office",
+    value: "Mirpur-2, Dhaka-1216, Bangladesh",
+    href: null,
   },
 ];
 
 const socialLinks = [
-  { label: "Email", href: "mailto:shafinahmed.cse@gmail.com", icon: SiGmail },
-  {
-    label: "GitHub",
-    href: "https://github.com/syedshafinahmed",
-    icon: TbBrandGithubFilled,
-  },
-  {
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/in/syed-shafin-ahmed/",
-    icon: RiLinkedinFill,
-  },
-  {
-    label: "Facebook",
-    href: "https://www.facebook.com/shafin.ahmed.3925/",
-    icon: RiFacebookFill,
-  },
-  {
-    label: "Discord",
-    href: "https://discord.com/users/1440245018341277756",
-    icon: RiDiscordFill,
-  },
+  { label: "Facebook", href: "https://www.facebook.com/shafin.ahmed.3925/", icon: RiFacebookFill },
+  { label: "Instagram", href: "#", icon: RiInstagramFill },
+  { label: "X", href: "#", icon: RiTwitterXFill },
+  { label: "Youtube", href: "#", icon: RiYoutubeFill },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/syed-shafin-ahmed/", icon: RiLinkedinFill },
 ];
 
 export default function ContactPage() {
@@ -53,13 +39,12 @@ export default function ContactPage() {
       <div className="relative overflow-hidden rounded-3xl bg-background">
         {/* Full-card ambient glow */}
         <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(circle at 8% 15%, color-mix(in srgb, var(--color-amethyst) 28%, transparent), transparent 50%), radial-gradient(circle at 92% 85%, color-mix(in srgb, var(--color-amethyst) 18%, transparent), transparent 50%)",
-          }}
-        />
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+          "radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--color-amethyst) 35%, transparent), transparent 55%), radial-gradient(circle at 85% 90%, color-mix(in srgb, var(--color-amethyst) 22%, transparent), transparent 50%)",}}
+      />
 
         {/* Inner grid: left pitch | divider | right form */}
         <div className="relative z-10 grid md:grid-cols-[1fr_1px_1.2fr]">
@@ -75,7 +60,7 @@ export default function ContactPage() {
               </h1>
 
               <p
-                className={`${sansation.className} max-w-sm text-sm leading-relaxed text-foreground/60 sm:text-base`}
+                className={`${sansation.className} max-w-sm text-sm sm:text-base leading-relaxed text-foreground/60`}
               >
                 Whether you&apos;re listing your first export or settling a
                 multi-country route, our trade specialists are here to help.
@@ -83,25 +68,27 @@ export default function ContactPage() {
             </div>
 
             <div className="flex flex-col gap-5">
-              {contactReasons.map(({ icon: Icon, title, desc }) => (
+              {contactDetails.map(({ icon: Icon, title, value, href }) => (
                 <div key={title} className="flex items-start gap-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/[0.03] text-primary">
-                    <Icon
-                      className="h-4 w-4 stroke-[1.75]"
-                      aria-hidden="true"
-                    />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-primary">
+                    <Icon className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <p
-                      className={`${sansation.className} text-sm font-semibold text-foreground`}
-                    >
+                    <p className={`${sansation.className} text-xs font-semibold uppercase tracking-widest text-foreground/40`}>
                       {title}
                     </p>
-                    <p
-                      className={`${sansation.className} text-xs leading-relaxed text-foreground/55`}
-                    >
-                      {desc}
-                    </p>
+                    {href ? (
+                      <a
+                        href={href}
+                        className={`${sansation.className} text-sm text-foreground/80 transition-colors hover:text-primary`}
+                      >
+                        {value}
+                      </a>
+                    ) : (
+                      <p className={`${sansation.className} text-sm text-foreground/80`}>
+                        {value}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -121,7 +108,7 @@ export default function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/[0.03] text-foreground/60 transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary"
+                    className="flex h-10 w-10 items-center justify-center bg-background/20 rounded-xl border border-foreground/15 text-foreground/70 hover:border-primary hover:text-primary hover:-translate-y-0.5 transition-all"
                   >
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </a>
@@ -159,9 +146,9 @@ export default function ContactPage() {
               {/* Name & Email */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <FormField
-                  label="First name"
-                  id="first-name"
-                  placeholder="Shafin"
+                  label="Name"
+                  id="name"
+                  placeholder="Shafin Ahmed"
                 />
                 <FormField
                   label="Work email"
@@ -181,22 +168,22 @@ export default function ContactPage() {
                 <FormField
                   label="Topic"
                   id="topic"
-                  placeholder="e.g. Exporter verification…"
+                  placeholder="Exporter verification…"
                 />
               </div>
 
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor="message"
-                  className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.1em] text-foreground/50`}
+                  className={`${sansation.className} text-xs font-semibold uppercase tracking-widest text-foreground/50`}
                 >
                   Message
                 </label>
                 <textarea
                   id="message"
-                  rows={5}
+                  rows={4}
                   placeholder="Describe your shipment, trade route, or question…"
-                  className={`${sansation.className} w-full resize-none rounded-xl border border-foreground/15 bg-foreground/[0.03] px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none`}
+                  className={`${sansation.className} w-full resize-none rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none`}
                 />
               </div>
 
@@ -208,13 +195,9 @@ export default function ContactPage() {
 
               <button
                 type="submit"
-                className={`${sansation.className} group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98]`}
+                className={`${sansation.className} group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98]`} 
               >
                 Send message
-                <ArrowUpRight
-                  className="h-4 w-4 stroke-[2.25] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  aria-hidden="true"
-                />
               </button>
 
               <p
@@ -252,7 +235,7 @@ function FormField({
     <div className="flex flex-col gap-2">
       <label
         htmlFor={id}
-        className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.1em] text-foreground/50`}
+        className={`${sansation.className} text-xs font-semibold uppercase tracking-widest text-foreground/50`}
       >
         {label}
       </label>
@@ -261,7 +244,7 @@ function FormField({
         id={id}
         name={id}
         placeholder={placeholder}
-        className={`${sansation.className} w-full rounded-xl border border-foreground/15 bg-foreground/[0.03] px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none`}
+        className={`${sansation.className} w-full rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none`}
       />
     </div>
   );

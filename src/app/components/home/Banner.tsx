@@ -62,13 +62,13 @@ export default function Banner() {
           <div className={`${sansation.className} relative z-10 flex flex-row items-center gap-3`}>
             <Link
               href="/products"
-              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-center text-xs md:text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] sm:flex-initial sm:px-6 sm:py-3.5"
+              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-center text-xs md:text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] sm:flex-initial sm:px-6 sm:py-3.5"
             >
               Explore Products
             </Link>
             <Link
               href="/add-export"
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-foreground/60 px-4 py-3 text-center text-xs md:text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] sm:flex-initial sm:px-6 sm:py-3.5"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-foreground/60 px-4 py-3 text-center text-xs md:text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] sm:flex-initial sm:px-6 sm:py-3.5"
             >
               Add Your Export
             </Link>

@@ -63,7 +63,7 @@ export default function Footer() {
 
           <div className="flex w-full flex-col gap-3 sm:max-w-md">
             <form className={`${sansation.className} flex items-center gap-2`}>
-              <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-background/20 px-3.5 py-3 focus-within:border-primary focus-within:ring-primary">
+              <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none">
                 <Mail className="h-4 w-4 shrink-0 stroke-[1.75] text-foreground/40" aria-hidden="true" />
                 <input
                   type="email"
@@ -74,7 +74,7 @@ export default function Footer() {
               </div>
               <button
                 type="submit"
-                className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+                className="rounded-xl bg-primary px-5 py-3 text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 Get started
               </button>
