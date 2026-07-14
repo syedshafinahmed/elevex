@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import {
   Building,
   Globe2,
@@ -10,6 +9,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
+import Button from "../ui/Button";
 
 const tickerStats = [
   { label: "Active exporters", value: "3,140+", icon: Package },
@@ -60,18 +60,12 @@ export default function Banner() {
 
           {/* Middle: CTAs — side by side on every breakpoint */}
           <div className={`${sansation.className} relative z-10 flex flex-row items-center gap-3`}>
-            <Link
-              href="/products"
-              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-center text-xs md:text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] sm:flex-initial sm:px-6 sm:py-3.5"
-            >
+            <Button href="/products" size="sm" className="flex-1 sm:flex-initial sm:px-6 sm:py-3.5 sm:text-sm">
               Explore Products
-            </Link>
-            <Link
-              href="/add-export"
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-foreground/60 px-4 py-3 text-center text-xs md:text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] sm:flex-initial sm:px-6 sm:py-3.5"
-            >
+            </Button>
+            <Button href="/add-export" variant="outline" size="sm" className="flex-1 sm:flex-initial sm:px-6 sm:py-3.5 sm:text-sm">
               Add Your Export
-            </Link>
+            </Button>
           </div>
 
           {/* Bottom: live ticker strip — the signature element */}

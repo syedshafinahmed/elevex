@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
+import Button from "../ui/Button";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -99,12 +100,7 @@ export default function Navbar() {
             </button>
           </li>
           <li>
-            <Link
-              href="/login"
-              className="rounded-xl bg-primary px-6 py-3 text-base font-light text-foreground hover:-translate-y-0.5 transition-all"
-            >
-              Login
-            </Link>
+            <Button href="/login">Login</Button>
           </li>
         </ul>
 

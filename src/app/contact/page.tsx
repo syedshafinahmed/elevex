@@ -2,6 +2,7 @@ import { pinkAverage, sansation } from "@/lib/fonts";
 import { MapPin, Phone } from "lucide-react";
 import { SiGmail } from "react-icons/si";
 import { RiFacebookFill, RiInstagramFill, RiTwitterXFill, RiYoutubeFill, RiLinkedinFill } from "react-icons/ri";
+import Button from "../components/ui/Button";
 
 const contactDetails = [
   {
@@ -192,13 +193,9 @@ export default function ContactPage() {
                 id="country"
                 placeholder="e.g. Bangladesh, Colombia, Germany…"
               />
-
-              <button
-                type="submit"
-                className={`${sansation.className} group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98]`} 
-              >
+              <Button type="submit" className="w-full">
                 Send message
-              </button>
+              </Button>
 
               <p
                 className={`${sansation.className} text-center text-xs text-foreground/40`}

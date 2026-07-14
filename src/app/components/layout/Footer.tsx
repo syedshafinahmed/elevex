@@ -4,6 +4,7 @@ import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { TbBrandGithubFilled } from "react-icons/tb";
 import { SiGmail } from "react-icons/si";
 import { RiDiscordFill, RiFacebookFill, RiLinkedinFill } from "react-icons/ri";
+import Button from "../ui/Button";
 
 const platformLinks = [
   { label: "Explore products", href: "/products" },
@@ -72,12 +73,7 @@ export default function Footer() {
                   className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none"
                 />
               </div>
-              <button
-                type="submit"
-                className="rounded-xl bg-primary px-5 py-3 text-sm font-light text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-              >
-                Get started
-              </button>
+              <Button type="submit">Get started</Button>
             </form>
           </div>
         </div>
