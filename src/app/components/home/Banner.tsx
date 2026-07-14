@@ -144,7 +144,7 @@ export default function Banner() {
             <div className={`${sansation.className} text-left`}>
               <p className="text-[8px] text-foreground/60 sm:text-[6px]">Exported by</p>
               <p className="flex items-center gap-1 text-[5px] font-semibold text-foreground sm:text-xs">
-                <Building className="h-2 w-2 sm:h-3 sm:w-3" aria-hidden="true" />
+                <Building className="h-2 w-2 sm:h-3 sm:w-3 stroke-[1.75]" aria-hidden="true" />
                 BlueWave Trading
               </p>
             </div>
