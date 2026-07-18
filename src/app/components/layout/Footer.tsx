@@ -64,7 +64,7 @@ export default function Footer() {
 
           <div className="flex w-full flex-col gap-3 sm:max-w-md">
             <form className={`${sansation.className} flex items-center gap-2`}>
-              <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none">
+              {/* <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none">
                 <Mail className="h-4 w-4 shrink-0 stroke-[1.75] text-foreground/40" aria-hidden="true" />
                 <input
                   type="email"
@@ -73,7 +73,19 @@ export default function Footer() {
                   className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none"
                 />
               </div>
-              <Button type="submit">Get started</Button>
+              <Button type="submit">Get started</Button> */}
+              <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm       text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none">
+                <Mail className="h-4 w-4 shrink-0 stroke-[1.75] text-foreground/40" aria-hidden="true" />
+                <input
+                  type="email"
+                  placeholder="you@company.com"
+                  aria-label="Email address"
+                  className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none"
+                />
+                <Button type="submit" size="sm" className="shrink-0 py-1.5 px-3 text-xs sm:px-6 sm:py-3 sm:text-sm">
+                  Get started
+                </Button>
+              </div>
             </form>
           </div>
         </div>

@@ -4,17 +4,20 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
 import Button from "../ui/Button";
+import AuthModal from "../auth/AuthModal";
 
 const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Services", href: "/services" },
-  { label: "Contact", href: "/contact" },
+  { label: "Home",     href: "/",        icon: Home },
+  { label: "Services", href: "/services", icon: Briefcase },
+  { label: "Contact",  href: "/contact",  icon: Mail },
 ] as const;
 
-const navDropdowns = [{ label: "Products", href: "/products" }] as const;
+const navDropdowns = [
+  { label: "Products", href: "/products", icon: Package },
+] as const;
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -26,6 +29,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -82,25 +86,26 @@ export default function Navbar() {
             );
           })}
           <li>
-            <button
+            <Button
               type="button"
-              aria-label="Toggle theme"
+              variant="ghost"
+              ariaLabel="Toggle theme"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/15 text-foreground/60 transition-colors hover:text-foreground"
-              >
+              className="h-10 w-10 border border-foreground/15 hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+            >
               {mounted ? (
                 resolvedTheme === "dark" ? (
-                  <Sun className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
+                  <Sun className="h-4 w-4 stroke-[1.75] z-50" aria-hidden="true" />
                 ) : (
-                  <Moon className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
+                  <Moon className="h-4 w-4 stroke-[1.75] z-50" aria-hidden="true" />
                 )
               ) : (
                 <span className="h-4 w-4" />
               )}
-            </button>
+            </Button>
           </li>
           <li>
-            <Button href="/login">Login</Button>
+            <Button onClick={() => setAuthOpen(true)}>Login</Button>
           </li>
         </ul>
 
@@ -121,16 +126,24 @@ export default function Navbar() {
         </button>
       </nav>
 
+      {/* Mobile backdrop */}
+      {menuOpen && (
+        <div
+        className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm md:hidden"
+        onClick={() => setMenuOpen(false)}
+        aria-hidden="true"
+        />
+      )}
       {/* Mobile menu panel */}
       <div
         id="mobile-nav"
         className={
           menuOpen
-            ? "absolute right-6 top-full z-50 mt-2 w-48 origin-top-right rounded-3xl border border-foreground/10 bg-background opacity-100 shadow-lg transition-all duration-200 md:hidden"
-            : "absolute right-6 top-full z-50 mt-2 w-72 origin-top-right scale-95 rounded-2xl border border-foreground/10 bg-background opacity-0 pointer-events-none shadow-lg transition-all duration-200 md:hidden"
+            ? "absolute right-6 top-20 z-50 mt-2 w-40 origin-top-right rounded-2xl border border-foreground/10 bg-background opacity-100 shadow-lg transition-all duration-200 md:hidden"
+            : "absolute right-6 top-20 z-50 mt-2 w-72 origin-top-right scale-95 rounded-2xl border border-foreground/10 bg-background opacity-0 pointer-events-none shadow-lg transition-all duration-200 md:hidden"
         }
       >
-        <ul className="flex flex-col gap-1 p-3">
+        <ul className="flex flex-col p-3">
           {navLinks.map((link) => {
             const active = isActive(pathname, link.href);
             return (
@@ -141,11 +154,10 @@ export default function Navbar() {
                   aria-current={active ? "page" : undefined}
                   className={
                     active
-                      ? "block rounded-lg px-3 py-2.5 text-sm font-semibold text-primary"
-                      : "block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+                      ? "flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold text-primary"
+                      : "flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
                   }
-                >
-                  {link.label}
+                ><link.icon className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />{link.label}
                 </Link>
               </li>
             );
@@ -160,21 +172,20 @@ export default function Navbar() {
                   aria-current={active ? "page" : undefined}
                   className={
                     active
-                      ? "block rounded-lg px-3 py-2.5 text-sm font-semibold text-primary"
-                      : "block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+                      ? "flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold text-primary"
+                      : "flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
                   }
-                >
-                  {item.label}
+                ><item.icon className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />{item.label}
                 </Link>
               </li>
             );
           })}
-          <li className="border-t border-foreground/10 pt-1">
+          <li>
             <button
               type="button"
               aria-label="Toggle theme"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
             >
               {mounted ? (
                 resolvedTheme === "dark" ? (
@@ -189,16 +200,16 @@ export default function Navbar() {
             </button>
           </li>
           <li className="pt-2">
-            <Link
-              href="/login"
-              onClick={() => setMenuOpen(false)}
-              className="block rounded-2xl bg-primary px-6 py-3 text-center text-base font-semibold text-foreground transition-all hover:-translate-y-0.5"
+            <Button
+              onClick={() => setAuthOpen(true)}
+              className="w-full rounded-2xl bg-primary px-6 py-3 text-center text-base font-semibold text-foreground transition-all hover:-translate-y-0.5"
             >
               Login
-            </Link>
+            </Button>
           </li>
         </ul>
       </div>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   );
 }

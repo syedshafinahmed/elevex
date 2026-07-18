@@ -2,13 +2,14 @@ import { sansation } from "@/lib/fonts";
 import Link from "next/link";
 
 type ButtonProps = {
-  variant?: "primary" | "outline";
+  variant?: "primary" | "outline" | "ghost";
   size?: "sm" | "md";
   href?: string;
   type?: "button" | "submit" | "reset";
   className?: string;
   children: React.ReactNode;
   onClick?: () => void;
+  ariaLabel?: string;
 };
 
 export default function Button({
@@ -19,12 +20,14 @@ export default function Button({
   className = "",
   children,
   onClick,
+  ariaLabel,
 }: ButtonProps) {
   const base = `${sansation.className} inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all hover:-translate-y-0.5 active:scale-[0.98]`;
 
   const variants = {
     primary: "bg-primary text-foreground",
     outline: "border border-foreground/60 text-foreground",
+    ghost: "",
   };
 
   const sizes = {
@@ -32,7 +35,7 @@ export default function Button({
     md: "px-6 py-3 text-sm",
   };
 
-  const classes = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
+  const classes = `${base} ${variants[variant]} ${variant !== "ghost" ? sizes[size] : ""} ${className}`;
 
   if (href) {
     return (
@@ -43,7 +46,7 @@ export default function Button({
   }
 
   return (
-    <button type={type} onClick={onClick} className={classes}>
+    <button type={type} onClick={onClick} aria-label={ariaLabel} className={classes}>
       {children}
     </button>
   );

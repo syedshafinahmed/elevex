@@ -12,10 +12,10 @@ import { pinkAverage, sansation } from "@/lib/fonts";
 import Button from "../ui/Button";
 
 const tickerStats = [
-  { label: "Active exporters", value: "3,140+", icon: Package },
-  { label: "Countries reached", value: "62", icon: Globe2 },
-  { label: "Escrow-protected trades", value: "100%", icon: ShieldCheck },
-  { label: "Volume this quarter", value: "$4.2M", icon: TrendingUp },
+  { label: "Exporters", value: "3,140+", icon: Package },
+  { label: "Countries", value: "62", icon: Globe2 },
+  { label: "Protected", value: "100%", icon: ShieldCheck },
+  { label: "Revenue", value: "৳4.2lac", icon: TrendingUp },
 ];
 
 export default function Banner() {
@@ -23,7 +23,7 @@ export default function Banner() {
     <section className="mx-auto max-w-7xl px-4 pt-2 pb-10 sm:px-6 lg:px-10">
       <div className="grid gap-4 overflow-hidden rounded-3xl md:grid-cols-[1.05fr_1fr]">
         {/* Left: intro panel */}
-        <div className="relative flex h-auto min-h-[34rem] flex-col justify-between gap-8 overflow-hidden rounded-3xl border border-background bg-background px-6 py-8 sm:px-8 sm:py-10 md:h-140 md:gap-0 lg:px-12">
+        <div className="relative flex h-auto min-h-136 flex-col justify-between gap-8 overflow-hidden rounded-3xl border border-background bg-background px-6 py-8 sm:px-8 sm:py-10 md:h-140 md:gap-0 lg:px-12">
           {/* ambient backdrop */}
           <div
             aria-hidden="true"
@@ -73,13 +73,13 @@ export default function Banner() {
             {tickerStats.map(({ label, value, icon: Icon }, i) => (
               <div
                 key={label}
-                className={`${sansation.className} flex flex-col items-center gap-1.5 px-3 py-3 sm:px-4 sm:py-3.5 ${
+                className={`${sansation.className} flex flex-col items-center gap-1 px-3 py-3 sm:px-4 sm:py-3.5 ${
                   i !== 0 ? "border-l border-foreground/10" : ""
                 } ${i >= 2 ? "border-t border-foreground/10 sm:border-t-0" : ""}`}
               >
                 <Icon className="h-4 w-4 stroke-[1.75] text-primary sm:h-5 sm:w-5" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground sm:text-base">{value}</span>
-                <span className="text-center text-[7px] text-foreground/60 sm:text-[8px]">{label}</span>
+                <span className="text-center text-xs text-foreground/60">{label}</span>
               </div>
             ))}
           </div>
