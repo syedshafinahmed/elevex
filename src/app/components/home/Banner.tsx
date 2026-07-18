@@ -1,24 +1,78 @@
+"use client";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import {
   Building,
-  Globe2,
   Heart,
   MapPin,
-  Package,
-  ShieldCheck,
-  TrendingUp,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import Button from "../ui/Button";
 
-const tickerStats = [
-  { label: "Exporters", value: "3,140+", icon: Package },
-  { label: "Countries", value: "62", icon: Globe2 },
-  { label: "Protected", value: "100%", icon: ShieldCheck },
-  { label: "Revenue", value: "৳4.2lac", icon: TrendingUp },
+// const tickerStats = [
+//   { label: "Exporters", value: "3,140+", icon: Package },
+//   { label: "Countries", value: "62", icon: Globe2 },
+//   { label: "Protected", value: "100%", icon: ShieldCheck },
+//   { label: "Revenue", value: "৳4.2lac", icon: TrendingUp },
+// ];
+
+const liveListings = [
+  {
+    name: "Single-Origin Coffee",
+    origin: "Colombia",
+    price: "৳ 2950.50/kg",
+    tag: "Agricultural",
+  },
+  {
+    name: "Raw Jute Fibre",
+    origin: "Bangladesh",
+    price: "৳ 100.50/kg",
+    tag: "Textile",
+  },
+  {
+    name: "Arabica Green Beans",
+    origin: "Ethiopia",
+    price: "৳ 90.20/kg",
+    tag: "Agricultural",
+  },
+  {
+    name: "Handwoven Cotton",
+    origin: "India",
+    price: "৳ 40.00/m",
+    tag: "Textile",
+  },
+  {
+    name: "Cashew Kernels W320",
+    origin: "Ivory Coast",
+    price: "৳ 600.00/kg",
+    tag: "Agricultural",
+  },
+  {
+    name: "Freeze-Dried Mangoes",
+    origin: "Philippines",
+    price: "৳ 180.00/kg",
+    tag: "Food",
+  },
 ];
 
 export default function Banner() {
+  const [offset, setOffset] = useState(0);
+  const [prev, setPrev] = useState<number | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPrev(offset);
+      setOffset((o) => (o + 1) % liveListings.length);
+      setTimeout(() => setPrev(null), 400);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [offset]);
+
+  const visible = [0, 1].map((i) => ({
+    item: liveListings[(offset + i) % liveListings.length],
+    isNew: i === 1,
+    isLeaving: prev !== null && i === 0,
+  }));
   return (
     <section className="mx-auto max-w-7xl px-4 pt-2 pb-10 sm:px-6 lg:px-10">
       <div className="grid gap-4 overflow-hidden rounded-3xl md:grid-cols-[1.05fr_1fr]">
@@ -50,26 +104,37 @@ export default function Banner() {
               one click.
             </h1>
 
-            <p
+            <div
               className={`${sansation.className} max-w-lg text-sm leading-relaxed text-foreground/60 sm:text-base`}
             >
               List, discover, and settle international trade deals on a single
               platform built for exporters and importers who move real volume.
-            </p>
+            </div>
           </div>
 
           {/* Middle: CTAs — side by side on every breakpoint */}
-          <div className={`${sansation.className} relative z-10 flex flex-row items-center gap-3`}>
-            <Button href="/products" size="sm" className="flex-1 sm:flex-initial sm:px-6 sm:py-3.5 sm:text-sm">
+          <div
+            className={`${sansation.className} relative z-10 flex flex-row items-center gap-3`}
+          >
+            <Button
+              href="/products"
+              size="sm"
+              className="flex-1 sm:flex-initial sm:px-6 sm:py-3.5 sm:text-sm"
+            >
               Explore Products
             </Button>
-            <Button href="/add-export" variant="outline" size="sm" className="flex-1 sm:flex-initial sm:px-6 sm:py-3.5 sm:text-sm">
+            <Button
+              href="/add-export"
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-initial sm:px-6 sm:py-3.5 sm:text-sm"
+            >
               Add Your Export
             </Button>
           </div>
 
           {/* Bottom: live ticker strip — the signature element */}
-          <div className="relative z-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-foreground/10 bg-background sm:grid-cols-4">
+          {/* <div className="relative z-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-foreground/10 bg-background sm:grid-cols-4">
             {tickerStats.map(({ label, value, icon: Icon }, i) => (
               <div
                 key={label}
@@ -82,6 +147,35 @@ export default function Banner() {
                 <span className="text-center text-xs text-foreground/60">{label}</span>
               </div>
             ))}
+          </div> */}
+          {/* Bottom: live listings feed */}
+          <div className="relative z-10 flex flex-col gap-2">
+            <div className="flex justify-end mr-2">
+              <span className={`${sansation.className} text-[10px] uppercase tracking-[0.15em] text-foreground/40`}>Live listings</span>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-foreground/10">
+              {visible.map(({ item, isNew, isLeaving }, i) => (
+                <div
+                  key={`${item.name}-${offset}-${i}`}
+                  className={`${sansation.className} flex items-center justify-between px-3.5 py-3 ${
+                    i !== 0 ? "border-t border-foreground/10" : ""
+                  } ${isLeaving ? "listing-out" : isNew ? "listing-in" : ""}`}
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-semibold text-foreground">
+                      {item.name}
+                    </span>
+                    <span className="text-[10px] text-foreground/45">
+                      {item.origin} · {item.tag}
+                    </span>
+                  </div>
+                  <span className="text-base font-medium tracking-wider text-primary">
+                    {item.price}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -95,7 +189,10 @@ export default function Banner() {
             className="h-full w-full object-cover path"
             priority
           />
-          <div className="path-shadow pointer-events-none absolute inset-0" aria-hidden="true" />
+          <div
+            className="path-shadow pointer-events-none absolute inset-0"
+            aria-hidden="true"
+          />
 
           {/* Save / wishlist button */}
           <button
@@ -103,7 +200,10 @@ export default function Banner() {
             aria-label="Save product"
             className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-mist/30 text-mist backdrop-blur-sm transition-colors hover:bg-mist/40 sm:right-4 sm:top-4 sm:h-10 sm:w-10"
           >
-            <Heart className="h-4 w-4 stroke-[1.75] sm:h-5 sm:w-5" aria-hidden="true" />
+            <Heart
+              className="h-4 w-4 stroke-[1.75] sm:h-5 sm:w-5"
+              aria-hidden="true"
+            />
           </button>
 
           {/* Product mini-card */}
@@ -118,9 +218,14 @@ export default function Banner() {
               />
             </div>
             <div className={`${sansation.className} text-left`}>
-              <p className="text-[7px] font-semibold text-foreground sm:text-sm">Single-Origin Coffee</p>
+              <p className="text-[7px] font-semibold text-foreground sm:text-sm">
+                Single-Origin Coffee
+              </p>
               <p className="flex items-center gap-1 text-[7px] text-foreground/60 sm:text-xs">
-                <MapPin className="h-2 w-2 sm:h-3 sm:w-3 stroke-[1.75]" aria-hidden="true" />
+                <MapPin
+                  className="h-2 w-2 sm:h-3 sm:w-3 stroke-[1.75]"
+                  aria-hidden="true"
+                />
                 Origin: Colombia
               </p>
             </div>
@@ -136,9 +241,14 @@ export default function Banner() {
               className="h-5 w-5 rounded-lg object-cover sm:h-8 sm:w-8"
             />
             <div className={`${sansation.className} text-left`}>
-              <p className="text-[8px] text-foreground/60 sm:text-[6px]">Exported by</p>
+              <p className="text-[8px] text-foreground/60 sm:text-[6px]">
+                Exported by
+              </p>
               <p className="flex items-center gap-1 text-[5px] font-semibold text-foreground sm:text-xs">
-                <Building className="h-2 w-2 sm:h-3 sm:w-3 stroke-[1.75]" aria-hidden="true" />
+                <Building
+                  className="h-2 w-2 sm:h-3 sm:w-3 stroke-[1.75]"
+                  aria-hidden="true"
+                />
                 BlueWave Trading
               </p>
             </div>

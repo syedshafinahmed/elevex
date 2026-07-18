@@ -8,6 +8,10 @@ import {
   CheckCircle2,
   Circle,
   Upload,
+  ShieldCheck,
+  Globe2,
+  Package,
+  TrendingUp,
 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
@@ -20,11 +24,11 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
-const rotatingStats = [
-  { value: "৳4.2 lac",   label: "volume this quarter" },
-  { value: "62",      label: "countries connected" },
-  { value: "3,140+",  label: "verified exporters" },
-  { value: "100%",    label: "escrow-protected" },
+const trustPoints = [
+  { icon: Globe2,      text: "62 countries connected" },
+  { icon: ShieldCheck, text: "Escrow-protected trades" },
+  { icon: TrendingUp,  text: "৳ 4.2lac volume this quarter" },
+  { icon: Package,     text: "Real goods, real traders only" },
 ];
 
 const avatarAvatars = [
@@ -57,22 +61,6 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
   const [showCf, setShowCf] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-
-  const [statIndex, setStatIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
-
-useEffect(() => {
-  const timer = setInterval(() => {
-    setVisible(false);
-    setTimeout(() => {
-      setStatIndex((i) => (i + 1) % rotatingStats.length);
-      setVisible(true);
-    }, 300);
-  }, 3000);
-  return () => clearInterval(timer);
-}, []);
-
-const stat = rotatingStats[statIndex];
 
   const checks = passwordChecks(password);
   const pwValid = checks.length && checks.upper && checks.lower;
@@ -145,7 +133,7 @@ const stat = rotatingStats[statIndex];
           </div>
 
           {/* Headline + trust */}
-          <div className="relative z-10 flex flex-col gap-5">
+          <div className="relative z-10 flex flex-col gap-10">
             <div className="flex flex-col gap-3">
               <h2
                 className={`${pinkAverage.className} text-3xl leading-[1.1] text-foreground`}
@@ -168,13 +156,13 @@ const stat = rotatingStats[statIndex];
                 className={`${sansation.className} text-xs leading-relaxed text-foreground/55`}
               >
                 {tab === "login"
-                  ? "Sign in to manage your exports, track imports, and settle deals across 62 countries."
+                  ? "Sign in to manage your exports, track imports, and settle deals across different countries."
                   : "Create your account and start moving goods globally with one click."}
               </p>
             </div>
 
             {/* Rotating Stats */}
-            <div className="relative z-10 flex flex-col gap-2">
+            {/* <div className="relative z-10 flex flex-col gap-2">
               <div
                 className="flex flex-col gap-0.5 transition-opacity duration-300"
                 style={{ opacity: visible ? 1 : 0 }}
@@ -186,7 +174,6 @@ const stat = rotatingStats[statIndex];
                   {stat.label}
                 </span>
               </div>
-              {/* Progress dots */}
               <div className="flex items-center gap-1.5 pt-1">
                 {rotatingStats.map((_, i) => (
                   <div
@@ -197,6 +184,15 @@ const stat = rotatingStats[statIndex];
                   />
                 ))}
               </div>
+            </div> */}
+            {/* Trust points */}
+            <div className="flex flex-col gap-2.5">
+              {trustPoints.map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-2.5">
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-primary stroke-[1.75]" aria-hidden="true" />
+                  <span className={`${sansation.className} text-[11px] text-foreground/55`}>{text}</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -537,7 +533,7 @@ const stat = rotatingStats[statIndex];
                     onClick={() => switchTab("login")}
                     className="text-primary underline underline-offset-2 hover:text-primary/70"
                   >
-                    Sign in
+                    Login
                   </button>
                 </>
               )}
