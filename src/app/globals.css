@@ -30,7 +30,7 @@ body {
   clip-path: polygon(0 15%, 40% 15%, 40% 0, 85% 0%, 100% 0, 100% 15%, 100% 88%, 66% 88%, 66% 100%, 15% 100%, 0 100%, 0% 85%);
 } */
 
-.path{
+.path {
   -webkit-mask-image: url('/path-mask.svg');
   mask-image: url('/path-mask.svg');
   -webkit-mask-size: 100% 100%;
@@ -39,7 +39,7 @@ body {
   mask-repeat: no-repeat;
 }
 
-.path-shadow{
+.path-shadow {
   -webkit-mask-image: url('/path-mask.svg');
   mask-image: url('/path-mask.svg');
   -webkit-mask-size: 100% 100%;
@@ -80,3 +80,53 @@ html {
 }
 .listing-in  { animation: listing-in  0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 .listing-out { animation: listing-out 0.3s ease-in forwards; }
+
+.testimonial-path {
+  -webkit-mask-image: url('/testimonial-mask.svg');
+  mask-image: url('/testimonial-mask.svg');
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.testimonial-path-shadow {
+  -webkit-mask-image: url('/testimonial-mask.svg');
+  mask-image: url('/testimonial-mask.svg');
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  box-shadow: inset 0 0 5px 5px rgba(0,0,0,0.06);
+}
+
+/* Testimonials marquee */
+@keyframes marquee-up {
+  from {
+    transform: translateY(0%);
+  }
+  to {
+    transform: translateY(-33.3334%);
+  }
+}
+
+@keyframes marquee-down {
+  from {
+    transform: translateY(-33.3334%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+.animate-marquee-up {
+  animation-name: marquee-up;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.animate-marquee-down {
+  animation-name: marquee-down;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
