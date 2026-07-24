@@ -4,6 +4,7 @@ import Navbar from "./components/layout/Navbar";
 import { pinkAverage } from "@/lib/fonts";
 import Footer from "./components/layout/Footer";
 import { ThemeProvider } from "next-themes";
+import ScrollToTop from "./components/ui/ScrollToTop";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,6 +27,7 @@ export default function RootLayout({
         <Navbar />
         <main>{children}</main>
         <Footer />
+        <ScrollToTop />
         </ThemeProvider>
       </body>
     </html>
