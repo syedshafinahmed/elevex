@@ -7,8 +7,8 @@ export default function Home() {
   return (
     <div>
       <Banner />
-      <Testimonials />
       <GlobalReach />
+      <Testimonials />
       <ContactPage />
     </div>
   );

@@ -2,7 +2,7 @@
 import { cn } from "../../../lib/utils";
 import createGlobe from "cobe";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface EarthProps {
   className?: string;
@@ -18,31 +18,13 @@ interface EarthProps {
   markers?: { location: [number, number]; size: number }[];
 }
 
-const defaultTradeMarkers: { location: [number, number]; size: number }[] = [
-  { location: [23.8103, 90.4125], size: 0.05 }, // Dhaka, Bangladesh
-  { location: [4.711, -74.0721], size: 0.05 },  // Bogota, Colombia
-  { location: [9.03, 38.74], size: 0.05 },     // Addis Ababa, Ethiopia
-  { location: [28.6139, 77.209], size: 0.05 },  // New Delhi, India
-  { location: [5.36, -4.0083], size: 0.05 },   // Abidjan, Ivory Coast
-  { location: [14.5995, 120.9842], size: 0.05 },// Manila, Philippines
-  { location: [51.5074, -0.1278], size: 0.05 }, // London, UK
-  { location: [40.7128, -74.006], size: 0.05 }, // New York, USA
-  { location: [35.6762, 139.6503], size: 0.05 },// Tokyo, Japan
-  { location: [25.2048, 55.2708], size: 0.05 }, // Dubai, UAE
-  { location: [1.3521, 103.8198], size: 0.05 }, // Singapore
-  { location: [-33.8688, 151.2093], size: 0.05 },// Sydney, Australia
-  { location: [-23.5505, -46.6333], size: 0.05 },// Sao Paulo, Brazil
-  { location: [30.0444, 31.2357], size: 0.05 }, // Cairo, Egypt
-  { location: [50.1109, 8.6821], size: 0.05 },  // Frankfurt, Germany
-];
-
 const Earth: React.FC<EarthProps> = ({
   className,
-  theta = 0.25,
+  theta = 0.5,
   dark = 1,
-  scale = 1.1,
+  scale = 1.2,
   diffuse = 1.2,
-  mapSamples = 45000,
+  mapSamples = 40000,
   mapBrightness = 6,
   baseColor = [0.494, 0.286, 0.702], // Amethyst #7e49b3
   markerColor = [0.92, 0.75, 1.0],   // Bright lavender accent

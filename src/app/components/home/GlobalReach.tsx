@@ -30,7 +30,7 @@ const saasModules = [
       "Streamline cross-border clearance with automated tariff classification, digital bill-of-lading verification, and instant port customs filings.",
     highlights: [
       { label: "Clearance Time", value: "< 4 Hours Avg" },
-      { label: "Document Compliance", value: "100% Automated" },
+      { label: "Compliance", value: "100% Automated" },
     ],
   },
   {
@@ -83,8 +83,8 @@ export default function GlobalReach() {
               Coordinate bulk cargo shipments, verify customs documentation, and manage multi-modal transport lines across sea, air, and land corridors.
             </p>
 
-            {/* Responsive SaaS Module Tabs */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/3 p-1 sm:p-1.5 backdrop-blur-md">
+            {/* Responsive SaaS Module Tabs - Guaranteed Single Row on Mobile */}
+            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-foreground/10 bg-foreground/3 p-1 sm:p-1.5 backdrop-blur-md">
               {saasModules.map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -92,7 +92,7 @@ export default function GlobalReach() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`${sansation.className} flex-1 min-w-[100px] sm:min-w-0 rounded-xl px-2.5 py-2 sm:px-3 sm:py-2.5 text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                    className={`${sansation.className} flex items-center justify-center rounded-xl px-1.5 py-2 sm:px-3 sm:py-2.5 text-[10px] xs:text-[11px] sm:text-xs font-semibold text-center leading-tight transition-all duration-200 ${
                       isActive
                         ? "bg-primary text-white shadow-md"
                         : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
@@ -109,18 +109,14 @@ export default function GlobalReach() {
               {/* Header Status Bar */}
               <div className="flex items-center justify-between border-b border-foreground/10 pb-2.5 sm:pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                  </span>
                   <span
-                    className={`${sansation.className} text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-primary`}
+                    className={`${sansation.className} text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-primary`}
                   >
                     {activeData.status}
                   </span>
                 </div>
                 <span
-                  className={`${sansation.className} font-mono text-[9px] sm:text-[10px] text-foreground/40`}
+                  className={`${sansation.className} font-mono text-[9px] sm:text-[11px] text-foreground/40`}
                 >
                   {activeData.code}
                 </span>
@@ -172,7 +168,7 @@ export default function GlobalReach() {
             />
 
             {/* Globe Canvas */}
-            <Globe className="max-w-[280px] xs:max-w-[320px] sm:max-w-[380px] lg:max-w-[440px]" />
+            <Globe className="max-w-70 xs:max-w-[320px] sm:max-w-95 lg:max-w-120" />
           </div>
         </div>
       </div>
