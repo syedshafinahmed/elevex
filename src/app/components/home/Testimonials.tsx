@@ -174,7 +174,7 @@ const MarqueeColumn = ({
 
 const Testimonials = () => {
   return (
-    <section className="mx-auto max-w-7xl px-4 pt-10 pb-25 sm:px-6 lg:px-10">
+    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       <p
         className={`${sansation.className} mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-foreground/40`}
       >

@@ -35,7 +35,7 @@ const socialLinks = [
 
 export default function ContactPage() {
   return (
-    <section className="mx-auto max-w-7xl px-4 pt-2 pb-10 sm:px-6 lg:px-10">
+    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       {/* Single unified card */}
       <div className="relative overflow-hidden rounded-3xl bg-background">
         {/* Full-card ambient glow */}

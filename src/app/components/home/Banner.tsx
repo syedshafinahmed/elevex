@@ -74,7 +74,7 @@ export default function Banner() {
     isLeaving: prev !== null && i === 0,
   }));
   return (
-    <section className="mx-auto max-w-7xl px-4 pt-2 pb-10 sm:px-6 lg:px-10">
+    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       <div className="grid gap-4 overflow-hidden rounded-3xl md:grid-cols-[1.05fr_1fr]">
         {/* Left: intro panel */}
         <div className="relative flex h-auto min-h-136 flex-col justify-between gap-8 overflow-hidden rounded-3xl border border-background bg-background px-6 py-8 sm:px-8 sm:py-10 md:h-140 md:gap-0 lg:px-12">

@@ -53,7 +53,7 @@ export default function GlobalReach() {
   const activeData = saasModules.find((m) => m.id === activeTab) || saasModules[0];
 
   return (
-    <div className="bg-amethyst px-4 pt-2 pb-10 sm:px-6 lg:px-10">
+    <div className="bg-amethyst px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       <section className="mx-auto max-w-7xl w-full">
         {/* Outer Container - Seamless surface with solid amethyst background & border */}
         <div className="relative overflow-hidden">
