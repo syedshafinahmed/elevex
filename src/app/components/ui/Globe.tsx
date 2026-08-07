@@ -83,7 +83,7 @@ const Earth: React.FC<EarthProps> = ({
   return (
     <div
       className={cn(
-        "relative flex items-center justify-center z-10 w-full max-w-[450px] mx-auto cursor-grab active:cursor-grabbing",
+        "relative flex items-center justify-center z-10 w-full max-w-[650px] mx-auto cursor-grab active:cursor-grabbing",
         className,
       )}
     >

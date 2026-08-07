@@ -22,7 +22,7 @@ export default function ScrollToTop() {
         variant="ghost"
         ariaLabel="Scroll to top"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="h-11 w-11 rounded-2xl bg-primary shadow-lg text-background backdrop-blur-sm"
+        className="h-11 w-11 rounded-2xl bg-primary shadow-lg text-background border border-background backdrop-blur-sm"
       >
         <ChevronUp className="h-6 w-6" aria-hidden="true" />
       </Button>
