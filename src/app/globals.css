@@ -130,3 +130,29 @@ html {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-left {
+  animation: marquee-left 28s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 28s linear infinite;
+}

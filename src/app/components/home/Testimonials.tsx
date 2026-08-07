@@ -100,9 +100,15 @@ const columns: Testimonial[][] = [
   [testimonials[4], testimonials[9]],
 ];
 
-const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
+const TestimonialCard = ({
+  testimonial,
+  className = "mb-6",
+}: {
+  testimonial: Testimonial;
+  className?: string;
+}) => {
   return (
-    <div className="relative w-50 shrink-0 mb-6">
+    <div className={`relative w-50 shrink-0 ${className}`}>
       <div className="testimonial-path testimonial-path-shadow relative z-10 min-h-50 w-50 bg-amethyst/30 overflow-hidden">
         <div
           aria-hidden="true"
@@ -186,8 +192,27 @@ const Testimonials = () => {
         What traders say
       </h2>
 
+      {/* Mobile Only: 2 Horizontal Marquee Rows */}
+      <div className="flex flex-col gap-4 overflow-hidden md:hidden">
+        <div className="overflow-hidden w-full">
+          <div className="flex flex-row flex-nowrap gap-6 w-max animate-marquee-right" style={{ animationDuration: "28s" }}>
+            {[...testimonials.slice(0, 5), ...testimonials.slice(0, 5), ...testimonials.slice(0, 5)].map((t, i) => (
+              <TestimonialCard key={`m1-${t.name}-${i}`} testimonial={t} className="mb-0" />
+            ))}
+          </div>
+        </div>
+        <div className="overflow-hidden w-full">
+          <div className="flex flex-row flex-nowrap gap-6 w-max animate-marquee-left" style={{ animationDuration: "28s" }}>
+            {[...testimonials.slice(5), ...testimonials.slice(5), ...testimonials.slice(5)].map((t, i) => (
+              <TestimonialCard key={`m2-${t.name}-${i}`} testimonial={t} className="mb-0" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Only: Vertical Columns */}
       <div
-        className="relative flex flex-wrap justify-center gap-10"
+        className="hidden md:flex relative flex-wrap justify-center gap-10"
         style={{
           maskImage:
             "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
