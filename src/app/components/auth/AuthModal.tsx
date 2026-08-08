@@ -234,7 +234,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
 
           {/* Segmented tab */}
           <div className="px-6 pt-6 sm:px-8 sm:pt-8">
-            <div className="relative flex rounded-xl border border-foreground/15 bg-foreground/2 p-1">
+            <div className="relative flex rounded-xl bg-primary/20 p-1">
               <div
                 className="absolute inset-y-1 left-1 rounded-lg bg-primary transition-transform duration-300 ease-out"
                 style={{

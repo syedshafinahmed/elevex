@@ -75,7 +75,7 @@ export default function GlobalReach() {
               </p>
 
               {/* Responsive SaaS Module Tabs - Guaranteed Single Row on Mobile */}
-              <div className="grid grid-cols-3 gap-1 rounded-2xl border border-background/20 bg-background/10 p-1 sm:p-1.5 backdrop-blur-md">
+              <div className="grid grid-cols-3 gap-1 rounded-2xl border border-background/20 bg-background/70 p-1 sm:p-1.5 backdrop-blur-md">
                 {saasModules.map((tab) => {
                   const isActive = activeTab === tab.id;
                   return (
@@ -85,7 +85,7 @@ export default function GlobalReach() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`${sansation.className} flex items-center justify-center rounded-xl px-1.5 py-2 sm:px-3 sm:py-2.5 text-[10px] xs:text-[11px] sm:text-xs font-semibold text-center leading-tight transition-all duration-200 ${isActive
                         ? "bg-background text-foreground shadow-md"
-                        : "text-background/70 hover:bg-background/10 hover:text-background"
+                        : "text-foreground/80 hover:bg-background/10 hover:text-foreground"
                         }`}
                     >
                       {tab.label}
