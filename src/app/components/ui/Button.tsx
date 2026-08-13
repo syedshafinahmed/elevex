@@ -2,7 +2,7 @@ import { sansation } from "@/lib/fonts";
 import Link from "next/link";
 
 type ButtonProps = {
-  variant?: "primary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md";
   href?: string;
   type?: "button" | "submit" | "reset";
@@ -26,6 +26,7 @@ export default function Button({
 
   const variants = {
     primary: "bg-primary text-foreground",
+    secondary: "bg-background text-foreground",
     outline: "border border-foreground/60 text-foreground",
     ghost: "",
   };
