@@ -91,7 +91,7 @@ export default function Navbar() {
               variant="ghost"
               ariaLabel="Toggle theme"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="h-10 w-10 border border-foreground/15 hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+              className="h-10 w-10 border border-foreground/15 inset-shadow-foreground/15 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
             >
               {mounted ? (
                 resolvedTheme === "dark" ? (

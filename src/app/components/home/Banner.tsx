@@ -154,7 +154,7 @@ export default function Banner() {
               <span className={`${sansation.className} text-[10px] uppercase tracking-[0.15em] text-foreground/40`}>Live listings</span>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-foreground/10">
+            <div className="overflow-hidden rounded-2xl border border-foreground/10 inset-shadow-foreground/15 inset-shadow-sm">
               {visible.map(({ item, isNew, isLeaving }, i) => (
                 <div
                   key={`${item.name}-${offset}-${i}`}
@@ -207,7 +207,7 @@ export default function Banner() {
           </button>
 
           {/* Product mini-card */}
-          <div className="absolute left-1 top-1 flex items-center gap-2 border border-foreground/10 rounded-xl md:rounded-2xl bg-background p-1.5 pr-3 shadow-[inset_0_0_8px_rgba(0,0,0,0.25)] backdrop-blur-sm sm:gap-3 sm:p-2 sm:pr-4">
+          <div className="absolute left-1 top-1 flex items-center gap-2 border border-foreground/10 rounded-xl md:rounded-2xl bg-background p-1.5 pr-3 inset-shadow-foreground/15 inset-shadow-sm backdrop-blur-sm sm:gap-3 sm:p-2 sm:pr-4">
             <div className="relative h-7 w-7 overflow-hidden rounded-md md:rounded-xl sm:h-12 sm:w-12">
               <Image
                 src="https://t4.ftcdn.net/jpg/06/99/07/59/360_F_699075925_iSCb6hWL6MKOZXjRpSyNrJ2RIgMpEFzi.jpg"
@@ -232,7 +232,7 @@ export default function Banner() {
           </div>
 
           {/* Listed by */}
-          <div className="absolute bottom-1 right-1 border border-foreground/10 flex items-center gap-1.5 rounded-xl bg-background px-2.5 py-1.5 shadow-[inset_0_0_8px_rgba(0,0,0,0.25)] backdrop-blur-sm sm:gap-2 sm:px-3 sm:py-2">
+          <div className="absolute bottom-1 right-1 border border-foreground/10 flex items-center gap-1.5 rounded-xl bg-background px-2.5 py-1.5 inset-shadow-foreground/15 inset-shadow-sm backdrop-blur-sm sm:gap-2 sm:px-3 sm:py-2">
             <Image
               src="https://i.pravatar.cc/64?img=51"
               alt=""

@@ -92,7 +92,7 @@ export default function Pricing() {
         </div>
 
         {/* Monthly / Yearly Tab */}
-        <div className="flex items-center gap-1 rounded-2xl border border-foreground/10 bg-foreground/3 p-1 shrink-0 self-start sm:self-auto">
+        <div className="flex items-center gap-1 rounded-2xl border border-foreground/10 bg-foreground/3 inset-shadow-foreground/15 inset-shadow-sm p-1 shrink-0 self-start sm:self-auto">
           <button
             type="button"
             onClick={() => setBillingCycle("monthly")}
@@ -132,8 +132,8 @@ export default function Pricing() {
               key={plan.name}
               className={`relative flex flex-col justify-between overflow-hidden rounded-3xl border p-6 sm:p-7 h-full inset-shadow-sm ${
                 plan.highlight
-                  ? "border-primary/40 bg-amethyst inset-shadow-primary/15"
-                  : "border-foreground/10 bg-background inset-shadow-foreground/15"
+                  ? "border-primary/10 bg-amethyst inset-shadow-[#141414]/90"
+                  : "border-foreground/10 bg-background/30 inset-shadow-foreground/15"
               }`}
             >
               <div className="relative z-10 flex flex-col justify-between flex-1 gap-5 h-full">
@@ -148,9 +148,8 @@ export default function Pricing() {
                     </p>
                     {plan.badge && (
                       <span
-                        className={`${sansation.className} inline-flex items-center gap-1.5 rounded-full border border-background/20 bg-background/15 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-background`}
+                        className={`${sansation.className} inline-flex inset-shadow-foreground/15 inset-shadow-sm items-center gap-1.5 rounded-xl border border-background/20 bg-background p-2.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-foreground`}
                       >
-                        <span className="h-1.5 w-1.5 rounded-full bg-background" />
                         {plan.badge}
                       </span>
                     )}
