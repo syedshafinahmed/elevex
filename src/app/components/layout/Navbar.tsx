@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package, LogOut } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
 import Button from "../ui/Button";
 import AuthModal from "../auth/AuthModal";
@@ -30,6 +32,7 @@ export default function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const { data: session } = useSession();
   
   useEffect(() => {
     setMounted(true);
@@ -105,7 +108,39 @@ export default function Navbar() {
             </Button>
           </li>
           <li>
-            <Button onClick={() => setAuthOpen(true)}>Login</Button>
+            {session?.user ? (
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2 rounded-full border border-foreground/15 bg-foreground/5 py-1 px-3">
+                  {session.user.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
+                      width={24}
+                      height={24}
+                      className="h-6 w-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                      {(session.user.name?.[0] || session.user.email?.[0] || "U").toUpperCase()}
+                    </div>
+                  )}
+                  <span className="max-w-[110px] truncate text-xs font-semibold text-foreground">
+                    {session.user.name?.split(" ")[0] || session.user.email?.split("@")[0]}
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  ariaLabel="Sign out"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="h-10 px-3 text-xs text-foreground/60 hover:text-red-500 hover:border-red-500/20 border border-foreground/15 inset-shadow-foreground/15 inset-shadow-sm"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={() => setAuthOpen(true)}>Login</Button>
+            )}
           </li>
         </ul>
 
@@ -199,14 +234,56 @@ export default function Navbar() {
               {mounted ? (resolvedTheme === "dark" ? "Light mode" : "Dark mode") : "Theme"}
             </button>
           </li>
-          <li className="pt-2">
-            <Button
-              onClick={() => setAuthOpen(true)}
-              className="w-full rounded-2xl bg-primary px-6 py-3 text-center text-base font-semibold text-foreground transition-all hover:-translate-y-0.5"
-            >
-              Login
-            </Button>
-          </li>
+          {session?.user ? (
+            <li className="pt-2 flex flex-col gap-2">
+              <div className="flex items-center gap-2.5 rounded-xl border border-foreground/10 bg-foreground/5 p-2.5">
+                {session.user.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name || "User"}
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shrink-0">
+                    {(session.user.name?.[0] || session.user.email?.[0] || "U").toUpperCase()}
+                  </div>
+                )}
+                <div className="flex flex-col min-w-0">
+                  <span className="truncate text-xs font-semibold text-foreground">
+                    {session.user.name || "User"}
+                  </span>
+                  <span className="truncate text-[10px] text-foreground/50">
+                    {session.user.email}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  signOut({ callbackUrl: "/" });
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-500/10 py-2.5 text-xs font-semibold text-red-500 transition-colors hover:bg-red-500/20"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sign Out
+              </button>
+            </li>
+          ) : (
+            <li className="pt-2">
+              <Button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setAuthOpen(true);
+                }}
+                className="w-full rounded-2xl bg-primary px-6 py-3 text-center text-base font-semibold text-foreground transition-all hover:-translate-y-0.5"
+              >
+                Login
+              </Button>
+            </li>
+          )}
         </ul>
       </div>
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
