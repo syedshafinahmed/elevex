@@ -84,7 +84,7 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
       <div className="flex items-center gap-2.5 sm:gap-3">
         {/* Quick Add Export Button */}
         <Link
-          href="/dashboard/exports?action=new"
+          href="/dashboard/add-export"
           className="hidden sm:flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 active:scale-[0.98]"
         >
           <Plus className="h-3.5 w-3.5 stroke-[2.5]" />

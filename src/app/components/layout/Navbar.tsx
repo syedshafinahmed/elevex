@@ -83,9 +83,6 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2">
           <p className={`${trunkey.className} text-7xl font-extrabold text-primary`}>elevex</p>
         </Link>
-        {/* <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Elevex Logo" width={100} height={100} />
-        </Link> */}
 
         {/* Right links */}
         <ul className="hidden items-center gap-8 md:flex">
@@ -226,8 +223,8 @@ export default function Navbar() {
         id="mobile-nav"
         className={
           menuOpen
-            ? "absolute right-6 top-20 z-50 mt-2 w-40 origin-top-right rounded-2xl border border-foreground/10 bg-background opacity-100 shadow-lg transition-all duration-200 md:hidden"
-            : "absolute right-6 top-20 z-50 mt-2 w-72 origin-top-right scale-95 rounded-2xl border border-foreground/10 bg-background opacity-0 pointer-events-none shadow-lg transition-all duration-200 md:hidden"
+            ? "absolute right-6 top-20 z-50 mt-2 w-56 origin-top-right rounded-2xl border border-foreground/10 bg-background opacity-100 shadow-xl transition-all duration-200 md:hidden"
+            : "absolute right-6 top-20 z-50 mt-2 w-56 origin-top-right scale-95 rounded-2xl border border-foreground/10 bg-background opacity-0 pointer-events-none shadow-lg transition-all duration-200 md:hidden"
         }
       >
         <ul className="flex flex-col p-3">

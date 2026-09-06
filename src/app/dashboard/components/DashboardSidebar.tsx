@@ -8,15 +8,16 @@ import {
   Home,
   LayoutDashboard,
   Package,
-  ArrowLeftRight,
-  ShieldCheck,
-  BarChart3,
-  Settings,
+  ShoppingBag,
+  Download,
+  Upload,
+  PlusCircle,
   LogOut,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
+import { useProducts } from "@/context/ProductContext";
 
 interface DashboardSidebarProps {
   collapsed: boolean;
@@ -24,16 +25,6 @@ interface DashboardSidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
 }
-
-const navItems = [
-  { label: "Home",         href: "/",                    icon: Home },
-  { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
-  { label: "My Exports",   href: "/dashboard/exports",   icon: Package, badge: "8" },
-  { label: "Trades",       href: "/dashboard/trades",    icon: ArrowLeftRight, badge: "3" },
-  { label: "Escrow Vault", href: "/dashboard/escrow",    icon: ShieldCheck },
-  { label: "Analytics",    href: "/dashboard/analytics", icon: BarChart3 },
-  { label: "Settings",     href: "/dashboard/settings",  icon: Settings },
-];
 
 export default function DashboardSidebar({
   collapsed,
@@ -43,6 +34,16 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { products, myImports, myExports } = useProducts();
+
+  const navItems = [
+    { label: "Home",         href: "/",                    icon: Home },
+    { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
+    { label: "All Products", href: "/products",            icon: ShoppingBag, badge: `${products.length}` },
+    { label: "My Exports",   href: "/dashboard/exports",   icon: Upload, badge: `${myExports.length}` },
+    { label: "My Imports",   href: "/dashboard/imports",   icon: Download, badge: `${myImports.length}` },
+    { label: "Add Export",   href: "/dashboard/add-export", icon: PlusCircle },
+  ];
 
   function isItemActive(href: string) {
     if (href === "/") return pathname === "/";

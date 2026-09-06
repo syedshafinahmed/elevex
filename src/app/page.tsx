@@ -1,4 +1,5 @@
 import Banner from "./components/home/Banner";
+import LatestProducts from "./components/home/LatestProducts";
 import Testimonials from "./components/home/Testimonials";
 import GlobalReach from "./components/home/GlobalReach";
 import Pricing from "./components/home/Pricing";
@@ -9,6 +10,7 @@ export default function Home() {
   return (
     <div>
       <Banner />
+      <LatestProducts />
       <GlobalReach />
       <Testimonials />
       <Pricing />
