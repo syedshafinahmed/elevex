@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package, LogOut } from "lucide-react";
+import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
 import Button from "../ui/Button";
 import AuthModal from "../auth/AuthModal";
@@ -29,6 +29,8 @@ function isActive(pathname: string, href: string) {
 export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
@@ -37,6 +39,20 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    }
+    if (userDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [userDropdownOpen]);
 
   return (
     <header className={`${sansation.className} relative w-full bg-background`}>
@@ -64,13 +80,12 @@ export default function Navbar() {
         </ul>
 
         {/* Logo */}
-        {/* <Link href="/" className="flex items-center gap-2">
-          <p className={`${trunkey.className} text-7xl font-extrabold text-primary`}>elevex</p>
-        </Link> */}
         <Link href="/" className="flex items-center gap-2">
-          {/* <p className={`${trunkey.className} text-7xl font-extrabold text-primary`}>elevex</p> */}
-          <Image src="/logo.png" alt="Elevex Logo" width={100} height={100} />
+          <p className={`${trunkey.className} text-7xl font-extrabold text-primary`}>elevex</p>
         </Link>
+        {/* <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Elevex Logo" width={100} height={100} />
+        </Link> */}
 
         {/* Right links */}
         <ul className="hidden items-center gap-8 md:flex">
@@ -113,34 +128,67 @@ export default function Navbar() {
           </li>
           <li>
             {session?.user ? (
-              <div className="flex items-center gap-2.5">
-                <div className="flex items-center gap-2 rounded-full border border-foreground/15 bg-foreground/5 py-1 px-3">
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen((prev) => !prev)}
+                  aria-expanded={userDropdownOpen}
+                  aria-haspopup="true"
+                  className="flex h-10 items-center gap-2.5 rounded-xl border border-foreground/15 bg-foreground/5 pl-1.5 pr-3 text-foreground transition-all active:scale-[0.98] inset-shadow-foreground/15 inset-shadow-sm cursor-pointer"
+                >
                   {session.user.image ? (
                     <Image
                       src={session.user.image}
                       alt={session.user.name || "User"}
                       width={24}
                       height={24}
-                      className="h-6 w-6 rounded-full object-cover"
+                      className="h-6 w-6 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-[11px] font-bold text-white">
                       {(session.user.name?.[0] || session.user.email?.[0] || "U").toUpperCase()}
                     </div>
                   )}
-                  <span className="max-w-[110px] truncate text-xs font-semibold text-foreground">
+                  <span className="max-w-[110px] truncate text-xs font-semibold">
                     {session.user.name?.split(" ")[0] || session.user.email?.split("@")[0]}
                   </span>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  ariaLabel="Sign out"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="h-10 px-3 text-xs text-foreground/60 hover:text-red-500 hover:border-red-500/20 border border-foreground/15 inset-shadow-foreground/15 inset-shadow-sm"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                </Button>
+                  <ChevronDown className={`h-3 w-3 text-foreground/50 transition-transform duration-200 ${userDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 origin-top-right rounded-2xl border border-foreground/10 bg-background/95 p-1.5 shadow-2xl backdrop-blur-md z-50">
+                    <div className="px-3 py-2 border-b border-foreground/10 mb-1">
+                      <p className="text-xs font-semibold text-foreground truncate">
+                        {session.user.name || "User"}
+                      </p>
+                      <p className="text-[10px] text-foreground/50 truncate">
+                        {session.user.email}
+                      </p>
+                    </div>
+
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-colors"
+                    >
+                      <LayoutDashboard className="h-4 w-4 text-primary" />
+                      Dashboard
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        signOut({ callbackUrl: "/" });
+                      }}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Button onClick={() => setAuthOpen(true)}>Login</Button>
@@ -263,6 +311,14 @@ export default function Navbar() {
                   </span>
                 </div>
               </div>
+              <Link
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4 text-primary" />
+                Dashboard
+              </Link>
               <button
                 type="button"
                 onClick={() => {
@@ -272,7 +328,7 @@ export default function Navbar() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-500/10 py-2.5 text-xs font-semibold text-red-500 transition-colors hover:bg-red-500/20"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                Sign Out
+                Logout
               </button>
             </li>
           ) : (
