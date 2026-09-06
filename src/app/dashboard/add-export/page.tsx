@@ -110,16 +110,6 @@ export default function AddExportPage() {
 
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12 max-w-4xl mx-auto`}>
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
-          Add Export Product
-        </h1>
-        <p className="text-xs text-foreground/55">
-          List a new commodity or finished product in the global catalog for international buyers.
-        </p>
-      </div>
-
       {/* Preset Fill Pills */}
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-foreground/10 bg-foreground/2 p-3 text-xs inset-shadow-foreground/10 inset-shadow-xs">
         <span className="text-foreground/50 font-semibold flex items-center gap-1">

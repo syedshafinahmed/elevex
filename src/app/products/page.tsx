@@ -9,12 +9,11 @@ import {
   MapPin,
   Eye,
   ShoppingBag,
-  SlidersHorizontal,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 
-export default function AllProductsPage() {
+export default function UserProductsPage() {
   const { products } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -22,9 +21,9 @@ export default function AllProductsPage() {
   const categories = ["All", "Agricultural", "Textile", "Food"];
 
   const filteredProducts = products.filter((item) => {
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.originCountry.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
       selectedCategory === "All" || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -75,7 +74,7 @@ export default function AllProductsPage() {
           <Search className="absolute left-3.5 h-4 w-4 text-foreground/40" />
           <input
             type="text"
-            placeholder="Search by product name..."
+            placeholder="Search by product name or country..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="h-10 w-full rounded-xl border border-foreground/15 bg-background pl-10 pr-4 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none"
@@ -83,7 +82,7 @@ export default function AllProductsPage() {
         </div>
       </div>
 
-      {/* 3-Column Grid Layout */}
+      {/* 3-Column Grid Layout for Users */}
       {filteredProducts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-2">
           <ShoppingBag className="h-10 w-10 text-foreground/30 mb-2" />
@@ -106,14 +105,14 @@ export default function AllProductsPage() {
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {/* 5. Rating */}
+                  {/* Rating */}
                   <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-background/80 px-2.5 py-1 text-[11px] font-bold text-foreground backdrop-blur-md">
                     <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                     <span>{item.rating}</span>
                   </div>
                 </div>
 
-                {/* 2. Product Name & 4. Origin Country */}
+                {/* Name & Origin Country */}
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1 text-[11px] text-foreground/50">
                     <MapPin className="h-3 w-3 text-primary" />
@@ -124,7 +123,7 @@ export default function AllProductsPage() {
                   </h3>
                 </div>
 
-                {/* 3. Price & 6. Available Quantity */}
+                {/* Price & Available Quantity */}
                 <div className="mt-3 flex items-center justify-between border-t border-b border-foreground/8 py-2.5 text-xs">
                   <div>
                     <span className="text-[10px] text-foreground/45 block uppercase">Price</span>
@@ -137,7 +136,7 @@ export default function AllProductsPage() {
                 </div>
               </div>
 
-              {/* 7. "See Details" Button */}
+              {/* "See Details" Button */}
               <div className="mt-4 pt-1">
                 <Link
                   href={`/products/${item.id}`}

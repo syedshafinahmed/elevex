@@ -33,23 +33,17 @@ export default function MyImportsPage() {
 
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
-            My Imports
-          </h1>
-          <p className="text-xs text-foreground/55 mt-1">
-            Review all commodities and international goods imported into your personal inventory.
-          </p>
+      {/* Top Actions & KPI Summary Banner */}
+      <div className="flex items-center justify-between">
+        <div className="text-xs text-foreground/50">
+          Showing <span className="font-semibold text-foreground">{myImports.length}</span> imported commodities in personal inventory
         </div>
-
         <Link
           href="/products"
-          className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] self-start sm:self-auto"
+          className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
         >
           <ShoppingBag className="h-4 w-4" />
-          Import More Products
+          <span>Import More Products</span>
         </Link>
       </div>
 

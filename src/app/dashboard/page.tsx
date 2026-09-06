@@ -90,7 +90,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Card 1: Total Marketplace Products */}
         <Link
-          href="/products"
+          href="/dashboard/products"
           className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
         >
           <div className="flex items-center justify-between mb-3">

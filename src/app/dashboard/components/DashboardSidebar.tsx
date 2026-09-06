@@ -12,6 +12,7 @@ import {
   Download,
   Upload,
   PlusCircle,
+  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -39,10 +40,11 @@ export default function DashboardSidebar({
   const navItems = [
     { label: "Home",         href: "/",                    icon: Home },
     { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
-    { label: "All Products", href: "/products",            icon: ShoppingBag, badge: `${products.length}` },
+    { label: "All Products", href: "/dashboard/products",  icon: ShoppingBag, badge: `${products.length}` },
     { label: "My Exports",   href: "/dashboard/exports",   icon: Upload, badge: `${myExports.length}` },
     { label: "My Imports",   href: "/dashboard/imports",   icon: Download, badge: `${myImports.length}` },
     { label: "Add Export",   href: "/dashboard/add-export", icon: PlusCircle },
+    { label: "Settings",     href: "/dashboard/settings",  icon: Settings },
   ];
 
   function isItemActive(href: string) {

@@ -39,15 +39,6 @@ export default function SettingsPage() {
 
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
-      {/* Header */}
-      <div>
-        <h1 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
-          Account & Compliance Settings
-        </h1>
-        <p className="text-xs text-foreground/55 mt-1">
-          Manage your verified export business profile, government licenses, and bank payout routing.
-        </p>
-      </div>
 
       {savedSuccess && (
         <div className="flex items-center gap-2 rounded-2xl border border-green-500/30 bg-green-500/10 p-3 text-xs text-green-600 dark:text-green-400">

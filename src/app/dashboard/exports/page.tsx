@@ -88,47 +88,37 @@ export default function MyExportsPage() {
 
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
-      {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
-            My Exports
-          </h1>
-          <p className="text-xs text-foreground/55 mt-1">
-            Manage, update, and track all your products listed for export on Elevex.
-          </p>
+      {/* Top Search & Actions Bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/2 p-3 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-foreground/40" />
+          <input
+            type="text"
+            placeholder="Search your export listings by name or country..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 w-full rounded-xl border border-foreground/15 bg-background pl-9 pr-4 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none"
+          />
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
           <button
             type="button"
             onClick={handleDownloadCSV}
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2.5 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 inset-shadow-foreground/10 inset-shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 inset-shadow-foreground/10 inset-shadow-xs cursor-pointer"
           >
             <FileSpreadsheet className="h-4 w-4 text-primary" />
-            Download CSV
+            <span>Download CSV</span>
           </button>
 
           <Link
             href="/dashboard/add-export"
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           >
             <Plus className="h-4 w-4 stroke-[2.5]" />
-            Add Export
+            <span>Add Export</span>
           </Link>
         </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-3 h-4 w-4 text-foreground/40" />
-        <input
-          type="text"
-          placeholder="Search by product name or country..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="h-10 w-full rounded-2xl border border-foreground/10 bg-foreground/2 pl-10 pr-4 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none inset-shadow-foreground/10 inset-shadow-xs"
-        />
       </div>
 
       {/* Exports Grid (3-column layout matching requirements) */}
