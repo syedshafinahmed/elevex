@@ -19,8 +19,8 @@ import {
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
-import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
-import CustomDropdown, { DropdownOption } from "@/app/components/dashboard-components/CustomDropdown";
+import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import { Sprout, Shirt, Utensils, Gem } from "lucide-react";
 
 const categoryOptions: DropdownOption[] = [
@@ -94,7 +94,7 @@ export default function AdminProductsPage() {
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
       {/* Filter, Search Bar & Actions */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/2 p-3 inset-shadow-foreground/10 inset-shadow-xs">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/2 p-3 inset-shadow-foreground/30 inset-shadow-sm">
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {categories.map((cat) => (
@@ -144,7 +144,7 @@ export default function AdminProductsPage() {
           <p className="text-xs text-foreground/50">Try a different search query or category filter.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -216,7 +216,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center justify-end gap-1.5">
                         <Link
                           href={`/dashboard/products/${item.id}`}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10 bg-background text-foreground/60 hover:text-primary hover:border-primary transition-colors inset-shadow-foreground/10 inset-shadow-xs"
+                          className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10 bg-background text-foreground/60 hover:text-primary hover:border-primary transition-colors inset-shadow-foreground/30 inset-shadow-sm"
                           title="See Details"
                         >
                           <Eye className="h-3.5 w-3.5" />
@@ -224,7 +224,7 @@ export default function AdminProductsPage() {
                         <button
                           type="button"
                           onClick={() => openEditModal(item)}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10 bg-background text-foreground/60 hover:text-primary hover:border-primary transition-colors cursor-pointer inset-shadow-foreground/10 inset-shadow-xs"
+                          className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10 bg-background text-foreground/60 hover:text-primary hover:border-primary transition-colors cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
                           title="Edit Product"
                         >
                           <Edit2 className="h-3.5 w-3.5 text-primary" />
@@ -353,7 +353,7 @@ export default function AdminProductsPage() {
                 <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
                   Category
                 </label>
-                <CustomDropdown
+                <Dropdown
                   value={editCategory}
                   options={categoryOptions}
                   onChange={(newCat) => setEditCategory(newCat)}

@@ -45,7 +45,7 @@ export default function LatestProducts() {
           {latest6.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/30 inset-shadow-sm"
             >
               <div>
                 {/* 1. Product Image */}

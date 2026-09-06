@@ -50,7 +50,7 @@ export default function UserProductsPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-3xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-3xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {categories.map((cat) => (
@@ -94,7 +94,7 @@ export default function UserProductsPage() {
           {filteredProducts.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/30 inset-shadow-sm"
             >
               <div>
                 {/* 1. Product Image */}

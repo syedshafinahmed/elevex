@@ -71,7 +71,7 @@ export default function ContactPage() {
             <div className="flex flex-col gap-5">
               {contactDetails.map(({ icon: Icon, title, value, href }) => (
                 <div key={title} className="flex items-start gap-4">
-                  <div className="flex h-9 w-9 shrink-0 inset-shadow-foreground/15 inset-shadow-sm items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-primary">
+                  <div className="flex h-9 w-9 shrink-0 inset-shadow-foreground/30 inset-shadow-sm items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-primary">
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div className="flex flex-col gap-0.5">
@@ -109,7 +109,7 @@ export default function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="flex h-10 w-10 inset-shadow-foreground/15 inset-shadow-sm items-center justify-center bg-background/20 rounded-xl border border-foreground/15 text-foreground/70 hover:border-primary hover:text-primary hover:-translate-y-0.5 transition-all"
+                    className="flex h-10 w-10 inset-shadow-foreground/30 inset-shadow-sm items-center justify-center bg-background/20 rounded-xl border border-foreground/15 text-foreground/70 hover:border-primary hover:text-primary hover:-translate-y-0.5 transition-all"
                   >
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </a>

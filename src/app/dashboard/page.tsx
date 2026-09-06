@@ -5,23 +5,18 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import {
   TrendingUp,
-  Package,
   ShoppingBag,
   Download,
   Upload,
   Plus,
-  ArrowUpRight,
-  Clock,
   Trash2,
   Eye,
-  Star,
-  Globe2,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { ImportedProduct } from "@/lib/productsData";
 import { useState } from "react";
-import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
+import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -42,30 +37,22 @@ export default function DashboardPage() {
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
       {/* Top Banner Greeting */}
-      <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/3 p-6 sm:p-8 inset-shadow-foreground/10 inset-shadow-sm">
-        <div
+      <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/3 p-6 sm:p-8 inset-shadow-foreground/30 inset-shadow-sm">
+        {/* <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
             background:
               "radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--color-amethyst) 30%, transparent), transparent 60%)",
           }}
-        />
+        /> */}
 
         <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase text-primary">
-                Import Export Hub
-              </span>
-              <span className="text-[11px] text-foreground/45 flex items-center gap-1">
-                <Clock className="h-3 w-3" /> Live Inventory Synced
-              </span>
-            </div>
             <h1 className={`${pinkAverage.className} text-2xl sm:text-4xl text-foreground`}>
               Welcome back, <span className="text-primary">{userName}</span>.
             </h1>
-            <p className="text-xs text-foreground/60 max-w-xl leading-relaxed">
+            <p className="text-xs text-foreground/60 leading-relaxed">
               Manage your global export catalog, track personal import orders, and explore cross-border trade opportunities.
             </p>
           </div>
@@ -81,7 +68,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/products"
-              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 active:scale-[0.98] inset-shadow-foreground/10 inset-shadow-xs"
+              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 active:scale-[0.98] inset-shadow-foreground/30 inset-shadow-sm"
             >
               <ShoppingBag className="h-4 w-4 text-primary" />
               Browse Marketplace
@@ -95,7 +82,7 @@ export default function DashboardPage() {
         {/* Card 1: Total Marketplace Products */}
         <Link
           href="/dashboard/products"
-          className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
+          className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 transition-all inset-shadow-foreground/30 inset-shadow-sm"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-semibold text-foreground/55 uppercase tracking-wider">
@@ -114,7 +101,7 @@ export default function DashboardPage() {
         {/* Card 2: My Exports */}
         <Link
           href="/dashboard/exports"
-          className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
+          className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 transition-all inset-shadow-foreground/30 inset-shadow-sm"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-semibold text-foreground/55 uppercase tracking-wider">
@@ -133,7 +120,7 @@ export default function DashboardPage() {
         {/* Card 3: My Imports */}
         <Link
           href="/dashboard/imports"
-          className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
+          className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 transition-all inset-shadow-foreground/30 inset-shadow-sm"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-semibold text-foreground/55 uppercase tracking-wider">
@@ -150,7 +137,7 @@ export default function DashboardPage() {
         </Link>
 
         {/* Card 4: Total Export Valuation */}
-        <div className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="group relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-5 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-semibold text-foreground/55 uppercase tracking-wider">
               Total Export Value
@@ -169,7 +156,7 @@ export default function DashboardPage() {
       {/* Grid: Recent Exports & Recent Imports */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left: My Recent Exports */}
-        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-5 sm:p-6 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-5 sm:p-6 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
             <div>
               <h2 className={`${pinkAverage.className} text-xl text-foreground`}>
@@ -228,7 +215,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right: My Recent Imports */}
-        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-5 sm:p-6 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-5 sm:p-6 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
             <div>
               <h2 className={`${pinkAverage.className} text-xl text-foreground`}>

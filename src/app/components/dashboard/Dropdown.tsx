@@ -12,7 +12,7 @@ export interface DropdownOption<T extends string = string> {
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-export interface CustomDropdownProps<T extends string = string> {
+export interface DropdownProps<T extends string = string> {
   value: T;
   options: DropdownOption<T>[];
   onChange: (value: T) => void;
@@ -24,7 +24,7 @@ export interface CustomDropdownProps<T extends string = string> {
   menuClassName?: string;
 }
 
-export default function CustomDropdown<T extends string = string>({
+export default function Dropdown<T extends string = string>({
   value,
   options,
   onChange,
@@ -34,7 +34,7 @@ export default function CustomDropdown<T extends string = string>({
   className = "w-full",
   triggerClassName = "",
   menuClassName = "",
-}: CustomDropdownProps<T>) {
+}: DropdownProps<T>) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
   const [mounted, setMounted] = useState(false);

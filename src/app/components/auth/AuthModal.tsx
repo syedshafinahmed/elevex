@@ -367,7 +367,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className={`${sansation.className} flex w-full items-center justify-center gap-2.5 rounded-xl inset-shadow-foreground/15 inset-shadow-sm border border-foreground/15 bg-foreground/3 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-foreground/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`${sansation.className} flex w-full items-center justify-center gap-2.5 rounded-xl inset-shadow-foreground/30 inset-shadow-sm border border-foreground/15 bg-foreground/3 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-foreground/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />

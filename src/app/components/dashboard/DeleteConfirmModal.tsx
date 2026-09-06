@@ -58,7 +58,7 @@ export default function DeleteConfirmModal({
     >
       {/* Modal Dialog Card */}
       <div
-        className="relative w-full max-w-md rounded-3xl border border-red-500/25 bg-background p-6 shadow-2xl ring-1 ring-red-500/10 animate-in zoom-in-95 duration-200 inset-shadow-foreground/10 inset-shadow-xs"
+        className="relative w-full max-w-md rounded-3xl border border-red-500/25 bg-background p-6 shadow-2xl ring-1 ring-red-500/10 animate-in zoom-in-95 duration-200 inset-shadow-foreground/30 inset-shadow-sm"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

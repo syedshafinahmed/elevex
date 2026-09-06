@@ -15,8 +15,8 @@ import {
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useUserRole } from "@/context/UserRoleContext";
-import CustomDropdown, { DropdownOption } from "@/app/components/dashboard-components/CustomDropdown";
-import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
+import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
+import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import { ManagedUser } from "@/lib/usersData";
 
 const roleOptions: DropdownOption<"ADMIN" | "USER">[] = [
@@ -67,7 +67,7 @@ export default function UsersManagementPage() {
       {/* Top Stats based on DB Users */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* KPI 1: Total Users */}
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider">
               Total Accounts
@@ -83,7 +83,7 @@ export default function UsersManagementPage() {
         </div>
 
         {/* KPI 2: Admins */}
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider">
               Administrators
@@ -99,7 +99,7 @@ export default function UsersManagementPage() {
         </div>
 
         {/* KPI 3: Standard Users */}
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider">
               Standard Users
@@ -116,7 +116,7 @@ export default function UsersManagementPage() {
       </div>
 
       {/* Toolbar: Search, Role Filters, Refresh Button */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/2 p-3 inset-shadow-foreground/10 inset-shadow-xs">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/2 p-3 inset-shadow-foreground/30 inset-shadow-sm">
         {/* Role Filter Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {(["ALL", "ADMIN", "USER"] as const).map((tab) => (
@@ -151,7 +151,7 @@ export default function UsersManagementPage() {
           <button
             type="button"
             onClick={() => refreshUsers()}
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 inset-shadow-foreground/10 inset-shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
             title="Refresh database users"
           >
             <RefreshCw className={`h-3.5 w-3.5 text-primary ${loading ? "animate-spin" : ""}`} />
@@ -173,7 +173,7 @@ export default function UsersManagementPage() {
           <p className="text-xs text-foreground/50">Try searching for a different keyword or switch the role filter.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -218,7 +218,7 @@ export default function UsersManagementPage() {
 
                     {/* Role Dropdown */}
                     <td className="py-3.5 px-4">
-                      <CustomDropdown<"ADMIN" | "USER">
+                      <Dropdown<"ADMIN" | "USER">
                         value={user.role}
                         options={roleOptions}
                         onChange={(newRole) => handleRoleChange(user.id, newRole)}

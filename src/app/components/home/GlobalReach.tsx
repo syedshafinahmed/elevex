@@ -130,7 +130,7 @@ export default function GlobalReach() {
                     {activeData.highlights.map((h, i) => (
                       <div
                         key={i}
-                        className="flex flex-col gap-0.5 rounded-xl border border-foreground/10 bg-foreground/3 p-2.5 sm:p-3 inset-shadow-foreground/15 inset-shadow-sm"
+                        className="flex flex-col gap-0.5 rounded-xl border border-foreground/10 bg-foreground/3 p-2.5 sm:p-3 inset-shadow-foreground/30 inset-shadow-sm"
                       >
                         <span
                           className={`${sansation.className} text-[9px] sm:text-[10px] uppercase tracking-wider text-foreground/45`}

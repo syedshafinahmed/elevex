@@ -19,7 +19,7 @@ import {
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
-import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
+import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 
 export default function MyExportsPage() {
   const { myExports, deleteProduct, updateProduct } = useProducts();
@@ -97,7 +97,7 @@ export default function MyExportsPage() {
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
       {/* Top Search & Actions Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/2 p-3 inset-shadow-foreground/10 inset-shadow-xs">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/2 p-3 inset-shadow-foreground/30 inset-shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-foreground/40" />
           <input
@@ -113,7 +113,7 @@ export default function MyExportsPage() {
           <button
             type="button"
             onClick={handleDownloadCSV}
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 inset-shadow-foreground/10 inset-shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
           >
             <FileSpreadsheet className="h-4 w-4 text-primary" />
             <span>Download CSV</span>
@@ -146,7 +146,7 @@ export default function MyExportsPage() {
           {filteredExports.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/30 inset-shadow-sm"
             >
               <div>
                 {/* 1. Product Image */}
@@ -202,7 +202,7 @@ export default function MyExportsPage() {
                   <button
                     type="button"
                     onClick={() => openEditModal(item)}
-                    className="flex items-center gap-1 rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors cursor-pointer inset-shadow-foreground/10 inset-shadow-xs"
+                    className="flex items-center gap-1 rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
                     title="Update Product"
                   >
                     <Edit2 className="h-3 w-3 text-primary" />

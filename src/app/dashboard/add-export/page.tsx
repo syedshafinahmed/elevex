@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
-import CustomDropdown, { DropdownOption } from "@/app/components/dashboard-components/CustomDropdown";
+import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 
 const categoryOptions: DropdownOption[] = [
   { value: "Agricultural", label: "Agricultural", description: "Crops, grains, raw materials", icon: Sprout },
@@ -123,7 +123,7 @@ export default function AddExportPage() {
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12 w-full`}>
       {/* Preset Fill Pills */}
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-foreground/10 bg-foreground/2 p-3 text-xs inset-shadow-foreground/10 inset-shadow-xs">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-foreground/10 bg-foreground/2 p-3 text-xs inset-shadow-foreground/30 inset-shadow-sm">
         <span className="text-foreground/50 font-semibold flex items-center gap-1">
           <Sparkles className="h-3.5 w-3.5 text-primary" /> Auto-fill sample:
         </span>
@@ -167,7 +167,7 @@ export default function AddExportPage() {
       {/* Main Form */}
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-5 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 sm:p-8 inset-shadow-foreground/10 inset-shadow-xs"
+        className="flex flex-col gap-5 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 sm:p-8 inset-shadow-foreground/30 inset-shadow-sm"
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs">
           {/* a. Product Name */}
@@ -278,7 +278,7 @@ export default function AddExportPage() {
             <label className="block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 mb-1.5">
               Category
             </label>
-            <CustomDropdown
+            <Dropdown
               value={category}
               options={categoryOptions}
               onChange={(newCat) => setCategory(newCat)}

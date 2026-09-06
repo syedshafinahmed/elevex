@@ -49,7 +49,7 @@ export default function SettingsPage() {
 
       <form onSubmit={handleSave} className="flex flex-col gap-6">
         {/* Profile & Business Identification */}
-        <div className="flex flex-col gap-5 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="flex flex-col gap-5 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <User className="h-4 w-4 text-primary" />
@@ -127,7 +127,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Government Export Licensing & Compliance */}
-        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center gap-2 border-b border-foreground/10 pb-4 text-sm font-semibold text-foreground">
             <Building className="h-4 w-4 text-primary" />
             Trade Licenses & Tax Credentials
@@ -161,7 +161,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Bank & Escrow Settlement Account */}
-        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex items-center gap-2 border-b border-foreground/10 pb-4 text-sm font-semibold text-foreground">
             <CreditCard className="h-4 w-4 text-primary" />
             Escrow Settlement & Payout Bank

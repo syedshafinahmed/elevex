@@ -110,7 +110,7 @@ export default function Navbar() {
               variant="ghost"
               ariaLabel="Toggle theme"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="h-10 w-10 border border-foreground/15 inset-shadow-foreground/15 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+              className="h-10 w-10 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
             >
               {mounted ? (
                 resolvedTheme === "dark" ? (
@@ -131,7 +131,7 @@ export default function Navbar() {
                   onClick={() => setUserDropdownOpen((prev) => !prev)}
                   aria-expanded={userDropdownOpen}
                   aria-haspopup="true"
-                  className="flex h-10 items-center gap-2.5 rounded-xl border border-foreground/15 bg-foreground/5 pl-1.5 pr-3 text-foreground transition-all active:scale-[0.98] inset-shadow-foreground/15 inset-shadow-sm cursor-pointer"
+                  className="flex h-10 items-center gap-2.5 rounded-xl border border-foreground/15 bg-foreground/5 pl-1.5 pr-3 text-foreground transition-all active:scale-[0.98] inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
                 >
                   {session.user.image ? (
                     <Image

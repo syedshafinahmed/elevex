@@ -77,7 +77,7 @@ export default function ProductDetailsPage({
       </div>
 
       {/* Main Details Card */}
-      <div className="grid grid-cols-1 gap-8 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 sm:p-10 lg:grid-cols-2 inset-shadow-foreground/10 inset-shadow-sm">
+      <div className="grid grid-cols-1 gap-8 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 sm:p-10 lg:grid-cols-2 inset-shadow-foreground/30 inset-shadow-sm">
         {/* Left: Product Image */}
         <div className="flex flex-col gap-3">
           <div className="relative h-80 sm:h-96 w-full overflow-hidden rounded-2xl bg-foreground/5 shadow-md">
@@ -113,7 +113,7 @@ export default function ProductDetailsPage({
             </h1>
 
             {/* Price Box */}
-            <div className="flex items-baseline gap-2 rounded-2xl border border-foreground/10 bg-background p-4 inset-shadow-foreground/10 inset-shadow-xs">
+            <div className="flex items-baseline gap-2 rounded-2xl border border-foreground/10 bg-background p-4 inset-shadow-foreground/30 inset-shadow-sm">
               <span className="text-xs text-foreground/50 uppercase font-semibold">Unit Price:</span>
               <span className={`${pinkAverage.className} text-3xl font-bold text-primary`}>
                 ৳ {product.price.toLocaleString()}

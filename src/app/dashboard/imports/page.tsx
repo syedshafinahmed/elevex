@@ -16,7 +16,7 @@ import {
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { ImportedProduct } from "@/lib/productsData";
-import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
+import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 
 export default function MyImportsPage() {
   const { myImports, removeImport } = useProducts();
@@ -52,7 +52,7 @@ export default function MyImportsPage() {
 
       {/* Summary KPI Banner */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
           <span className="text-[10px] uppercase tracking-wider text-foreground/45 font-semibold block">
             Total Imported Orders
           </span>
@@ -61,7 +61,7 @@ export default function MyImportsPage() {
           </span>
         </div>
 
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
           <span className="text-[10px] uppercase tracking-wider text-foreground/45 font-semibold block">
             Total Units Acquired
           </span>
@@ -70,7 +70,7 @@ export default function MyImportsPage() {
           </span>
         </div>
 
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
           <span className="text-[10px] uppercase tracking-wider text-foreground/45 font-semibold block">
             Estimated Import Valuation
           </span>
@@ -88,7 +88,7 @@ export default function MyImportsPage() {
           placeholder="Search imported products by name or origin country..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="h-10 w-full rounded-2xl border border-foreground/10 bg-foreground/2 pl-10 pr-4 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none inset-shadow-foreground/10 inset-shadow-xs"
+          className="h-10 w-full rounded-2xl border border-foreground/10 bg-foreground/2 pl-10 pr-4 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none inset-shadow-foreground/30 inset-shadow-sm"
         />
       </div>
 
@@ -112,7 +112,7 @@ export default function MyImportsPage() {
           {filteredImports.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/10 inset-shadow-xs"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/30 inset-shadow-sm"
             >
               <div>
                 {/* 1. Product Image */}
@@ -164,7 +164,7 @@ export default function MyImportsPage() {
                 {/* 8. See Details Button */}
                 <Link
                   href={`/products/${item.productId}`}
-                  className="flex items-center gap-1 rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors cursor-pointer inset-shadow-foreground/10 inset-shadow-xs"
+                  className="flex items-center gap-1 rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
                 >
                   <Eye className="h-3.5 w-3.5 text-primary" />
                   <span>See Details</span>

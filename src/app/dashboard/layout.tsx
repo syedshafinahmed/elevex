@@ -24,15 +24,6 @@ export default function DashboardLayout({
 
       {/* Main Content Area */}
       <div className="relative flex flex-1 flex-col overflow-hidden">
-        {/* Ambient glow accent */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full opacity-30 blur-3xl"
-          style={{
-            background: "radial-gradient(circle, color-mix(in srgb, var(--color-amethyst) 45%, transparent), transparent 70%)",
-          }}
-        />
-
         {/* Dashboard Top Header */}
         <DashboardHeader
           onOpenMobileSidebar={() => setMobileOpen(true)}

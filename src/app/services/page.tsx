@@ -194,7 +194,7 @@ function CoreServices() {
                 {svc.metrics.map((m) => (
                   <div
                     key={m.label}
-                    className="group relative overflow-hidden flex flex-col gap-1 rounded-2xl border border-foreground/10 bg-background/50 p-4 inset-shadow-foreground/15 inset-shadow-sm backdrop-blur-md"
+                    className="group relative overflow-hidden flex flex-col gap-1 rounded-2xl border border-foreground/10 bg-background/50 p-4 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md"
                   >
                     <span className={`${sansation.className} text-[9px] uppercase tracking-[0.12em] text-foreground/40`}>{m.label}</span>
                     <span className={`${pinkAverage.className} text-xl text-primary`}>{m.value}</span>
@@ -203,7 +203,7 @@ function CoreServices() {
               </div>
 
               {/* Code terminal strip */}
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4 inset-shadow-foreground/15 inset-shadow-sm backdrop-blur-md">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md">
                 <div className="flex items-center justify-between gap-1.5 mb-2.5">
                   <span className={`${sansation.className} font-mono text-[9px] text-foreground/35`}>elevex · {svc.subtitle}</span>
                   <div className="flex items-center gap-1.5">
@@ -468,7 +468,7 @@ function WhyElevex() {
           return (
             <div
               key={d.title}
-              className="relative overflow-hidden flex flex-col justify-between gap-4 rounded-3xl border border-foreground/10 bg-background/50 p-6 inset-shadow-foreground/15 inset-shadow-sm backdrop-blur-md"
+              className="relative overflow-hidden flex flex-col justify-between gap-4 rounded-3xl border border-foreground/10 bg-background/50 p-6 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md"
             >
               <div className="flex flex-col gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
@@ -489,7 +489,7 @@ function WhyElevex() {
       </div>
 
       {/* Before / After comparison table */}
-      <div className="mt-6 overflow-hidden rounded-3xl border border-foreground/10 bg-background/50 inset-shadow-foreground/15 inset-shadow-sm backdrop-blur-md">
+      <div className="mt-6 overflow-hidden rounded-3xl border border-foreground/10 bg-background/50 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md">
         <div className="grid grid-cols-3 border-b border-foreground/10 px-6 py-3 sm:px-8">
           <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/40`}>Workflow</span>
           <div className="flex items-center gap-1.5">
@@ -582,7 +582,7 @@ function EnterpriseSolutions() {
               return (
                 <div
                   key={ef.title}
-                  className="flex flex-col gap-2.5 rounded-2xl border border-foreground/10 bg-background/50 inset-shadow-foreground/15 inset-shadow-sm backdrop-blur-md p-4 transition-all duration-200 hover:border-foreground/20"
+                  className="flex flex-col gap-2.5 rounded-2xl border border-foreground/10 bg-background/50 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md p-4 transition-all duration-200 hover:border-foreground/20"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
                     <Icon className="h-4 w-4 stroke-[1.75]" />

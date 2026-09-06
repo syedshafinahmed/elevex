@@ -142,7 +142,7 @@ export default function DashboardSidebar({
       <div className="flex flex-col gap-3 pt-4 border-t border-foreground/10">
         {session?.user && (
           <div
-            className={`flex items-center gap-2.5 rounded-xl border border-foreground/10 bg-foreground/3 p-2 inset-shadow-foreground/10 inset-shadow-xs ${
+            className={`flex items-center gap-2.5 rounded-xl border border-foreground/10 bg-foreground/3 p-2 inset-shadow-foreground/30 inset-shadow-sm ${
               collapsed ? "justify-center p-1.5" : ""
             }`}
           >

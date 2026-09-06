@@ -118,7 +118,7 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
           <input
             type="text"
             placeholder="Search commodities, origins, ID..."
-            className="h-9 w-44 md:w-56 lg:w-72 rounded-xl border border-foreground/10 bg-foreground/3 pl-8.5 pr-8 text-xs text-foreground placeholder:text-foreground/40 transition-all focus:w-80 focus:border-primary focus:bg-foreground/5 focus:outline-none inset-shadow-foreground/10 inset-shadow-xs"
+            className="h-9 w-44 md:w-56 lg:w-72 rounded-xl border border-foreground/10 bg-foreground/3 pl-8.5 pr-8 text-xs text-foreground placeholder:text-foreground/40 transition-all focus:w-80 focus:border-primary focus:bg-foreground/5 focus:outline-none inset-shadow-foreground/30 inset-shadow-sm"
           />
           <kbd className="absolute right-2.5 rounded bg-foreground/10 px-1.5 py-0.5 text-[9px] font-semibold text-foreground/45">
             ⌘K
@@ -131,7 +131,7 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
             type="button"
             onClick={() => setNotificationsOpen((v) => !v)}
             aria-label="Notifications"
-            className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/15 inset-shadow-sm cursor-pointer"
+            className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
           >
             <Bell className="h-4 w-4 stroke-[1.75]" />
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
@@ -173,7 +173,7 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
           type="button"
           aria-label="Toggle theme"
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/15 inset-shadow-sm cursor-pointer"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
         >
           {mounted ? (
             resolvedTheme === "dark" ? (

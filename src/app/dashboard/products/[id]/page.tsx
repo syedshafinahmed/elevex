@@ -27,8 +27,8 @@ import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { useUserRole } from "@/context/UserRoleContext";
 import { Product } from "@/lib/productsData";
-import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
-import CustomDropdown, { DropdownOption } from "@/app/components/dashboard-components/CustomDropdown";
+import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import { Sprout, Shirt, Utensils, Gem } from "lucide-react";
 
 const categoryOptions: DropdownOption[] = [
@@ -135,7 +135,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/products"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/2 text-foreground/70 hover:bg-foreground/6 hover:text-foreground transition-all cursor-pointer inset-shadow-foreground/10 inset-shadow-xs"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/2 text-foreground/70 hover:bg-foreground/6 hover:text-foreground transition-all cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
             title="Back to All Products"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -155,7 +155,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
         <div className="flex items-center gap-2.5 flex-wrap">
           <Link
             href={`/products/${product.id}`}
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2 text-xs font-semibold text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-all inset-shadow-foreground/10 inset-shadow-xs"
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2 text-xs font-semibold text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-all inset-shadow-foreground/30 inset-shadow-sm"
           >
             <ExternalLink className="h-3.5 w-3.5 text-primary" />
             <span>Public Marketplace</span>
@@ -185,7 +185,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Product Image & Meta Badges (5 cols) */}
         <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="relative h-80 sm:h-96 w-full overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/3 inset-shadow-foreground/10 inset-shadow-xs">
+          <div className="relative h-80 sm:h-96 w-full overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/3 inset-shadow-foreground/30 inset-shadow-sm">
             <Image
               src={product.image}
               alt={product.name}
@@ -229,7 +229,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
           {/* 4 Financial & Inventory Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-2 gap-3.5">
             {/* Unit Price */}
-            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
               <span className="text-[10px] uppercase font-semibold text-foreground/50 tracking-wider block mb-1">
                 Unit Price
               </span>
@@ -240,7 +240,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
             </div>
 
             {/* Total Stock Valuation */}
-            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
               <span className="text-[10px] uppercase font-semibold text-foreground/50 tracking-wider block mb-1 flex items-center gap-1">
                 <TrendingUp className="h-3 w-3 text-primary" /> Total Inventory Value
               </span>
@@ -251,7 +251,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
             </div>
 
             {/* Available Stock */}
-            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
               <span className="text-[10px] uppercase font-semibold text-foreground/50 tracking-wider block mb-1 flex items-center gap-1">
                 <Boxes className="h-3 w-3 text-primary" /> Available Quantity
               </span>
@@ -262,7 +262,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
             </div>
 
             {/* Rating & Trust */}
-            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/10 inset-shadow-xs">
+            <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
               <span className="text-[10px] uppercase font-semibold text-foreground/50 tracking-wider block mb-1">
                 Quality Rating
               </span>
@@ -276,7 +276,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
       </div>
 
       {/* Trade & Customs Specifications Section */}
-      <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/10 inset-shadow-xs flex flex-col gap-4">
+      <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
         <h3 className={`${pinkAverage.className} text-xl text-foreground flex items-center gap-2`}>
           <Globe className="h-5 w-5 text-primary" /> Trade & Regulatory Specifications
         </h3>
@@ -430,7 +430,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
                 <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
                   Category
                 </label>
-                <CustomDropdown
+                <Dropdown
                   value={editCategory}
                   options={categoryOptions}
                   onChange={(newCat) => setEditCategory(newCat)}
