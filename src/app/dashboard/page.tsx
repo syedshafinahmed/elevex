@@ -17,6 +17,7 @@ import { useProducts } from "@/context/ProductContext";
 import { ImportedProduct } from "@/lib/productsData";
 import { useState } from "react";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import { toast } from "gooey-toast";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -306,6 +307,9 @@ export default function DashboardPage() {
         onConfirm={() => {
           if (recentImportToRemove) {
             removeImport(recentImportToRemove.id);
+            toast.success({
+              title: "Import Removed",
+            });
             setRecentImportToRemove(null);
           }
         }}

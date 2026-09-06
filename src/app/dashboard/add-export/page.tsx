@@ -19,6 +19,7 @@ import {
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
+import { toast } from "gooey-toast";
 
 const categoryOptions: DropdownOption[] = [
   { value: "Agricultural", label: "Agricultural", description: "Crops, grains, raw materials", icon: Sprout },
@@ -78,11 +79,18 @@ export default function AddExportPage() {
         exporterName: "My Export House",
       });
 
+      toast.success({
+        title: "Export Added",
+      });
+
       setSuccess(true);
       setTimeout(() => {
         router.push("/dashboard/exports");
-      }, 1200);
+      }, 1000);
     } catch {
+      toast.error({
+        title: "Failed to Add Export",
+      });
       setError("Failed to add product. Please try again.");
       setLoading(false);
     }

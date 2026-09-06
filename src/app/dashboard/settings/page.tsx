@@ -16,6 +16,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
+import { toast } from "gooey-toast";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -34,6 +35,9 @@ export default function SettingsPage() {
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSavedSuccess(true);
+    toast.success({
+      title: "Settings Saved",
+    });
     setTimeout(() => setSavedSuccess(false), 3000);
   }
 

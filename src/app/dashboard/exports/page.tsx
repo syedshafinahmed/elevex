@@ -20,6 +20,7 @@ import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import { toast } from "gooey-toast";
 
 export default function MyExportsPage() {
   const { myExports, deleteProduct, updateProduct } = useProducts();
@@ -69,6 +70,10 @@ export default function MyExportsPage() {
       availableQuantity: Number(editQuantity),
     });
 
+    toast.success({
+      title: "Export Updated",
+    });
+
     setEditModalItem(null);
   }
 
@@ -92,6 +97,10 @@ export default function MyExportsPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    toast.info({
+      title: "CSV Exported",
+    });
   }
 
   return (
@@ -233,6 +242,9 @@ export default function MyExportsPage() {
         onConfirm={() => {
           if (itemToDelete) {
             deleteProduct(itemToDelete.id);
+            toast.success({
+              title: "Export Deleted",
+            });
             setItemToDelete(null);
           }
         }}

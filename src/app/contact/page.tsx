@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { MapPin, Phone } from "lucide-react";
 import { SiGmail } from "react-icons/si";
 import { RiFacebookFill, RiInstagramFill, RiTwitterXFill, RiYoutubeFill, RiLinkedinFill } from "react-icons/ri";
 import Button from "../components/ui/Button";
+import { toast } from "gooey-toast";
 
 const contactDetails = [
   {
@@ -34,6 +38,22 @@ const socialLinks = [
 ];
 
 export default function ContactPage() {
+  const [submitting, setSubmitting] = useState(false);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    setSubmitting(true);
+
+    setTimeout(() => {
+      setSubmitting(false);
+      form.reset();
+      toast.success({
+        title: "Message Sent",
+      });
+    }, 600);
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       {/* Single unified card */}
@@ -143,7 +163,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <form className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               {/* Name & Email */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <FormField
@@ -183,6 +203,7 @@ export default function ContactPage() {
                 <textarea
                   id="message"
                   rows={4}
+                  required
                   placeholder="Describe your shipment, trade route, or question…"
                   className={`${sansation.className} w-full resize-none rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none`}
                 />
@@ -193,8 +214,8 @@ export default function ContactPage() {
                 id="country"
                 placeholder="e.g. Bangladesh, Colombia, Germany…"
               />
-              <Button type="submit" className="w-full">
-                Send message
+              <Button type="submit" disabled={submitting} className="w-full">
+                {submitting ? "Sending..." : "Send message"}
               </Button>
 
               <p

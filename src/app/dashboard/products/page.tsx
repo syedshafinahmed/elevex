@@ -21,6 +21,7 @@ import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
+import { toast } from "gooey-toast";
 import { Sprout, Shirt, Utensils, Gem } from "lucide-react";
 
 const categoryOptions: DropdownOption[] = [
@@ -86,6 +87,10 @@ export default function AdminProductsPage() {
       rating: Number(editRating),
       availableQuantity: Number(editQuantity),
       category: editCategory,
+    });
+
+    toast.success({
+      title: "Product Updated",
     });
 
     setEditItem(null);
@@ -392,6 +397,9 @@ export default function AdminProductsPage() {
         onConfirm={() => {
           if (productToDelete) {
             deleteProduct(productToDelete.id);
+            toast.success({
+              title: "Product Deleted",
+            });
             setProductToDelete(null);
           }
         }}

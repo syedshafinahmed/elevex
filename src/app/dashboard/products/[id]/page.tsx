@@ -29,6 +29,7 @@ import { useUserRole } from "@/context/UserRoleContext";
 import { Product } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
+import { toast } from "gooey-toast";
 import { Sprout, Shirt, Utensils, Gem } from "lucide-react";
 
 const categoryOptions: DropdownOption[] = [
@@ -115,6 +116,9 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
       availableQuantity: Number(editQuantity),
       category: editCategory,
       description: editDescription.trim(),
+    });
+    toast.success({
+      title: "Product Updated",
     });
     setIsEditModalOpen(false);
   };
@@ -480,6 +484,9 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
         confirmText="Delete Commodity"
         onConfirm={() => {
           deleteProduct(product.id);
+          toast.success({
+            title: "Product Deleted",
+          });
           setIsDeleteModalOpen(false);
           router.push("/dashboard/products");
         }}

@@ -19,6 +19,7 @@ import { FcGoogle } from "react-icons/fc";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import Image from "next/image";
 import { registerUser, loginWithGoogle, loginWithCredentials } from "@/app/actions/auth";
+import { toast } from "gooey-toast";
 
 type Tab = "login" | "register";
 
@@ -103,12 +104,21 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
   async function handleGoogleSignIn() {
     setIsLoading(true);
     setAuthError(null);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("auth_just_logged_in", "google");
+    }
     try {
       await loginWithGoogle();
     } catch (err: unknown) {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("auth_just_logged_in");
+      }
       if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
         return;
       }
+      toast.error({
+        title: "Google Sign-in Failed",
+      });
       setAuthError("Failed to initiate Google sign-in. Please try again.");
       setIsLoading(false);
     }
@@ -129,9 +139,18 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
         });
 
         if (!res.success) {
+          toast.error({
+            title: "Sign In Failed",
+          });
           setAuthError(res.error || "Invalid email or password");
           setIsLoading(false);
         } else {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("auth_just_logged_in", "credentials");
+          }
+          toast.success({
+            title: "Signed In Successfully",
+          });
           handleClose();
           window.location.reload();
         }
@@ -144,9 +163,18 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
         });
 
         if (!res.success) {
+          toast.error({
+            title: "Registration Failed",
+          });
           setAuthError(res.error || "Registration failed");
           setIsLoading(false);
         } else {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("auth_just_logged_in", "credentials");
+          }
+          toast.success({
+            title: "Account Created",
+          });
           setAuthSuccess("Account created! Signing in...");
           const signInRes = await loginWithCredentials({
             email,
@@ -169,6 +197,9 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
         window.location.reload();
         return;
       }
+      toast.error({
+        title: "Authentication Error",
+      });
       setAuthError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }

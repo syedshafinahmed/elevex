@@ -17,6 +17,7 @@ import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { ImportedProduct } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import { toast } from "gooey-toast";
 
 export default function MyImportsPage() {
   const { myImports, removeImport } = useProducts();
@@ -196,6 +197,9 @@ export default function MyImportsPage() {
         onConfirm={() => {
           if (importToRemove) {
             removeImport(importToRemove.id);
+            toast.success({
+              title: "Import Removed",
+            });
             setImportToRemove(null);
           }
         }}

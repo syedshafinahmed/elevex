@@ -18,6 +18,7 @@ import { useUserRole } from "@/context/UserRoleContext";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import { ManagedUser } from "@/lib/usersData";
+import { toast } from "gooey-toast";
 
 const roleOptions: DropdownOption<"ADMIN" | "USER">[] = [
   {
@@ -57,6 +58,13 @@ export default function UsersManagementPage() {
     try {
       setIsUpdating(userId);
       await updateUserRole(userId, newRole);
+      toast.success({
+        title: `Role Updated to ${newRole}`,
+      });
+    } catch {
+      toast.error({
+        title: "Role Update Failed",
+      });
     } finally {
       setIsUpdating(null);
     }
@@ -270,6 +278,9 @@ export default function UsersManagementPage() {
         onConfirm={async () => {
           if (userToDelete) {
             await deleteUser(userToDelete.id);
+            toast.success({
+              title: "User Account Deleted",
+            });
             setUserToDelete(null);
           }
         }}

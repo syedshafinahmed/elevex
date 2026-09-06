@@ -10,6 +10,7 @@ type ButtonProps = {
   children: React.ReactNode;
   onClick?: () => void;
   ariaLabel?: string;
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -21,8 +22,9 @@ export default function Button({
   children,
   onClick,
   ariaLabel,
+  disabled,
 }: ButtonProps) {
-  const base = `${sansation.className} inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all hover:-translate-y-0.5 active:scale-[0.98]`;
+  const base = `${sansation.className} inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:hover:translate-y-0`;
 
   const variants = {
     primary: "bg-primary text-foreground",
@@ -47,7 +49,7 @@ export default function Button({
   }
 
   return (
-    <button type={type} onClick={onClick} aria-label={ariaLabel} className={classes}>
+    <button type={type} onClick={onClick} aria-label={ariaLabel} disabled={disabled} className={classes}>
       {children}
     </button>
   );

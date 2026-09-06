@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import { toast } from "gooey-toast";
 
 export default function ProductDetailsPage({
   params,
@@ -51,14 +52,20 @@ export default function ProductDetailsPage({
 
     const res = importProduct(product.id, numericQty);
     if (!res.success) {
+      toast.error({
+        title: "Import Failed",
+      });
       setImportError(res.error || "Failed to import product.");
     } else {
+      toast.success({
+        title: "Commodity Imported",
+      });
       setImportSuccess(true);
       setTimeout(() => {
         setImportModalOpen(false);
         setImportSuccess(false);
         router.push("/dashboard/imports");
-      }, 1200);
+      }, 1000);
     }
   }
 
