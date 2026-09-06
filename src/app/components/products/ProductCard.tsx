@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   MapPin,
   ShoppingCart,
@@ -12,6 +13,8 @@ import {
 import { Product } from "@/lib/productsData";
 import { sansation } from "@/lib/fonts";
 import Button from "@/app/components/ui/Button";
+import AuthModal from "@/app/components/auth/AuthModal";
+import { useProducts } from "@/context/ProductContext";
 import { toast } from "gooey-toast";
 
 interface ProductCardProps {
@@ -19,34 +22,34 @@ interface ProductCardProps {
   viewMode?: "grid" | "list";
 }
 
-const CART_STORAGE_KEY = "elevex_cart_v1";
-
 export default function ProductCard({
   product,
   viewMode = "grid",
 }: ProductCardProps) {
   const router = useRouter();
-  const [isInCart, setIsInCart] = useState(false);
+  const { data: session } = useSession();
+  const [authOpen, setAuthOpen] = useState(false);
+  const { isInCart: checkIsInCart, addToCart, removeFromCart } = useProducts();
   const [imgSrc, setImgSrc] = useState(product.image);
 
+  const isInCart = checkIsInCart(product.id);
   const unit = product.unit || "units";
   const isOutOfStock = product.availableQuantity <= 0;
   const isLowStock = product.availableQuantity > 0 && product.availableQuantity <= 500;
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      if (saved) {
-        const list: { id: string; quantity: number }[] = JSON.parse(saved);
-        setIsInCart(list.some((item) => item.id === product.id));
-      }
-    } catch {}
-  }, [product.id]);
 
   function handleAddToCart(e?: React.MouseEvent) {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
+    }
+
+    if (!session?.user) {
+      toast.error({
+        title: "Please log in to add items to cart",
+        description: "You must be signed in to add commodities to your cart.",
+      });
+      setAuthOpen(true);
+      return;
     }
 
     if (isOutOfStock) {
@@ -56,27 +59,16 @@ export default function ProductCard({
       return;
     }
 
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      let list: { id: string; quantity: number }[] = saved ? JSON.parse(saved) : [];
-      const existing = list.find((item) => item.id === product.id);
-
-      if (existing) {
-        list = list.filter((item) => item.id !== product.id);
-        setIsInCart(false);
-        toast.info({
-          title: "Removed from Cart",
-        });
-      } else {
-        list.push({ id: product.id, quantity: product.minOrderQty || 1 });
-        setIsInCart(true);
-        toast.success({
-          title: "Added to Cart",
-        });
-      }
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(list));
-    } catch {
-      setIsInCart(!isInCart);
+    if (isInCart) {
+      removeFromCart(product.id);
+      toast.info({
+        title: "Removed from Cart",
+      });
+    } else {
+      addToCart(product.id, product.minOrderQty || 1);
+      toast.success({
+        title: "Added to Cart",
+      });
     }
   }
 
@@ -95,10 +87,12 @@ export default function ProductCard({
   // -------------------------------------------------------------
   if (viewMode === "list") {
     return (
-      <div
-        onClick={handleCardClick}
-        className={`${sansation.className} group relative flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all duration-300 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer hover:border-foreground/20 hover:bg-foreground/4`}
-      >
+      <>
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+        <div
+          onClick={handleCardClick}
+          className={`${sansation.className} group relative flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all duration-300 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer hover:border-foreground/20 hover:bg-foreground/4`}
+        >
         {/* Left: Image & Info */}
         <div className="flex items-center gap-3.5 min-w-[260px]">
           <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-foreground/5 border border-foreground/10">
@@ -198,6 +192,7 @@ export default function ProductCard({
           </Button>
         </div>
       </div>
+      </>
     );
   }
 
@@ -205,10 +200,12 @@ export default function ProductCard({
   // GRID VIEW LAYOUT
   // -------------------------------------------------------------
   return (
-    <div
-      onClick={handleCardClick}
-      className={`${sansation.className} group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-3.5 transition-all duration-300 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer hover:border-foreground/20 hover:bg-foreground/4`}
-    >
+    <>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <div
+        onClick={handleCardClick}
+        className={`${sansation.className} group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-3.5 transition-all duration-300 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer hover:border-foreground/20 hover:bg-foreground/4`}
+      >
       <div>
         {/* 1. Clean Product Image (No badges) */}
         <div className="relative h-44 w-full overflow-hidden rounded-2xl bg-foreground/5 border border-foreground/8 mb-3">
@@ -316,5 +313,6 @@ export default function ProductCard({
         </Button>
       </div>
     </div>
+    </>
   );
 }

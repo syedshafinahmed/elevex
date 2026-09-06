@@ -3,36 +3,54 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, ImportedProduct, initialProducts, initialImports } from "@/lib/productsData";
 
+export interface CartItem {
+  id: string;
+  quantity: number;
+}
+
 interface ProductContextType {
   products: Product[];
   myImports: ImportedProduct[];
   myExports: Product[];
+  cartItems: CartItem[];
+  cartCount: number;
   addProduct: (product: Omit<Product, "id" | "createdAt">) => Product;
   updateProduct: (id: string, updated: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
   importProduct: (productId: string, quantity: number) => { success: boolean; error?: string };
   removeImport: (id: string) => void;
+  addToCart: (productId: string, quantity?: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  isInCart: (productId: string) => boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 const PRODUCTS_STORAGE_KEY = "elevex_products_v1";
 const IMPORTS_STORAGE_KEY = "elevex_my_imports_v1";
+const CART_STORAGE_KEY = "elevex_cart_items";
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [myImports, setMyImports] = useState<ImportedProduct[]>(initialImports);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     try {
       const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
       const savedImports = localStorage.getItem(IMPORTS_STORAGE_KEY);
+      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
       if (savedProducts) {
         setProducts(JSON.parse(savedProducts));
       }
       if (savedImports) {
         setMyImports(JSON.parse(savedImports));
+      }
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
       }
     } catch {
       // fallback to initial demo data
@@ -56,8 +74,56 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   }, [myImports, mounted]);
 
+  useEffect(() => {
+    if (mounted) {
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+      } catch {}
+    }
+  }, [cartItems, mounted]);
+
   // Derived: user's exports (for demo, first 4 or user-created items)
   const myExports = products;
+
+  function addToCart(productId: string, quantity?: number) {
+    const targetProduct = products.find((p) => p.id === productId);
+    const defaultQty = targetProduct?.minOrderQty || 1;
+    const itemQty = quantity && quantity > 0 ? quantity : defaultQty;
+
+    setCartItems((prev) => {
+      const existing = prev.find((item) => item.id === productId);
+      if (existing) {
+        return prev.map((item) =>
+          item.id === productId ? { ...item, quantity: item.quantity + itemQty } : item
+        );
+      }
+      return [...prev, { id: productId, quantity: itemQty }];
+    });
+  }
+
+  function removeFromCart(productId: string) {
+    setCartItems((prev) => prev.filter((item) => item.id !== productId));
+  }
+
+  function updateCartQuantity(productId: string, quantity: number) {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    setCartItems((prev) =>
+      prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
+    );
+  }
+
+  function clearCart() {
+    setCartItems([]);
+  }
+
+  function isInCart(productId: string) {
+    return cartItems.some((item) => item.id === productId);
+  }
+
+  const cartCount = cartItems.length;
 
   function addProduct(productData: Omit<Product, "id" | "createdAt">) {
     const newProd: Product = {
@@ -130,11 +196,18 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         products,
         myImports,
         myExports,
+        cartItems,
+        cartCount,
         addProduct,
         updateProduct,
         deleteProduct,
         importProduct,
         removeImport,
+        addToCart,
+        removeFromCart,
+        updateCartQuantity,
+        clearCart,
+        isInCart,
       }}
     >
       {children}

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Upload,
   CheckCircle2,
@@ -15,25 +16,19 @@ import {
   Shirt,
   Utensils,
   Gem,
-  Globe,
-  Anchor,
-  Clock,
-  Package,
-  ShieldCheck,
-  BadgeCheck,
-  FileText,
-  MapPin,
   ChevronRight,
   Eye,
   Plus,
   Trash2,
-  Tag,
-  Layers,
+  ShieldCheck,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import { Product } from "@/lib/productsData";
+import ProductCard from "@/app/components/products/ProductCard";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import Button from "@/app/components/ui/Button";
+import AuthModal from "@/app/components/auth/AuthModal";
 import { toast } from "gooey-toast";
 
 const categoryOptions: DropdownOption[] = [
@@ -45,26 +40,30 @@ const categoryOptions: DropdownOption[] = [
 
 export default function AddExportPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const [authOpen, setAuthOpen] = useState(false);
   const { addProduct } = useProducts();
 
   // Basic Details
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [galleryInput, setGalleryInput] = useState("");
-  const [price, setPrice] = useState<string>("");
+  const [price, setPrice] = useState<string>("2950");
   const [unit, setUnit] = useState<string>("kg");
-  const [originCountry, setOriginCountry] = useState("");
+  const [originCountry, setOriginCountry] = useState("Colombia");
   const [rating, setRating] = useState<string>("4.9");
-  const [availableQuantity, setAvailableQuantity] = useState<string>("");
-  const [minOrderQty, setMinOrderQty] = useState<string>("10");
+  const [availableQuantity, setAvailableQuantity] = useState<string>("4500");
+  const [minOrderQty, setMinOrderQty] = useState<string>("50");
   const [category, setCategory] = useState("Agricultural");
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(
+    "Hand-picked high-altitude Arabica beans from the volcanic soil of Huila, Colombia. Features balanced acidity, silky body, and distinct aromatic cupping notes of dark cocoa, orange blossom, and wild honey."
+  );
 
   // Customs & Logistics
-  const [hsCode, setHsCode] = useState<string>("");
-  const [portOfLoading, setPortOfLoading] = useState<string>("");
-  const [leadTime, setLeadTime] = useState<string>("5 - 10 business days");
-  const [packaging, setPackaging] = useState<string>("");
+  const [hsCode, setHsCode] = useState<string>("0901.11.00");
+  const [portOfLoading, setPortOfLoading] = useState<string>("Port of Buenaventura");
+  const [leadTime, setLeadTime] = useState<string>("7 - 12 business days");
+  const [packaging, setPackaging] = useState<string>("GrainPro hermetic liners in 60kg jute export bags");
   const [shelfLife, setShelfLife] = useState<string>("24 Months");
 
   // Dynamic Certifications
@@ -72,19 +71,74 @@ export default function AddExportPage() {
     "ISO 22000 Food Safety Standard",
     "USDA Organic Certified",
     "Phytosanitary Ministry Release",
+    "Fair Trade International",
   ]);
   const [newCertInput, setNewCertInput] = useState("");
 
   // Dynamic Technical Specifications (Key-Value)
   const [specs, setSpecs] = useState<{ label: string; value: string }[]>([
-    { label: "Moisture Content", value: "< 11.5%" },
+    { label: "Grade", value: "Excelso European Preparation (EP)" },
+    { label: "Screen Size", value: "15/16 Strictly Hard Bean" },
+    { label: "Moisture Content", value: "11.2% Max" },
     { label: "Processing Method", value: "Fully Washed & Sun Dried" },
-    { label: "Purity Grade", value: "Grade 1 (99.8% purity)" },
-    { label: "Harvest Season", value: "Current 2026/2027" },
+    { label: "Defect Count", value: "< 0.5% (SCAA Standard)" },
   ]);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Reactive Product Preview
+  const previewProduct: Product = useMemo(() => {
+    const extraImages = galleryInput
+      .split("\n")
+      .map((u) => u.trim())
+      .filter((u) => u.length > 0);
+    const mainImg =
+      image.trim() ||
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Roasted_coffee_beans.jpg/1280px-Roasted_coffee_beans.jpg";
+
+    return {
+      id: "preview-commodity",
+      name: name.trim() || "Single-Origin Colombian Arabica Coffee Beans (Excelso EP)",
+      image: mainImg,
+      gallery: extraImages.length > 0 ? [mainImg, ...extraImages] : [mainImg],
+      price: Number(price) || 0,
+      unit: unit.trim() || "kg",
+      originCountry: originCountry.trim() || "Origin Country",
+      rating: Number(rating) || 4.9,
+      availableQuantity: Number(availableQuantity) || 0,
+      minOrderQty: Number(minOrderQty) || 1,
+      category: category || "Agricultural",
+      createdAt: new Date().toISOString(),
+      description: description.trim(),
+      hsCode: hsCode.trim() || undefined,
+      portOfLoading: portOfLoading.trim() || undefined,
+      leadTime: leadTime.trim() || undefined,
+      packaging: packaging.trim() || undefined,
+      shelfLife: shelfLife.trim() || undefined,
+      certifications: certifications.length > 0 ? certifications : undefined,
+      specs: specs.filter((s) => s.label.trim() && s.value.trim()),
+    };
+  }, [
+    name,
+    image,
+    galleryInput,
+    price,
+    unit,
+    originCountry,
+    rating,
+    availableQuantity,
+    minOrderQty,
+    category,
+    description,
+    hsCode,
+    portOfLoading,
+    leadTime,
+    packaging,
+    shelfLife,
+    certifications,
+    specs,
+  ]);
 
   // Add a spec row
   const addSpecRow = () => {
@@ -117,6 +171,15 @@ export default function AddExportPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!session?.user) {
+      toast.error({
+        title: "Please log in to add an export",
+        description: "You must be signed in to create and manage export commodities.",
+      });
+      setAuthOpen(true);
+      return;
+    }
 
     if (!name.trim() || !image.trim() || !price || !originCountry.trim() || !availableQuantity) {
       setError("Please fill in all required fields (marked with *).");
@@ -216,13 +279,13 @@ export default function AddExportPage() {
         "Fair Trade International",
       ]);
       setSpecs([
-        { label: "Moisture Content", value: "< 11.2%" },
+        { label: "Grade", value: "Excelso European Preparation (EP)" },
+        { label: "Screen Size", value: "15/16 Strictly Hard Bean" },
+        { label: "Moisture Content", value: "11.2% Max" },
         { label: "Processing Method", value: "Fully Washed & Sun Dried" },
-        { label: "Purity Grade", value: "Excelso EP (Screen 15/16)" },
-        { label: "Elevation", value: "1,750m AMSL" },
-        { label: "Defect Rate", value: "< 0.5% (Export Spec)" },
+        { label: "Defect Count", value: "< 0.5% (SCAA Standard)" },
       ]);
-      setDescription("Hand-picked high-altitude Arabica beans from the volcanic soil of Huila, Colombia. Features balanced acidity, silky body, and distinct aromatic cupping notes of dark cocoa, roasted almond, and wild honey.");
+      setDescription("Hand-picked high-altitude Arabica beans from the volcanic soil of Huila, Colombia. Features balanced acidity, silky body, and distinct aromatic cupping notes of dark cocoa, orange blossom, and wild honey.");
     } else if (sampleType === "jute") {
       setName("Eco-Friendly Raw Hessian Jute Fabric (Grade A)");
       setImage("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80");
@@ -283,169 +346,23 @@ export default function AddExportPage() {
   }
 
   return (
-    <div className={`${sansation.className} flex flex-col gap-6 pb-12 w-full`}>
-      {/* 1. Header Navigation & Quick Action Presets */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-foreground/10">
-        <div>
-          <nav className="flex items-center gap-1.5 text-xs text-foreground/60 mb-1.5">
-            <Link href="/dashboard" className="hover:text-primary transition-colors">
-              Dashboard
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
-            <Link href="/dashboard/products" className="hover:text-primary transition-colors">
-              Products
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
-            <span className="font-bold text-foreground">Add New Export</span>
-          </nav>
-          <h1 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
-            Register New Export Commodity
-          </h1>
-        </div>
-
-        {/* Preset Sample Buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-foreground/50 font-semibold flex items-center gap-1">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> Auto-Fill Demo:
-          </span>
-          <button
-            type="button"
-            onClick={() => handleFillSample("coffee")}
-            className="rounded-xl border border-foreground/10 bg-foreground/2 px-2.5 py-1.5 text-[11px] font-semibold text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-all cursor-pointer inset-shadow-foreground/30 inset-shadow-xs"
-          >
-            ☕ Coffee
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFillSample("jute")}
-            className="rounded-xl border border-foreground/10 bg-foreground/2 px-2.5 py-1.5 text-[11px] font-semibold text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-all cursor-pointer inset-shadow-foreground/30 inset-shadow-xs"
-          >
-            🌾 Jute Fabric
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFillSample("spices")}
-            className="rounded-xl border border-foreground/10 bg-foreground/2 px-2.5 py-1.5 text-[11px] font-semibold text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-all cursor-pointer inset-shadow-foreground/30 inset-shadow-xs"
-          >
-            🌶️ Turmeric
-          </button>
-        </div>
-      </div>
-
-      {/* 2. Main Grid: Left Side = Live Marketplace Showcase Preview, Right Side = Registration Input Fields */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className={`${sansation.className} flex flex-col w-full pb-12`}>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      {/* Main Grid: Left Side = Sticky ProductCard Showcase Preview, Right Side = Form Input Fields */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-1">
         
-        {/* LEFT SIDE: Real-time Live Showcase Preview (5 cols, sticky) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24 flex flex-col gap-4 self-start order-2 lg:order-1">
+        {/* LEFT SIDE: Sticky Showcase Preview using exact ProductCard (5 cols) */}
+        <div className="lg:col-span-5 lg:sticky lg:top-4 flex flex-col gap-3 self-start order-2 lg:order-1">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground/60 px-1">
             <Eye className="h-4 w-4 text-primary" /> Live Marketplace Showcase Preview
           </div>
 
-          {/* Preview Card */}
-          <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-5 inset-shadow-foreground/30 inset-shadow-sm">
-            {/* Image Preview */}
-            <div className="relative h-64 w-full overflow-hidden rounded-2xl bg-foreground/5 border border-foreground/10 flex items-center justify-center">
-              {image ? (
-                <Image
-                  src={image}
-                  alt={name || "Product preview"}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-foreground/35 text-xs">
-                  <ImageIcon className="h-8 w-8" />
-                  <span>Enter image URL to view preview</span>
-                </div>
-              )}
-            </div>
-
-            {/* Info Preview */}
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between text-[11px] text-foreground/60">
-                <div className="flex items-center gap-1 font-medium">
-                  <MapPin className="h-3 w-3 text-primary shrink-0" />
-                  <span>{originCountry || "Origin Country"}</span>
-                </div>
-                <span className="rounded-md bg-foreground/5 px-2 py-0.5 text-[9px] font-semibold text-foreground/60 uppercase">
-                  {category}
-                </span>
-              </div>
-
-              <h4 className={`${pinkAverage.className} text-xl text-foreground leading-snug line-clamp-2`}>
-                {name || "Your Commodity Title Here"}
-              </h4>
-
-              <div className="flex items-baseline justify-between border-t border-foreground/10 pt-3 mt-1">
-                <div>
-                  <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
-                    Price
-                  </span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className={`${pinkAverage.className} text-2xl font-bold text-primary`}>
-                      ৳ {price ? Number(price).toLocaleString() : "0"}
-                    </span>
-                    <span className="text-[10px] text-foreground/45">/{unit || "units"}</span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
-                    Available Stock
-                  </span>
-                  <span className="text-xs font-bold text-foreground block mt-0.5">
-                    {availableQuantity ? Number(availableQuantity).toLocaleString() : "0"} {unit || "units"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Key Logistics Summary */}
-            <div className="grid grid-cols-2 gap-2 text-[11px] border-t border-foreground/10 pt-3">
-              <div className="rounded-xl bg-background/50 p-2.5 border border-foreground/8">
-                <span className="text-[9px] uppercase font-semibold text-foreground/45 block">HS Tariff</span>
-                <span className="font-mono font-bold text-foreground text-xs">{hsCode || "Standard"}</span>
-              </div>
-              <div className="rounded-xl bg-background/50 p-2.5 border border-foreground/8">
-                <span className="text-[9px] uppercase font-semibold text-foreground/45 block">Port of Loading</span>
-                <span className="font-bold text-foreground text-xs truncate block">{portOfLoading || "Origin Port"}</span>
-              </div>
-            </div>
-
-            {/* Certifications Preview Chips */}
-            {certifications.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {certifications.map((c, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                  >
-                    <ShieldCheck className="h-3 w-3 shrink-0" />
-                    {c}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Trust Badges Preview */}
-            <div className="grid grid-cols-3 gap-2 pt-1 text-center text-[10px]">
-              <div className="flex flex-col items-center gap-1 rounded-xl border border-foreground/10 bg-foreground/2 p-2">
-                <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                <span className="font-bold text-foreground">100% Escrow</span>
-              </div>
-              <div className="flex flex-col items-center gap-1 rounded-xl border border-foreground/10 bg-foreground/2 p-2">
-                <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="font-bold text-foreground">SGS Verified</span>
-              </div>
-              <div className="flex flex-col items-center gap-1 rounded-xl border border-foreground/10 bg-foreground/2 p-2">
-                <FileText className="h-3.5 w-3.5 text-blue-500" />
-                <span className="font-bold text-foreground">Digital BoL</span>
-              </div>
-            </div>
+          <div className="w-full max-w-sm mx-auto lg:max-w-none">
+            <ProductCard product={previewProduct} />
           </div>
         </div>
 
-        {/* RIGHT SIDE: Input Form Fields (7 cols) */}
+        {/* RIGHT SIDE: Form Inputs (7 cols) */}
         <div className="lg:col-span-7 order-1 lg:order-2">
           <form
             onSubmit={handleSubmit}
@@ -524,7 +441,7 @@ export default function AddExportPage() {
                   Additional Gallery Images (Optional, one URL per line)
                 </label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   placeholder="https://image-url-2.jpg&#10;https://image-url-3.jpg"
                   value={galleryInput}
                   onChange={(e) => setGalleryInput(e.target.value)}

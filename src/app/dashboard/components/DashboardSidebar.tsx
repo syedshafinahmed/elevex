@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Package,
   ShoppingBag,
+  ShoppingCart,
   Download,
   Upload,
   PlusCircle,
@@ -38,7 +39,7 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { products, myImports, myExports } = useProducts();
+  const { products, myImports, myExports, cartCount } = useProducts();
   const { users, currentRole } = useUserRole();
   const dbUser = users.find(
     (u) => u.email.toLowerCase() === session?.user?.email?.toLowerCase()
@@ -58,6 +59,7 @@ export default function DashboardSidebar({
       : []),
     { label: "My Exports",       href: "/dashboard/exports",    icon: Upload, badge: `${myExports.length}` },
     { label: "My Imports",       href: "/dashboard/imports",    icon: Download, badge: `${myImports.length}` },
+    { label: "Cart Items",       href: "/dashboard/cart",       icon: ShoppingCart, badge: cartCount > 0 ? `${cartCount}` : undefined },
     { label: "Add Export",       href: "/dashboard/add-export", icon: PlusCircle },
     { label: "Settings",         href: "/dashboard/settings",   icon: Settings },
   ];

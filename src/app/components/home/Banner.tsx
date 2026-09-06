@@ -1,13 +1,17 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Building,
   Heart,
   MapPin,
 } from "lucide-react";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import Button from "../ui/Button";
+import AuthModal from "../auth/AuthModal";
+import { toast } from "gooey-toast";
 
 // const tickerStats = [
 //   { label: "Exporters", value: "3,140+", icon: Package },
@@ -56,6 +60,9 @@ const liveListings = [
 ];
 
 export default function Banner() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [authOpen, setAuthOpen] = useState(false);
   const [offset, setOffset] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
 
@@ -73,6 +80,18 @@ export default function Banner() {
     isNew: i === 1,
     isLeaving: prev !== null && i === 0,
   }));
+
+  function handleAddExportClick() {
+    if (session?.user) {
+      router.push("/dashboard/add-export");
+    } else {
+      toast.error({
+        title: "Please log in to add an export",
+        description: "You must be signed in to create and manage export commodities.",
+      });
+      setAuthOpen(true);
+    }
+  }
   return (
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       <div className="grid gap-4 overflow-hidden rounded-3xl md:grid-cols-[1.05fr_1fr]">
@@ -124,9 +143,9 @@ export default function Banner() {
               Explore Products
             </Button>
             <Button
-              href="/add-export"
               variant="outline"
               size="sm"
+              onClick={handleAddExportClick}
               className="flex-1 sm:flex-initial sm:px-6 sm:py-3.5 sm:text-sm"
             >
               Add Your Export
@@ -151,7 +170,7 @@ export default function Banner() {
           {/* Bottom: live listings feed */}
           <div className="relative z-10 flex flex-col gap-2">
             <div className="flex justify-end mr-2">
-              <span className={`${sansation.className} text-[10px] uppercase tracking-[0.15em] text-foreground/40`}>Live listings</span>
+              <span className={`${trunkey.className} text-[10px] uppercase tracking-[0.15em] text-foreground/40`}>Live listings</span>
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-foreground/10 inset-shadow-foreground/30 inset-shadow-sm">
@@ -255,6 +274,9 @@ export default function Banner() {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal for unauthenticated user */}
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </section>
   );
 }

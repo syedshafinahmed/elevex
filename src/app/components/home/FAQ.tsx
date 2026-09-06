@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, AlertTriangle } from "lucide-react";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 
 const faqs = [
   {
@@ -49,7 +49,7 @@ export default function FAQ() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       <div className="mb-6 flex flex-col gap-1">
-        <p className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.15em] text-foreground/40`}>
+        <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
           Support & Guidance
         </p>
         <div className="flex items-center justify-between">

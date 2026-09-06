@@ -1,14 +1,21 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Mail } from "lucide-react";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { TbBrandGithubFilled } from "react-icons/tb";
 import { SiGmail } from "react-icons/si";
 import { RiDiscordFill, RiFacebookFill, RiLinkedinFill } from "react-icons/ri";
 import Button from "../ui/Button";
+import AuthModal from "../auth/AuthModal";
+import { toast } from "gooey-toast";
 
 const platformLinks = [
   { label: "Explore products", href: "/products" },
-  { label: "Add your export", href: "/add-export" },
+  { label: "Add your export", href: "/dashboard/add-export", requiresAuth: true },
   { label: "Pricing", href: "/pricing" },
   { label: "How it works", href: "/how-it-works" },
 ];
@@ -42,8 +49,25 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [authOpen, setAuthOpen] = useState(false);
+
+  function handleLinkClick(e: React.MouseEvent, href: string, requiresAuth?: boolean) {
+    if (requiresAuth && !session?.user) {
+      e.preventDefault();
+      toast.error({
+        title: "Please log in to add an export",
+        description: "You must be signed in to create and manage export commodities.",
+      });
+      setAuthOpen(true);
+      return;
+    }
+  }
+
   return (
     <footer className="mx-auto max-w-7xl px-4 pb-8 pt-2 sm:px-6 lg:px-10">
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       <div className="relative overflow-hidden rounded-3xl bg-background">
         <div
           aria-hidden="true"
@@ -64,17 +88,7 @@ export default function Footer() {
 
           <div className="flex w-full flex-col gap-3 sm:max-w-md">
             <form className={`${sansation.className} flex items-center gap-2`}>
-              {/* <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none">
-                <Mail className="h-4 w-4 shrink-0 stroke-[1.75] text-foreground/40" aria-hidden="true" />
-                <input
-                  type="email"
-                  placeholder="you@company.com"
-                  aria-label="Email address"
-                  className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none"
-                />
-              </div>
-              <Button type="submit">Get started</Button> */}
-              <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm       text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none">
+              <div className="flex flex-1 items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/3 px-3.5 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:border-primary focus:outline-none">
                 <Mail className="h-4 w-4 shrink-0 stroke-[1.75] text-foreground/40" aria-hidden="true" />
                 <input
                   type="email"
@@ -118,9 +132,9 @@ export default function Footer() {
             </div>
           </div>
 
-          <FooterColumn title="Platform" links={platformLinks} />
-          <FooterColumn title="Company" links={companyLinks} />
-          <FooterColumn title="Resources" links={resourceLinks} className="hidden sm:flex" />
+          <FooterColumn title="Platform" links={platformLinks} onLinkClick={handleLinkClick} />
+          <FooterColumn title="Company" links={companyLinks} onLinkClick={handleLinkClick} />
+          <FooterColumn title="Resources" links={resourceLinks} onLinkClick={handleLinkClick} className="hidden sm:flex" />
         </div>
 
         <div
@@ -148,10 +162,12 @@ function FooterColumn({
   title,
   links,
   className = "",
+  onLinkClick,
 }: {
   title: string;
-  links: { label: string; href: string }[];
+  links: { label: string; href: string; requiresAuth?: boolean }[];
   className?: string;
+  onLinkClick?: (e: React.MouseEvent, href: string, requiresAuth?: boolean) => void;
 }) {
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
@@ -161,10 +177,11 @@ function FooterColumn({
         {title}
       </p>
       <ul className="flex flex-col gap-2.5">
-        {links.map(({ label, href }) => (
+        {links.map(({ label, href, requiresAuth }) => (
           <li key={label}>
             <Link
               href={href}
+              onClick={(e) => onLinkClick?.(e, href, requiresAuth)}
               className={`${sansation.className} text-sm text-foreground/70 transition-colors hover:text-foreground`}
             >
               {label}

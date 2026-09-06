@@ -18,7 +18,7 @@ import {
   Shield,
   Headphones,
 } from "lucide-react";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import Button from "../components/ui/Button";
 
 // ─── Section 1: Core Services ─────────────────────────────────────────────────
@@ -134,15 +134,12 @@ function CoreServices() {
         <div className="relative z-10 px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
           {/* Header */}
           <div className="mb-6 flex flex-col gap-1">
-            <p className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.15em] text-foreground/40`}>
+            <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
               Platform Services
             </p>
             <h1 className={`${pinkAverage.className} text-3xl text-foreground sm:text-[2.75rem]`}>
               Four modules. <span className="text-primary">One workflow.</span>
             </h1>
-            <p className={`${sansation.className} mt-1 max-w-xl text-sm leading-relaxed text-foreground/55`}>
-              Freight telemetry, customs clearance, escrow settlement, and compliance — each a best-in-class product, tighter together.
-            </p>
           </div>
 
           {/* Tab row */}
@@ -321,15 +318,12 @@ function HowItWorks() {
         <div className="px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
           {/* Header */}
           <div className="mb-8 flex flex-col gap-1">
-            <p className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.15em] text-background/50`}>
+            <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-background`}>
               The Process
             </p>
-            <h2 className={`${pinkAverage.className} text-3xl text-background sm:text-[2.75rem]`}>
+            <h2 className={`${pinkAverage.className} text-3xl text-background/90 sm:text-[2.75rem]`}>
               From listing to settlement.
             </h2>
-            <p className={`${sansation.className} mt-1 max-w-xl text-sm leading-relaxed text-background/60`}>
-              Every step is automated where possible and visible at all times. Nothing blocks the next stage — the platform carries the paperwork.
-            </p>
           </div>
 
           {/* Steps Container */}
@@ -451,15 +445,12 @@ function WhyElevex() {
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       {/* Differentiators */}
       <div className="mb-4 flex flex-col gap-1">
-        <p className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.15em] text-foreground/40`}>
+        <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
           Why Elevex
         </p>
         <h2 className={`${pinkAverage.className} text-3xl text-foreground sm:text-[2.75rem]`}>
           Infrastructure that earns trust.
         </h2>
-        <p className={`${sansation.className} mt-1 max-w-xl text-sm leading-relaxed text-foreground/55`}>
-          We replaced four broken workflows — bank wires, email customs, manual compliance, and delayed tracking — with one automated platform.
-        </p>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -558,15 +549,12 @@ function EnterpriseSolutions() {
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_1.2fr]">
           <div className="flex flex-col justify-between gap-6">
             <div>
-              <p className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.15em] text-foreground/40`}>
+              <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
                 Enterprise Infrastructure
               </p>
               <h2 className={`${pinkAverage.className} mt-2 text-3xl text-foreground sm:text-4xl`}>
                 Tailored solutions for global trade houses.
               </h2>
-              <p className={`${sansation.className} mt-3 text-sm leading-relaxed text-foreground/60`}>
-                Need custom API access, dedicated legal frameworks, or tailored escrow mechanics? Our enterprise team builds bespoke trade pipelines.
-              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

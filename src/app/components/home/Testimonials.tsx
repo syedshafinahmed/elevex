@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 
 type Testimonial = {
   name: string;
@@ -182,7 +182,7 @@ const Testimonials = () => {
   return (
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
       <p
-        className={`${sansation.className} mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-foreground/40`}
+        className={`${trunkey.className} mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-primary`}
       >
         Social proof
       </p>

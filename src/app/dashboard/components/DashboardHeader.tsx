@@ -33,6 +33,10 @@ const routeMetadata: Record<string, { title: string; subtitle: string }> = {
     title: "My Imports",
     subtitle: "Review imported commodities & quantities",
   },
+  "/dashboard/cart": {
+    title: "Cart Items",
+    subtitle: "Manage trade orders, quantities & allocate consignments",
+  },
   "/dashboard/add-export": {
     title: "Add Export Listing",
     subtitle: "Publish a new commodity to global market",

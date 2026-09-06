@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check, XCircle } from "lucide-react";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import Button from "../ui/Button";
 
 const plans = [
@@ -80,15 +80,12 @@ export default function Pricing() {
       {/* Heading + Toggle Tab */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <p className={`${sansation.className} text-xs font-semibold uppercase tracking-[0.15em] text-foreground/40`}>
+          <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
             Pricing
           </p>
           <h2 className={`${pinkAverage.className} text-3xl text-foreground sm:text-[2.75rem]`}>
             Simple, transparent plans.
           </h2>
-          <p className={`${sansation.className} mt-1 max-w-lg text-sm leading-relaxed text-foreground/55`}>
-            Start free and scale as your trade volume grows. No lock-in contracts.
-          </p>
         </div>
 
         {/* Monthly / Yearly Tab */}

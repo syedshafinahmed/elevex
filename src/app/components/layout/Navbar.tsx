@@ -3,23 +3,21 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
+import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package, LogOut, LayoutDashboard, ChevronDown, ShoppingCart } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
 import Button from "../ui/Button";
 import AuthModal from "../auth/AuthModal";
+import { useProducts } from "@/context/ProductContext";
 import { toast } from "gooey-toast";
 
 const navLinks = [
   { label: "Home",     href: "/",        icon: Home },
+  { label: "Products", href: "/products", icon: Package },
   { label: "Services", href: "/services", icon: Briefcase },
   { label: "Contact",  href: "/contact",  icon: Mail },
-] as const;
-
-const navDropdowns = [
-  { label: "Products", href: "/products", icon: Package },
 ] as const;
 
 function isActive(pathname: string, href: string) {
@@ -29,6 +27,8 @@ function isActive(pathname: string, href: string) {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { cartCount } = useProducts();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,6 +36,18 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const { data: session } = useSession();
+
+  function handleCartClick() {
+    if (session?.user) {
+      router.push("/dashboard/cart");
+    } else {
+      toast.error({
+        title: "Please log in to view your cart",
+        description: "You must be signed in to manage your cart items.",
+      });
+      setAuthOpen(true);
+    }
+  }
   
   useEffect(() => {
     setMounted(true);
@@ -57,7 +69,7 @@ export default function Navbar() {
 
   return (
     <header className={`${sansation.className} relative w-full bg-background`}>
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
+      <nav className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
         {/* Left links */}
         <ul className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => {
@@ -80,31 +92,16 @@ export default function Navbar() {
           })}
         </ul>
 
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        {/* Centered Logo */}
+        <Link
+          href="/"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 z-20"
+        >
           <p className={`${trunkey.className} text-7xl font-extrabold text-primary`}>elevex</p>
         </Link>
 
-        {/* Right links */}
-        <ul className="hidden items-center gap-8 md:flex">
-          {navDropdowns.map((item) => {
-            const active = isActive(pathname, item.href);
-            return (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={
-                    active
-                      ? "text-base font-semibold text-primary transition-colors"
-                      : "text-base font-medium text-foreground/60 transition-colors hover:text-foreground"
-                  }
-                >
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
+        {/* Right action controls */}
+        <ul className="hidden items-center gap-2.5 md:flex ml-auto">
           <li>
             <Button
               type="button"
@@ -121,6 +118,22 @@ export default function Navbar() {
                 )
               ) : (
                 <span className="h-4 w-4" />
+              )}
+            </Button>
+          </li>
+          <li>
+            <Button
+              type="button"
+              variant="ghost"
+              ariaLabel="View Cart"
+              onClick={handleCartClick}
+              className="relative h-10 w-10 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+            >
+              <ShoppingCart className="h-4 w-4 stroke-[1.75] z-10" aria-hidden="true" />
+              {mounted && cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-foreground shadow-sm ring-2 ring-background">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
               )}
             </Button>
           </li>
@@ -174,6 +187,22 @@ export default function Navbar() {
                       Dashboard
                     </Link>
 
+                    <Link
+                      href="/dashboard/cart"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <ShoppingCart className="h-4 w-4 text-primary" />
+                        Cart Items
+                      </div>
+                      {cartCount > 0 && (
+                        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
+                          {cartCount}
+                        </span>
+                      )}
+                    </Link>
+
                     <button
                       type="button"
                       onClick={() => {
@@ -197,8 +226,22 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* Mobile Action Controls: Theme Toggle & Hamburger */}
+        {/* Mobile Action Controls: Cart, Theme Toggle & Hamburger */}
         <div className="flex items-center gap-2 md:hidden">
+          <button
+            type="button"
+            onClick={handleCartClick}
+            aria-label="View Cart"
+            className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/10 bg-foreground/5 text-foreground transition-all hover:bg-foreground/10"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {mounted && cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-foreground ring-2 ring-background">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </button>
+
           {mounted && (
             <button
               type="button"
@@ -233,23 +276,6 @@ export default function Navbar() {
       >
         <ul className="flex flex-col gap-4 px-6">
           {navLinks.map((link) => {
-            const active = isActive(pathname, link.href);
-            return (
-              <li key={link.label}>
-                <Link
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`${sansation.className} flex items-center gap-2.5 text-base font-semibold transition-colors duration-200 ${
-                    active ? "text-primary" : "text-foreground/60 hover:text-foreground"
-                  }`}
-                >
-                  <link.icon className={`h-4 w-4 ${active ? "text-primary" : "text-foreground/60"}`} />
-                  {link.label}
-                </Link>
-              </li>
-            );
-          })}
-          {navDropdowns.map((link) => {
             const active = isActive(pathname, link.href);
             return (
               <li key={link.label}>

@@ -35,9 +35,8 @@ import { useProducts } from "@/context/ProductContext";
 import { Product, ProductReview } from "@/lib/productsData";
 import ProductCard from "@/app/components/products/ProductCard";
 import Button from "@/app/components/ui/Button";
+import AuthModal from "@/app/components/auth/AuthModal";
 import { toast } from "gooey-toast";
-
-const CART_STORAGE_KEY = "elevex_cart_v1";
 
 export default function ProductDetailsPage({
   params,
@@ -47,7 +46,8 @@ export default function ProductDetailsPage({
   const resolvedParams = use(params);
   const router = useRouter();
   const { data: session } = useSession();
-  const { products, importProduct } = useProducts();
+  const [authOpen, setAuthOpen] = useState(false);
+  const { products, importProduct, isInCart: checkIsInCart, addToCart, removeFromCart } = useProducts();
 
   // Find product or fallback
   const product =
@@ -65,19 +65,18 @@ export default function ProductDetailsPage({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Cart State
-  const [isInCart, setIsInCart] = useState(false);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      if (saved) {
-        const list: { id: string; quantity: number }[] = JSON.parse(saved);
-        setIsInCart(list.some((item) => item.id === product.id));
-      }
-    } catch {}
-  }, [product.id]);
+  const isInCart = checkIsInCart(product.id);
 
   function handleAddToCart() {
+    if (!session?.user) {
+      toast.error({
+        title: "Please log in to add items to cart",
+        description: "You must be signed in to add commodities to your cart.",
+      });
+      setAuthOpen(true);
+      return;
+    }
+
     if (product.availableQuantity <= 0) {
       toast.error({
         title: "Commodity is Out of Stock",
@@ -85,27 +84,16 @@ export default function ProductDetailsPage({
       return;
     }
 
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      let list: { id: string; quantity: number }[] = saved ? JSON.parse(saved) : [];
-      const existing = list.find((item) => item.id === product.id);
-
-      if (existing) {
-        list = list.filter((item) => item.id !== product.id);
-        setIsInCart(false);
-        toast.info({
-          title: "Removed from Cart",
-        });
-      } else {
-        list.push({ id: product.id, quantity: importQty || product.minOrderQty || 1 });
-        setIsInCart(true);
-        toast.success({
-          title: "Added to Cart",
-        });
-      }
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(list));
-    } catch {
-      setIsInCart(!isInCart);
+    if (isInCart) {
+      removeFromCart(product.id);
+      toast.info({
+        title: "Removed from Cart",
+      });
+    } else {
+      addToCart(product.id, importQty || product.minOrderQty || 1);
+      toast.success({
+        title: "Added to Cart",
+      });
     }
   }
 
@@ -157,6 +145,15 @@ export default function ProductDetailsPage({
 
   function handleImportSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!session?.user) {
+      toast.error({
+        title: "Please log in to allocate imports",
+        description: "You must be signed in to place trade consignments.",
+      });
+      setAuthOpen(true);
+      return;
+    }
+
     if (isInvalidQty) return;
 
     setIsSubmittingImport(true);
@@ -195,6 +192,7 @@ export default function ProductDetailsPage({
 
   return (
     <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       {/* 1. Breadcrumbs & Top Action Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-foreground/10">
         {/* Breadcrumb Links: Home > Products > Product Name */}

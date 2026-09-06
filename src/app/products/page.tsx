@@ -10,7 +10,7 @@ import {
   Globe2,
   ShieldCheck,
 } from "lucide-react";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import ProductCard from "@/app/components/products/ProductCard";
 
@@ -104,29 +104,16 @@ export default function UserProductsPage() {
   return (
     <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
       {/* 1. Header Banner & Marketplace Metrics */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-foreground/10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-primary border border-primary/20">
-              <Globe2 className="h-3 w-3" />
-              Verified Global Trade Hub
-            </span>
-            <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <ShieldCheck className="h-3 w-3" />
-              100% Escrow Protected
-            </span>
-          </div>
-
+          <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>Products</p>
           <h1 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
             Global Export Commodities
           </h1>
-          <p className="text-xs sm:text-sm text-foreground/65 max-w-2xl leading-relaxed">
-            Direct access to verified international agricultural, textile, and food commodities. Compare port origin rates, add lots to your cart, and allocate import consignments with zero escrow risk.
-          </p>
         </div>
 
         {/* Trade Metrics Counter */}
-        <div className="flex items-center gap-4 shrink-0 bg-foreground/2 rounded-2xl border border-foreground/10 p-3.5 inset-shadow-foreground/30 inset-shadow-xs">
+        <div className="flex items-center gap-4 shrink-0 bg-foreground/2 rounded-2xl border border-foreground/10 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase font-semibold text-foreground/45">
               Available Commodities
@@ -255,7 +242,7 @@ export default function UserProductsPage() {
         </div>
 
         {/* Bottom Row: Category Pills & Reset Button */}
-        <div className="flex items-center justify-between gap-3 pt-2 border-t border-foreground/8 overflow-x-auto">
+        <div className="flex items-center justify-between gap-3 pt-2 overflow-x-auto">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-semibold text-foreground/45 uppercase tracking-wider hidden sm:inline">
               Category:

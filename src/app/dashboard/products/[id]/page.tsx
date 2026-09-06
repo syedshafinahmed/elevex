@@ -8,38 +8,26 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   MapPin,
-  Star,
   Edit2,
   Trash2,
   ExternalLink,
   Package,
   Boxes,
-  TrendingUp,
   Clock,
-  CheckCircle2,
   X,
-  Globe,
   ShieldCheck,
   BadgeCheck,
   Layers,
   Anchor,
   FileText,
-  Info,
   Maximize2,
   ChevronRight,
-  Download,
-  AlertCircle,
-  Building,
-  Plus,
-  Minus,
-  Sparkles,
-  Sliders,
   DollarSign,
   Truck,
   FileCheck,
-  Lock,
+  Plus,
 } from "lucide-react";
-import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
+import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
@@ -108,9 +96,6 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
   const [editNewCert, setEditNewCert] = useState("");
   const [editSpecs, setEditSpecs] = useState<{ label: string; value: string }[]>([]);
 
-  // Quick Stock Adjustment in Admin console
-  const [stockDelta, setStockDelta] = useState<number>(100);
-
   if (!product) {
     return (
       <div className={`${sansation.className} flex flex-col items-center justify-center py-20 text-center gap-4`}>
@@ -138,10 +123,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
 
   const unit = product.unit || "kg";
   const minOrder = product.minOrderQty || 1;
-  const maxStock = product.availableQuantity;
   const totalValuation = product.price * product.availableQuantity;
-  const portHandlingDutyEst = Math.round(totalValuation * 0.025);
-  const totalLandedCost = totalValuation + portHandlingDutyEst;
 
   const openEditModal = () => {
     setEditName(product.name);
@@ -160,21 +142,8 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
     setEditPackaging(product.packaging || "");
     setEditShelfLife(product.shelfLife || "");
     setEditMinOrderQty(product.minOrderQty || 1);
-    setEditCertifications(
-      product.certifications || [
-        "ISO 22000 Food Safety Standard",
-        "USDA Organic Certified",
-        "Phytosanitary Ministry Release",
-        "Fair Trade International",
-      ]
-    );
-    setEditSpecs(
-      product.specs || [
-        { label: "Moisture Content", value: "< 11.5%" },
-        { label: "Processing Method", value: "Fully Washed & Sun Dried" },
-        { label: "Purity Grade", value: "Grade 1 (99.8% purity)" },
-      ]
-    );
+    setEditCertifications(product.certifications || []);
+    setEditSpecs(product.specs || []);
     setIsEditModalOpen(true);
   };
 
@@ -211,20 +180,12 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
       packaging: editPackaging.trim() || undefined,
       shelfLife: editShelfLife.trim() || undefined,
       minOrderQty: editMinOrderQty,
-      certifications: editCertifications,
-      specs: validSpecs,
+      certifications: editCertifications.length > 0 ? editCertifications : undefined,
+      specs: validSpecs.length > 0 ? validSpecs : undefined,
     });
 
     setIsEditModalOpen(false);
     toast.success({ title: "Export Listing Updated Successfully" });
-  };
-
-  const handleQuickStockChange = (amount: number) => {
-    const newQty = Math.max(0, product.availableQuantity + amount);
-    updateProduct(product.id, { availableQuantity: newQty });
-    toast.success({
-      title: amount > 0 ? `Added ${amount} ${unit} to stock` : `Deducted ${Math.abs(amount)} ${unit} from stock`,
-    });
   };
 
   const handleDelete = () => {
@@ -234,7 +195,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
     router.push("/dashboard/products");
   };
 
-  // Cert editing helpers
+  // Cert helpers
   const handleAddCertToModal = () => {
     if (!editNewCert.trim()) return;
     if (!editCertifications.includes(editNewCert.trim())) {
@@ -247,7 +208,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
     setEditCertifications(editCertifications.filter((c) => c !== cert));
   };
 
-  // Spec editing helpers
+  // Spec helpers
   const handleAddSpecToModal = () => {
     setEditSpecs([...editSpecs, { label: "", value: "" }]);
   };
@@ -283,15 +244,39 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
 
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
-              Commodity SKU Console
+              {product.name}
             </h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Active in Marketplace
-            </span>
             <span className="rounded-lg bg-foreground/5 px-2.5 py-0.5 text-[11px] font-semibold text-foreground/60 border border-foreground/10">
               SKU: {product.id.toUpperCase()}
             </span>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-foreground/60 flex-wrap">
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-primary" /> {product.originCountry}
+            </span>
+            {product.portOfLoading && (
+              <>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Anchor className="h-3.5 w-3.5 text-primary" /> Port: {product.portOfLoading}
+                </span>
+              </>
+            )}
+            {product.hsCode && (
+              <>
+                <span>•</span>
+                <span className="font-mono">HS Code: {product.hsCode}</span>
+              </>
+            )}
+            {product.category && (
+              <>
+                <span>•</span>
+                <span className="rounded-md bg-foreground/5 px-2 py-0.5 text-[10px] font-semibold text-foreground/70 uppercase">
+                  {product.category}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -327,106 +312,65 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
         </div>
       </div>
 
-      {/* 2. Top Executive Metric Cards (4 KPI Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: Total Lot Valuation */}
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-foreground/60 mb-2">
-            <span className="text-[11px] uppercase font-bold tracking-wider">Lot Valuation</span>
-            <DollarSign className="h-4 w-4 text-emerald-500" />
-          </div>
-          <div>
-            <div className={`${pinkAverage.className} text-2xl font-bold text-foreground`}>
-              ৳ {totalValuation.toLocaleString()}
-            </div>
-            <p className="text-[11px] text-foreground/50 mt-0.5">
-              ৳ {product.price.toLocaleString()} per {unit}
-            </p>
-          </div>
+      {/* 2. Key Product Data Points (Executive Metrics Grid) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Unit Price</span>
+          <span className={`${pinkAverage.className} text-xl font-bold text-primary block mt-0.5`}>
+            ৳ {product.price.toLocaleString()}
+          </span>
+          <span className="text-[10px] text-foreground/50">per {unit}</span>
         </div>
 
-        {/* Metric 2: Available Stock Allocation */}
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-foreground/60 mb-2">
-            <span className="text-[11px] uppercase font-bold tracking-wider">Inventory Stock</span>
-            <Boxes className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <div className={`${pinkAverage.className} text-2xl font-bold text-foreground`}>
-              {product.availableQuantity.toLocaleString()}{" "}
-              <span className="text-sm font-normal text-foreground/60">{unit}</span>
-            </div>
-            <p className="text-[11px] text-foreground/50 mt-0.5">
-              Min Order (MOQ): {product.minOrderQty || 1} {unit}
-            </p>
-          </div>
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Available Stock</span>
+          <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5`}>
+            {product.availableQuantity.toLocaleString()}
+          </span>
+          <span className="text-[10px] text-foreground/50">{unit} in stock</span>
         </div>
 
-        {/* Metric 3: Quality & Assurance Score */}
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-foreground/60 mb-2">
-            <span className="text-[11px] uppercase font-bold tracking-wider">Trade Score</span>
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className={`${pinkAverage.className} text-2xl font-bold text-foreground`}>
-                {product.rating}
-              </span>
-              <span className="text-xs text-foreground/50">/ 5.0</span>
-            </div>
-            <p className="text-[11px] text-emerald-500 font-semibold mt-0.5">
-              Tier 1 Export Quality
-            </p>
-          </div>
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Min Order (MOQ)</span>
+          <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5`}>
+            {minOrder}
+          </span>
+          <span className="text-[10px] text-foreground/50">{unit} threshold</span>
         </div>
 
-        {/* Metric 4: Logistics & Escrow Clearance */}
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between text-foreground/60 mb-2">
-            <span className="text-[11px] uppercase font-bold tracking-wider">Escrow Security</span>
-            <ShieldCheck className="h-4 w-4 text-blue-500" />
-          </div>
-          <div>
-            <div className={`${pinkAverage.className} text-2xl font-bold text-blue-500`}>
-              100% Protected
-            </div>
-            <p className="text-[11px] text-foreground/50 mt-0.5">
-              Port: {product.portOfLoading || "Origin Port"}
-            </p>
-          </div>
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Lot Valuation</span>
+          <span className={`${pinkAverage.className} text-xl font-bold text-emerald-500 block mt-0.5`}>
+            ৳ {totalValuation.toLocaleString()}
+          </span>
+          <span className="text-[10px] text-foreground/50">Total value</span>
+        </div>
+
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Lead Time</span>
+          <span className="text-xs font-bold text-foreground block mt-1 truncate">
+            {product.leadTime || "5 - 10 Days"}
+          </span>
+          <span className="text-[10px] text-foreground/50">Dispatch window</span>
+        </div>
+
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Shelf Life</span>
+          <span className="text-xs font-bold text-foreground block mt-1 truncate">
+            {product.shelfLife || "24 Months"}
+          </span>
+          <span className="text-[10px] text-foreground/50">Guaranteed</span>
         </div>
       </div>
 
-      {/* 3. Main Console Layout: Left (8 cols) Detailed Data, Right (4 cols) Inventory Controls & Manifest */}
+      {/* 3. Product Content Grid: Media + Description (Left) & Specs + Compliance (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* LEFT COLUMN: Media & Detailed Specs (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col gap-6">
-          
-          {/* Card A: Commodity Hero Visual & Gallery Assets */}
-          <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-5">
-            <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
-              <div>
-                <h3 className={`${pinkAverage.className} text-xl text-foreground`}>
-                  {product.name}
-                </h3>
-                <div className="flex items-center gap-2 mt-1 text-xs text-foreground/60">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3 text-primary" /> {product.originCountry}
-                  </span>
-                  <span>•</span>
-                  <span className="rounded-md bg-foreground/5 px-2 py-0.5 text-[10px] font-semibold text-foreground/70 uppercase">
-                    {product.category || "Commodity"}
-                  </span>
-                  <span>•</span>
-                  <span>Created {new Date(product.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Visual Display */}
-            <div className="relative h-80 w-full overflow-hidden rounded-2xl bg-foreground/5 border border-foreground/10 group">
+        {/* Left Column (6 cols): Media Gallery, Packaging & Description */}
+        <div className="lg:col-span-6 flex flex-col gap-6">
+          {/* Media Showcase */}
+          <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-5 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
+            <div className="relative h-72 sm:h-80 w-full overflow-hidden rounded-2xl bg-foreground/5 border border-foreground/10 group">
               <Image
                 src={gallery[activeImgIndex] || product.image}
                 alt={product.name}
@@ -442,9 +386,9 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
               </button>
             </div>
 
-            {/* Thumbnails if multiple images exist */}
+            {/* Thumbnails */}
             {gallery.length > 1 && (
-              <div className="flex items-center gap-3 overflow-x-auto pb-1">
+              <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
                 {gallery.map((imgUrl, idx) => (
                   <button
                     key={idx}
@@ -456,346 +400,130 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
                         : "border-foreground/10 opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <Image src={imgUrl} alt={`Thumbnail ${idx}`} fill className="object-cover" />
+                    <Image src={imgUrl} alt="" fill className="object-cover" />
                   </button>
                 ))}
               </div>
             )}
 
-            {/* Detailed Commercial Description (Exact paragraphs from details page) */}
-            <div className="pt-2 border-t border-foreground/8">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground/60 mb-2">
-                Commercial Description & Provenance
+            {/* Packaging Spec */}
+            {product.packaging && (
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5 text-xs flex items-start gap-2.5">
+                <Package className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-foreground">Packaging Standard:</span>
+                  <p className="text-foreground/70 mt-0.5">{product.packaging}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Product Description */}
+            <div className="pt-2 border-t border-foreground/8 flex flex-col gap-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground/60">
+                Description
               </h4>
-              <div className={`${sansation.className} flex flex-col gap-2.5 text-foreground/80 text-xs sm:text-sm leading-relaxed text-justify font-extralight`}>
-                <p className="first-letter:text-xl sm:first-letter:text-2xl first-letter:font-bold first-letter:mr-0.5">
-                  {product.description}
-                </p>
-                <p>
-                  Harvested and processed under certified commercial export standards in {product.originCountry}, this lot is curated specifically for high-volume cross-border trade. Each consignment is subjected to comprehensive quality grading, ensuring optimal purity, moisture stabilization, and full conformity with global import and phytosanitary regulations.
-                </p>
-                <p>
-                  Shipped in {product.packaging || "export-grade hermetic protective packaging"} with an estimated export dispatch window of {product.leadTime || "7 - 14 business days"}{product.portOfLoading ? ` through ${product.portOfLoading}` : ""}. Fully secured under the Elevex 100% Escrow Guarantee, with smart contract settlement released only upon SGS lot verification and port inspection.
-                </p>
-              </div>
-            </div>
-
-            {/* Quality & Origin Highlights + Trade Terms & Handover */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-foreground/8">
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
-                  Quality & Origin Highlights
-                </h4>
-                <ul className="flex flex-col gap-2 text-xs text-foreground/75">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span>Single-origin sourcing from certified agricultural cooperatives</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span>Strict phytosanitary and export-grade moisture control standards</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span>Pre-shipment batch chemical and purity assay documentation</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
-                  Trade Terms & Handover
-                </h4>
-                <ul className="flex flex-col gap-2 text-xs text-foreground/75">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span>Incoterms: FOB / CIF options supported on request</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span>Electronic Bill of Lading (eBL) transfer upon customs clearance</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span>Full container load (FCL) & less than container load (LCL) enabled</span>
-                  </li>
-                </ul>
-              </div>
+              <p className="text-xs text-foreground/80 leading-relaxed">
+                {product.description}
+              </p>
             </div>
           </div>
 
-          {/* Card B: Technical Specifications Matrix */}
+          {/* Trust Guarantees */}
+          <div className="grid grid-cols-3 gap-3 text-center text-xs">
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <span className="font-bold text-foreground text-[11px]">100% Escrow</span>
+              <span className="text-[10px] text-foreground/50">Funds released on port receipt</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+              <BadgeCheck className="h-5 w-5 text-emerald-500" />
+              <span className="font-bold text-foreground text-[11px]">SGS Inspected</span>
+              <span className="text-[10px] text-foreground/50">Pre-shipment lot verification</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+              <FileText className="h-5 w-5 text-blue-500" />
+              <span className="font-bold text-foreground text-[11px]">Digital BoL</span>
+              <span className="text-[10px] text-foreground/50">Instant cryptographic release</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column (6 cols): Specifications & Compliance */}
+        <div className="lg:col-span-6 flex flex-col gap-6">
+          
+          {/* Specifications Table */}
           <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
             <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-primary" />
                 <h3 className={`${pinkAverage.className} text-xl text-foreground`}>
-                  Technical Specifications & Quality Parameters
+                  Technical Specifications
                 </h3>
               </div>
-              <span className="text-[11px] text-foreground/50">Laboratory Assayed</span>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-foreground/10">
-              <table className="w-full text-left text-xs">
-                <tbody className="divide-y divide-foreground/8">
-                  {(
-                    product.specs || [
-                      { label: "Moisture Content", value: "< 11.5%" },
-                      { label: "Processing Method", value: "Fully Washed & Sun Dried" },
-                      { label: "Purity Grade", value: "Grade 1 (99.8% purity)" },
-                      { label: "Harvest Season", value: "Current 2026/2027" },
-                    ]
-                  ).map((item, idx) => (
-                    <tr
-                      key={idx}
-                      className={idx % 2 === 0 ? "bg-foreground/2" : "bg-background"}
-                    >
-                      <td className="px-4 py-3 font-semibold text-foreground/60 w-1/3">
-                        {item.label}
-                      </td>
-                      <td className="px-4 py-3 font-bold text-foreground">{item.value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {product.specs && product.specs.length > 0 ? (
+              <div className="overflow-hidden rounded-2xl border border-foreground/10">
+                <table className="w-full text-left text-xs">
+                  <tbody className="divide-y divide-foreground/8">
+                    {product.specs.map((item, idx) => (
+                      <tr
+                        key={idx}
+                        className={idx % 2 === 0 ? "bg-foreground/2" : "bg-background"}
+                      >
+                        <td className="px-4 py-3 font-semibold text-foreground/60 w-1/3">
+                          {item.label}
+                        </td>
+                        <td className="px-4 py-3 font-bold text-foreground">{item.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-foreground/50 py-2">
+                No custom specifications added for this commodity.
+              </p>
+            )}
           </div>
 
-          {/* Card C: Certifications & Standards Ledger */}
+          {/* Certifications Ledger */}
           <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
             <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
               <div className="flex items-center gap-2">
                 <FileCheck className="h-4 w-4 text-emerald-500" />
                 <h3 className={`${pinkAverage.className} text-xl text-foreground`}>
-                  Trade Accreditations & Phytosanitary Status
+                  Certifications & Standards
                 </h3>
               </div>
-              <span className="text-[11px] text-emerald-500 font-bold">Active & Verified</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {(
-                product.certifications || [
-                  "ISO 22000 Food Safety Standard",
-                  "USDA Organic Certified",
-                  "Phytosanitary Ministry Release",
-                  "Fair Trade International",
-                ]
-              ).map((cert, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-3 rounded-2xl border border-foreground/10 bg-background/50 p-3.5"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
-                    <ShieldCheck className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h5 className="text-xs font-bold text-foreground">{cert}</h5>
-                    <p className="text-[10px] text-foreground/50 mt-0.5">
-                      Valid for current export season. Certified digital copy on escrow allocation.
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-
-        {/* RIGHT COLUMN: Inventory Controls, Customs, Pricing & Shipping Manifest (4 cols) */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-
-          {/* Card 1: Quick Inventory Control Terminal */}
-          <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-foreground/10 pb-2">
-              <div className="flex items-center gap-1.5">
-                <Sliders className="h-4 w-4 text-primary" />
-                <h3 className={`${pinkAverage.className} text-lg text-foreground`}>
-                  Stock Adjuster
-                </h3>
-              </div>
-              <span className="text-xs font-bold text-primary">
-                {product.availableQuantity.toLocaleString()} {unit}
-              </span>
-            </div>
-
-            <p className="text-xs text-foreground/60 leading-relaxed">
-              Instantly adjust live stock available for international buyers in the Elevex global marketplace.
-            </p>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickStockChange(-stockDelta)}
-                disabled={product.availableQuantity <= 0}
-                className="flex-1 flex items-center justify-center gap-1 h-10 rounded-xl border border-foreground/15 bg-background text-xs font-bold text-foreground hover:bg-foreground/5 disabled:opacity-40 transition-all cursor-pointer"
-              >
-                <Minus className="h-3.5 w-3.5 text-red-500" />
-                <span>-{stockDelta} {unit}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickStockChange(stockDelta)}
-                className="flex-1 flex items-center justify-center gap-1 h-10 rounded-xl border border-foreground/15 bg-background text-xs font-bold text-foreground hover:bg-foreground/5 transition-all cursor-pointer"
-              >
-                <Plus className="h-3.5 w-3.5 text-emerald-500" />
-                <span>+{stockDelta} {unit}</span>
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between pt-2 border-t border-foreground/8 text-xs text-foreground/60">
-              <span>Step size:</span>
-              <div className="flex items-center gap-1">
-                {[50, 100, 500].map((step) => (
-                  <button
-                    key={step}
-                    type="button"
-                    onClick={() => setStockDelta(step)}
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
-                      stockDelta === step
-                        ? "bg-primary text-white"
-                        : "bg-foreground/5 text-foreground/70 hover:bg-foreground/10"
-                    }`}
+            {product.certifications && product.certifications.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {product.certifications.map((cert, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-3 rounded-2xl border border-foreground/10 bg-background/50 p-3.5"
                   >
-                    {step}
-                  </button>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+                      <ShieldCheck className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h5 className="text-xs font-bold text-foreground">{cert}</h5>
+                      <p className="text-[10px] text-foreground/50 mt-0.5">
+                        Active & verified digital certificate.
+                      </p>
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Card 2: Financial Landed Cost Valuation Breakdown */}
-          <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
-              <DollarSign className="h-4 w-4 text-emerald-500" />
-              <h3 className={`${pinkAverage.className} text-lg text-foreground`}>
-                Consignment Valuation & Landed Cost
-              </h3>
-            </div>
-
-            <div className="flex flex-col gap-2.5 text-xs">
-              <div className="flex justify-between text-foreground/60">
-                <span>Total Lot Units:</span>
-                <span className="font-semibold text-foreground">
-                  {product.availableQuantity.toLocaleString()} {unit}
-                </span>
-              </div>
-
-              <div className="flex justify-between text-foreground/60">
-                <span>Unit Export Price:</span>
-                <span className="font-semibold text-foreground">
-                  ৳ {product.price.toLocaleString()} / {unit}
-                </span>
-              </div>
-
-              <div className="flex justify-between text-foreground/60">
-                <span>Total Consignment Value:</span>
-                <span className="font-semibold text-foreground">
-                  ৳ {totalValuation.toLocaleString()}
-                </span>
-              </div>
-
-              <div className="flex justify-between text-foreground/60">
-                <span className="flex items-center gap-1">
-                  <span>Port Clearance & Duty (2.5%):</span>
-                  <Info className="h-3 w-3 text-foreground/40" />
-                </span>
-                <span className="font-semibold text-foreground">
-                  ৳ {portHandlingDutyEst.toLocaleString()}
-                </span>
-              </div>
-
-              <div className="flex justify-between text-foreground/60">
-                <span>Verified Escrow Protection:</span>
-                <span className="font-bold text-emerald-500">FREE (Elevex Covered)</span>
-              </div>
-
-              <div className="flex justify-between border-t border-foreground/10 pt-2.5 mt-1 text-sm font-bold text-foreground">
-                <span>Full Landed Valuation:</span>
-                <span className={`${pinkAverage.className} text-xl font-bold text-primary`}>
-                  ৳ {totalLandedCost.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3: Logistics & Customs Freight Matrix */}
-          <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
-              <Truck className="h-4 w-4 text-primary" />
-              <h3 className={`${pinkAverage.className} text-lg text-foreground`}>
-                Trade & Shipping Manifest
-              </h3>
-            </div>
-
-            <div className="flex flex-col gap-3 text-xs">
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3 flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-semibold text-foreground/45">
-                  HS Classification Code
-                </span>
-                <span className="font-mono font-bold text-foreground text-sm">
-                  {product.hsCode || "0901.11.00"}
-                </span>
-              </div>
-
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3 flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-semibold text-foreground/45">
-                  Port of Loading
-                </span>
-                <span className="font-bold text-foreground text-sm">
-                  {product.portOfLoading || "Origin International Seaport"}
-                </span>
-              </div>
-
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3 flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-semibold text-foreground/45">
-                  Export Packaging
-                </span>
-                <span className="font-bold text-foreground text-xs leading-snug">
-                  {product.packaging || "Export standard hermetic seaworthy packaging"}
-                </span>
-              </div>
-
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3 flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-semibold text-foreground/45">
-                  Estimated Lead Time
-                </span>
-                <span className="font-bold text-foreground text-xs">
-                  {product.leadTime || "5 - 10 Business Days"}
-                </span>
-              </div>
-
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3 flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-semibold text-foreground/45">
-                  Guaranteed Shelf Life
-                </span>
-                <span className="font-bold text-foreground text-xs">
-                  {product.shelfLife || "24 Months"}
-                </span>
-              </div>
-
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3 flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-semibold text-foreground/45">
-                  Minimum Order Threshold (MOQ)
-                </span>
-                <span className="font-bold text-foreground text-xs">
-                  {minOrder} {unit}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 4: Escrow & Settlement Guarantee */}
-          <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
-              <h4 className="font-bold text-foreground">Elevex Guaranteed Escrow</h4>
-            </div>
-            <p className="text-foreground/70 leading-relaxed text-[11px]">
-              Every buyer order for this commodity is backed 100% in digital collateral. Funds are released automatically into your exporter settlement wallet upon electronic BoL confirmation.
-            </p>
+            ) : (
+              <p className="text-xs text-foreground/50 py-2">
+                No certifications registered for this commodity.
+              </p>
+            )}
           </div>
 
         </div>
