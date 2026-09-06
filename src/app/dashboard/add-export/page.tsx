@@ -11,9 +11,21 @@ import {
   Sparkles,
   ArrowLeft,
   Image as ImageIcon,
+  Sprout,
+  Shirt,
+  Utensils,
+  Gem,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import CustomDropdown, { DropdownOption } from "@/app/components/dashboard-components/CustomDropdown";
+
+const categoryOptions: DropdownOption[] = [
+  { value: "Agricultural", label: "Agricultural", description: "Crops, grains, raw materials", icon: Sprout },
+  { value: "Textile", label: "Textile", description: "Fabrics, garments, fibers", icon: Shirt },
+  { value: "Food", label: "Food", description: "Processed food & spices", icon: Utensils },
+  { value: "Minerals", label: "Minerals", description: "Ores, metals, building stones", icon: Gem },
+];
 
 export default function AddExportPage() {
   const router = useRouter();
@@ -109,7 +121,7 @@ export default function AddExportPage() {
   }
 
   return (
-    <div className={`${sansation.className} flex flex-col gap-6 pb-12 max-w-4xl mx-auto`}>
+    <div className={`${sansation.className} flex flex-col gap-6 pb-12 w-full`}>
       {/* Preset Fill Pills */}
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-foreground/10 bg-foreground/2 p-3 text-xs inset-shadow-foreground/10 inset-shadow-xs">
         <span className="text-foreground/50 font-semibold flex items-center gap-1">
@@ -266,16 +278,13 @@ export default function AddExportPage() {
             <label className="block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 mb-1.5">
               Category
             </label>
-            <select
+            <CustomDropdown
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="h-11 w-full rounded-xl border border-foreground/15 bg-background px-3 text-foreground focus:border-primary focus:outline-none"
-            >
-              <option value="Agricultural">Agricultural</option>
-              <option value="Textile">Textile</option>
-              <option value="Food">Food</option>
-              <option value="Minerals">Minerals</option>
-            </select>
+              options={categoryOptions}
+              onChange={(newCat) => setCategory(newCat)}
+              className="w-full"
+              triggerClassName="h-11 border-foreground/15 bg-background"
+            />
           </div>
 
           <div>

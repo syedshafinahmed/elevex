@@ -12,6 +12,7 @@ import {
   Download,
   Upload,
   PlusCircle,
+  Users,
   Settings,
   LogOut,
   ChevronLeft,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import { useUserRole } from "@/context/UserRoleContext";
 
 interface DashboardSidebarProps {
   collapsed: boolean;
@@ -36,15 +38,27 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const { data: session } = useSession();
   const { products, myImports, myExports } = useProducts();
+  const { users, currentRole } = useUserRole();
+  const dbUser = users.find(
+    (u) => u.email.toLowerCase() === session?.user?.email?.toLowerCase()
+  );
+  const userRole = dbUser?.role || ((session?.user as { role?: string })?.role === "ADMIN" ? "ADMIN" : currentRole) || "USER";
+  const isAdmin = userRole === "ADMIN";
 
+  // Role-Aware Navigation: ADMIN gets 2 extra menus (All Products, Users Management)
   const navItems = [
-    { label: "Home",         href: "/",                    icon: Home },
-    { label: "Overview",     href: "/dashboard",           icon: LayoutDashboard },
-    { label: "All Products", href: "/dashboard/products",  icon: ShoppingBag, badge: `${products.length}` },
-    { label: "My Exports",   href: "/dashboard/exports",   icon: Upload, badge: `${myExports.length}` },
-    { label: "My Imports",   href: "/dashboard/imports",   icon: Download, badge: `${myImports.length}` },
-    { label: "Add Export",   href: "/dashboard/add-export", icon: PlusCircle },
-    { label: "Settings",     href: "/dashboard/settings",  icon: Settings },
+    { label: "Home",             href: "/",                     icon: Home },
+    { label: "Overview",         href: "/dashboard",            icon: LayoutDashboard },
+    ...(isAdmin
+      ? [
+          { label: "All Products",     href: "/dashboard/products",   icon: ShoppingBag, badge: `${products.length}` },
+          { label: "Users Management", href: "/dashboard/users",      icon: Users },
+        ]
+      : []),
+    { label: "My Exports",       href: "/dashboard/exports",    icon: Upload, badge: `${myExports.length}` },
+    { label: "My Imports",       href: "/dashboard/imports",    icon: Download, badge: `${myImports.length}` },
+    { label: "Add Export",       href: "/dashboard/add-export", icon: PlusCircle },
+    { label: "Settings",         href: "/dashboard/settings",   icon: Settings },
   ];
 
   function isItemActive(href: string) {
@@ -147,9 +161,16 @@ export default function DashboardSidebar({
             )}
             {!collapsed && (
               <div className="flex flex-col min-w-0 flex-1">
-                <span className="truncate text-xs font-semibold text-foreground">
-                  {session.user.name || "Trader"}
-                </span>
+                <div className="flex items-center justify-between gap-1">
+                  <span className="truncate text-xs font-semibold text-foreground">
+                    {session.user.name || "Trader"}
+                  </span>
+                  <span className={`rounded-md px-1.5 py-0.2 text-[9px] font-bold ${
+                    isAdmin ? "bg-primary/20 text-primary" : "bg-foreground/10 text-foreground/70"
+                  }`}>
+                    {currentRole}
+                  </span>
+                </div>
                 <span className="truncate text-[10px] text-foreground/50">
                   {session.user.email}
                 </span>

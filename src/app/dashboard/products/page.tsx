@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -18,11 +19,27 @@ import {
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
+import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
+import CustomDropdown, { DropdownOption } from "@/app/components/dashboard-components/CustomDropdown";
+import { Sprout, Shirt, Utensils, Gem } from "lucide-react";
+
+const categoryOptions: DropdownOption[] = [
+  { value: "Agricultural", label: "Agricultural", description: "Crops, grains, raw materials", icon: Sprout },
+  { value: "Textile", label: "Textile", description: "Fabrics, garments, fibers", icon: Shirt },
+  { value: "Food", label: "Food", description: "Processed food & spices", icon: Utensils },
+  { value: "Minerals", label: "Minerals", description: "Ores, metals, building stones", icon: Gem },
+];
 
 export default function AdminProductsPage() {
   const { products, deleteProduct, updateProduct } = useProducts();
+  const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Edit Modal State
   const [editItem, setEditItem] = useState<Product | null>(null);
@@ -156,7 +173,7 @@ export default function AdminProductsPage() {
                         </div>
                         <div className="flex flex-col min-w-0 max-w-xs">
                           <Link
-                            href={`/products/${item.id}`}
+                            href={`/dashboard/products/${item.id}`}
                             className="font-semibold text-foreground truncate hover:text-primary transition-colors text-xs"
                           >
                             {item.name}
@@ -198,7 +215,7 @@ export default function AdminProductsPage() {
                     <td className="py-3.5 pr-6 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Link
-                          href={`/products/${item.id}`}
+                          href={`/dashboard/products/${item.id}`}
                           className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10 bg-background text-foreground/60 hover:text-primary hover:border-primary transition-colors inset-shadow-foreground/10 inset-shadow-xs"
                           title="See Details"
                         >
@@ -214,7 +231,7 @@ export default function AdminProductsPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => deleteProduct(item.id)}
+                          onClick={() => setProductToDelete(item)}
                           className="flex h-8 w-8 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 text-red-500 hover:bg-red-500/15 transition-colors cursor-pointer"
                           title="Delete Product"
                         >
@@ -231,8 +248,8 @@ export default function AdminProductsPage() {
       )}
 
       {/* Edit Product Modal */}
-      {editItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-md">
+      {editItem && mounted && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
           <div className="relative w-full max-w-lg rounded-3xl border border-foreground/15 bg-background p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-foreground/10 pb-3 mb-4">
               <h3 className={`${pinkAverage.className} text-xl text-foreground`}>
@@ -336,16 +353,12 @@ export default function AdminProductsPage() {
                 <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
                   Category
                 </label>
-                <select
+                <CustomDropdown
                   value={editCategory}
-                  onChange={(e) => setEditCategory(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3 text-foreground focus:border-primary focus:outline-none"
-                >
-                  <option value="Agricultural">Agricultural</option>
-                  <option value="Textile">Textile</option>
-                  <option value="Food">Food</option>
-                  <option value="Minerals">Minerals</option>
-                </select>
+                  options={categoryOptions}
+                  onChange={(newCat) => setEditCategory(newCat)}
+                  className="w-full"
+                />
               </div>
 
               <div className="mt-3 flex items-center justify-end gap-2 pt-3 border-t border-foreground/10">
@@ -365,8 +378,25 @@ export default function AdminProductsPage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
+
+      {/* Delete Product Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(productToDelete)}
+        title="Delete Commodity Listing"
+        itemName={productToDelete?.name}
+        description="Are you sure you want to permanently remove this commodity from the global inventory? This will delete the listing across the marketplace and active catalogs."
+        confirmText="Delete Commodity"
+        onConfirm={() => {
+          if (productToDelete) {
+            deleteProduct(productToDelete.id);
+            setProductToDelete(null);
+          }
+        }}
+        onClose={() => setProductToDelete(null)}
+      />
     </div>
   );
 }

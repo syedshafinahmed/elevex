@@ -15,10 +15,13 @@ import {
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import { ImportedProduct } from "@/lib/productsData";
+import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
 
 export default function MyImportsPage() {
   const { myImports, removeImport } = useProducts();
   const [search, setSearch] = useState("");
+  const [importToRemove, setImportToRemove] = useState<ImportedProduct | null>(null);
 
   const filteredImports = myImports.filter(
     (item) =>
@@ -170,7 +173,7 @@ export default function MyImportsPage() {
                 {/* 6. Remove Button */}
                 <button
                   type="button"
-                  onClick={() => removeImport(item.id)}
+                  onClick={() => setImportToRemove(item)}
                   className="flex items-center gap-1 rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/15 transition-colors cursor-pointer"
                   title="Remove from My Imports"
                 >
@@ -182,6 +185,22 @@ export default function MyImportsPage() {
           ))}
         </div>
       )}
+
+      {/* Remove Import Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(importToRemove)}
+        title="Remove Imported Product"
+        itemName={importToRemove?.name}
+        description="Are you sure you want to remove this imported product from your inventory record? You can always import it again from the marketplace."
+        confirmText="Remove Item"
+        onConfirm={() => {
+          if (importToRemove) {
+            removeImport(importToRemove.id);
+            setImportToRemove(null);
+          }
+        }}
+        onClose={() => setImportToRemove(null)}
+      />
     </div>
   );
 }

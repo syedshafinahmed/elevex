@@ -40,7 +40,7 @@ export default function DashboardLayout({
 
         {/* Scrollable Dashboard Page View */}
         <main className="relative z-10 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <div className="mx-auto max-w-7xl">
+          <div className="w-full">
             {children}
           </div>
         </main>

@@ -19,10 +19,14 @@ import {
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import { ImportedProduct } from "@/lib/productsData";
+import { useState } from "react";
+import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
   const { products, myExports, myImports, removeImport } = useProducts();
+  const [recentImportToRemove, setRecentImportToRemove] = useState<ImportedProduct | null>(null);
 
   const userName = session?.user?.name?.split(" ")[0] || "Trader";
 
@@ -291,7 +295,7 @@ export default function DashboardPage() {
                     </Link>
                     <button
                       type="button"
-                      onClick={() => removeImport(item.id)}
+                      onClick={() => setRecentImportToRemove(item)}
                       className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-500/20 text-red-500/70 hover:bg-red-500/10 hover:text-red-500 transition-colors cursor-pointer"
                       title="Remove from My Imports"
                     >
@@ -304,6 +308,22 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Remove Recent Import Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(recentImportToRemove)}
+        title="Remove Imported Product"
+        itemName={recentImportToRemove?.name}
+        description="Are you sure you want to remove this imported product from your inventory record?"
+        confirmText="Remove Item"
+        onConfirm={() => {
+          if (recentImportToRemove) {
+            removeImport(recentImportToRemove.id);
+            setRecentImportToRemove(null);
+          }
+        }}
+        onClose={() => setRecentImportToRemove(null)}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -18,11 +19,18 @@ import {
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
+import DeleteConfirmModal from "@/app/components/dashboard-components/DeleteConfirmModal";
 
 export default function MyExportsPage() {
   const { myExports, deleteProduct, updateProduct } = useProducts();
   const [search, setSearch] = useState("");
+  const [mounted, setMounted] = useState(false);
   const [editModalItem, setEditModalItem] = useState<Product | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<Product | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Prefilled modal form state
   const [editName, setEditName] = useState("");
@@ -202,7 +210,7 @@ export default function MyExportsPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => deleteProduct(item.id)}
+                    onClick={() => setItemToDelete(item)}
                     className="flex h-8 w-8 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 text-red-500 hover:bg-red-500/15 transition-colors cursor-pointer"
                     title="Delete Product"
                   >
@@ -215,9 +223,25 @@ export default function MyExportsPage() {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={Boolean(itemToDelete)}
+        title="Delete Export Listing"
+        itemName={itemToDelete?.name}
+        description="Are you sure you want to remove this export listing? It will no longer be visible in the marketplace or your exports dashboard."
+        confirmText="Delete Listing"
+        onConfirm={() => {
+          if (itemToDelete) {
+            deleteProduct(itemToDelete.id);
+            setItemToDelete(null);
+          }
+        }}
+        onClose={() => setItemToDelete(null)}
+      />
+
       {/* Prefilled Update Modal */}
-      {editModalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-md">
+      {editModalItem && mounted && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
           <div className="relative w-full max-w-lg rounded-3xl border border-foreground/15 bg-background p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-foreground/10 pb-3 mb-4">
               <h3 className={`${pinkAverage.className} text-xl text-foreground`}>
@@ -334,7 +358,8 @@ export default function MyExportsPage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

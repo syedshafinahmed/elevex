@@ -65,7 +65,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
+      if (token?.email) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: token.email.toLowerCase() },
+            select: { id: true, role: true },
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+          }
+        } catch (err) {
+          console.error("Failed to fetch user role in jwt callback:", err);
+          if (user) {
+            token.id = user.id;
+            token.role = (user as { role?: string }).role || "USER";
+          }
+        }
+      } else if (user) {
         token.id = user.id;
         token.role = (user as { role?: string }).role || "USER";
       }
@@ -74,7 +91,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user && token) {
         session.user.id = token.id as string;
-        (session.user as { role?: string }).role = token.role as string;
+        (session.user as { role?: string }).role = (token.role as string) || "USER";
       }
       return session;
     },

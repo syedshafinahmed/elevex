@@ -37,6 +37,10 @@ const routeMetadata: Record<string, { title: string; subtitle: string }> = {
     title: "Add Export Listing",
     subtitle: "Publish a new commodity to global market",
   },
+  "/dashboard/users": {
+    title: "User Management",
+    subtitle: "Manage accounts, permissions & role access",
+  },
   "/dashboard/settings": {
     title: "Account Settings",
     subtitle: "Manage profile, security & trading preferences",
@@ -68,10 +72,19 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
   }, []);
 
   // Determine current title and subtitle based on pathname
-  const pageMeta = routeMetadata[pathname] || {
-    title: "Dashboard",
-    subtitle: "Elevex Export & Import Trading Hub",
-  };
+  let pageMeta = routeMetadata[pathname];
+  if (!pageMeta && pathname.startsWith("/dashboard/products/")) {
+    pageMeta = {
+      title: "Product Specifications",
+      subtitle: "Admin inspection, inventory valuation & stock controls",
+    };
+  }
+  if (!pageMeta) {
+    pageMeta = {
+      title: "Dashboard",
+      subtitle: "Elevex Export & Import Trading Hub",
+    };
+  }
 
   return (
     <header className={`${sansation.className} sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-foreground/10 bg-background/80 px-4 backdrop-blur-md sm:px-6 lg:px-8`}>
