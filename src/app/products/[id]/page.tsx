@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,10 +17,27 @@ import {
   X,
   Package,
   Clock,
+  Share2,
+  ShoppingCart,
+  ChevronRight,
+  Maximize2,
+  Anchor,
+  FileText,
+  BadgeCheck,
+  Layers,
+  Plus,
+  Minus,
+  Info,
+  Lock,
 } from "lucide-react";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import { Product, ProductReview } from "@/lib/productsData";
+import ProductCard from "@/app/components/products/ProductCard";
+import Button from "@/app/components/ui/Button";
 import { toast } from "gooey-toast";
+
+const CART_STORAGE_KEY = "elevex_cart_v1";
 
 export default function ProductDetailsPage({
   params,
@@ -32,259 +49,795 @@ export default function ProductDetailsPage({
   const { data: session } = useSession();
   const { products, importProduct } = useProducts();
 
-  const product = products.find((p) => p.id === resolvedParams.id) || products[0];
+  // Find product or fallback
+  const product =
+    products.find((p) => p.id === resolvedParams.id) || products[0];
 
-  const [importModalOpen, setImportModalOpen] = useState(false);
-  const [importQty, setImportQty] = useState<string>("1");
-  const [importError, setImportError] = useState<string | null>(null);
-  const [importSuccess, setImportSuccess] = useState(false);
+  // Gallery & Lightbox State
+  const gallery = useMemo(() => {
+    if (product.gallery && product.gallery.length > 0) {
+      return product.gallery;
+    }
+    return [product.image];
+  }, [product]);
 
-  const numericQty = Number(importQty);
-  // Import Limit Rule:
-  // Quantity cannot be > availableQuantity and must be > 0
-  const isExceedingLimit = numericQty > product.availableQuantity;
-  const isInvalidQty = !numericQty || numericQty <= 0 || isNaN(numericQty);
-  const isSubmitDisabled = isExceedingLimit || isInvalidQty || product.availableQuantity === 0;
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  function handleImportSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (isSubmitDisabled) return;
+  // Cart State
+  const [isInCart, setIsInCart] = useState(false);
 
-    const res = importProduct(product.id, numericQty);
-    if (!res.success) {
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      if (saved) {
+        const list: { id: string; quantity: number }[] = JSON.parse(saved);
+        setIsInCart(list.some((item) => item.id === product.id));
+      }
+    } catch {}
+  }, [product.id]);
+
+  function handleAddToCart() {
+    if (product.availableQuantity <= 0) {
       toast.error({
-        title: "Import Failed",
+        title: "Commodity is Out of Stock",
       });
-      setImportError(res.error || "Failed to import product.");
-    } else {
-      toast.success({
-        title: "Commodity Imported",
-      });
-      setImportSuccess(true);
-      setTimeout(() => {
-        setImportModalOpen(false);
-        setImportSuccess(false);
-        router.push("/dashboard/imports");
-      }, 1000);
+      return;
+    }
+
+    try {
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      let list: { id: string; quantity: number }[] = saved ? JSON.parse(saved) : [];
+      const existing = list.find((item) => item.id === product.id);
+
+      if (existing) {
+        list = list.filter((item) => item.id !== product.id);
+        setIsInCart(false);
+        toast.info({
+          title: "Removed from Cart",
+        });
+      } else {
+        list.push({ id: product.id, quantity: importQty || product.minOrderQty || 1 });
+        setIsInCart(true);
+        toast.success({
+          title: "Added to Cart",
+        });
+      }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(list));
+    } catch {
+      setIsInCart(!isInCart);
     }
   }
 
+  function handleShare() {
+    if (typeof window !== "undefined") {
+      navigator.clipboard
+        .writeText(window.location.href)
+        .then(() => {
+          toast.success({
+            title: "Product Link Copied to Clipboard",
+          });
+        })
+        .catch(() => {
+          toast.info({
+            title: "URL: " + window.location.href,
+          });
+        });
+    }
+  }
+
+  // Active Tab
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "specs" | "compliance"
+  >("overview");
+
+  // Import Configurator State
+  const unit = product.unit || "units";
+  const minOrder = product.minOrderQty || 1;
+  const maxStock = product.availableQuantity;
+  const [importQty, setImportQty] = useState<number>(minOrder);
+  const [isSubmittingImport, setIsSubmittingImport] = useState(false);
+  const [importSuccessModal, setImportSuccessModal] = useState(false);
+
+  // Financial Calculations
+  const isOutOfStock = maxStock <= 0;
+  const isExceedingLimit = importQty > maxStock;
+  const isBelowMin = importQty < minOrder;
+  const isInvalidQty =
+    !importQty || isNaN(importQty) || isBelowMin || isExceedingLimit || isOutOfStock;
+
+  const subtotal = (importQty || 0) * product.price;
+  const portHandlingDutyEst = Math.round(subtotal * 0.025);
+  const totalLandedCost = subtotal + portHandlingDutyEst;
+
+  function handleQuantityChange(val: number) {
+    const clamped = Math.max(minOrder, Math.min(val, maxStock || minOrder));
+    setImportQty(clamped);
+  }
+
+  function handleImportSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (isInvalidQty) return;
+
+    setIsSubmittingImport(true);
+    try {
+      const res = importProduct(product.id, importQty);
+      if (res.success) {
+        setIsSubmittingImport(false);
+        setImportSuccessModal(true);
+        toast.success({
+          title: "Commodity Consignment Allocated",
+        });
+      } else {
+        setIsSubmittingImport(false);
+        toast.error({
+          title: res.error || "Failed to import commodity",
+        });
+      }
+    } catch {
+      setIsSubmittingImport(false);
+      toast.error({
+        title: "An unexpected error occurred",
+      });
+    }
+  }
+
+  // Related Products
+  const relatedProducts = useMemo(() => {
+    return products
+      .filter(
+        (p) =>
+          p.id !== product.id &&
+          (p.category === product.category || p.originCountry === product.originCountry)
+      )
+      .slice(0, 4);
+  }, [products, product]);
+
   return (
-    <div className={`${sansation.className} mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-6`}>
-      {/* Back button */}
-      <div>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground/60 hover:text-primary transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Products
-        </button>
+    <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
+      {/* 1. Breadcrumbs & Top Action Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-foreground/10">
+        {/* Breadcrumb Links: Home > Products > Product Name */}
+        <nav className="flex items-center gap-1.5 text-xs text-foreground/60 overflow-x-auto">
+          <Link href="/" className="hover:text-primary transition-colors whitespace-nowrap">
+            Home
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
+          <Link href="/products" className="hover:text-primary transition-colors whitespace-nowrap">
+            Products
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
+          <span className="font-bold text-foreground truncate max-w-[250px] sm:max-w-md">
+            {product.name}
+          </span>
+        </nav>
+
+        {/* Toolbar Buttons: Back to Catalog, Cart, Share */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => router.push("/products")}
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-all shadow-xs cursor-pointer"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Back to Catalog</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all shadow-xs cursor-pointer ${
+              isInCart
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-foreground/15 bg-background text-foreground/70 hover:border-primary hover:text-primary"
+            }`}
+            title="Cart"
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            <span>{isInCart ? "In Cart" : "Add to Cart"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold text-foreground/70 hover:border-primary hover:text-primary transition-all shadow-xs cursor-pointer"
+            title="Share Commodity"
+          >
+            <Share2 className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Share</span>
+          </button>
+        </div>
       </div>
 
-      {/* Main Details Card */}
-      <div className="grid grid-cols-1 gap-8 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 sm:p-10 lg:grid-cols-2 inset-shadow-foreground/30 inset-shadow-sm">
-        {/* Left: Product Image */}
-        <div className="flex flex-col gap-3">
-          <div className="relative h-80 sm:h-96 w-full overflow-hidden rounded-2xl bg-foreground/5 shadow-md">
+      {/* 2. Hero Section: Media Gallery (Left Sticky) & Trade Configurator (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left: Interactive Media Gallery (Sticky on scroll) */}
+        <div className="lg:col-span-6 lg:sticky lg:top-24 flex flex-col gap-4 self-start">
+          {/* Main Showcase Image (Clean without overlay badges, only expand button) */}
+          <div className="group relative h-80 sm:h-[440px] w-full overflow-hidden rounded-3xl border border-foreground/15 bg-foreground/3 shadow-xl inset-shadow-foreground/30 inset-shadow-sm">
             <Image
-              src={product.image}
+              src={gallery[activeImgIndex] || product.image}
               alt={product.name}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               priority
+              sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-background/80 px-3 py-1.5 text-xs font-bold text-foreground backdrop-blur-md">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <span>{product.rating}</span>
+
+            {/* Expand / Lightbox Trigger (Only button on image) */}
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(true)}
+              className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur-md shadow-md hover:bg-primary hover:text-white transition-all cursor-pointer"
+              title="Expand Image"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Thumbnail Strip */}
+          {gallery.length > 1 && (
+            <div className="flex items-center gap-3 overflow-x-auto pb-1">
+              {gallery.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setActiveImgIndex(idx)}
+                  className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 transition-all cursor-pointer ${
+                    activeImgIndex === idx
+                      ? "border-primary scale-95 shadow-md shadow-primary/20"
+                      : "border-foreground/15 opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  <Image src={img} alt="" fill className="object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Trust Guarantees Grid */}
+          <div className="grid grid-cols-3 gap-3 pt-2 text-center text-xs">
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <span className="font-bold text-foreground text-[11px]">100% Escrow</span>
+              <span className="text-[10px] text-foreground/50">Funds released on port receipt</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+              <BadgeCheck className="h-5 w-5 text-emerald-500" />
+              <span className="font-bold text-foreground text-[11px]">SGS Inspected</span>
+              <span className="text-[10px] text-foreground/50">Pre-shipment lot verification</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
+              <FileText className="h-5 w-5 text-blue-500" />
+              <span className="font-bold text-foreground text-[11px]">Digital BoL</span>
+              <span className="text-[10px] text-foreground/50">Instant cryptographic release</span>
             </div>
           </div>
         </div>
 
-        {/* Right: Info & Import Trigger */}
-        <div className="flex flex-col justify-between gap-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <span className="rounded-md bg-primary/10 px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase text-primary">
-                {product.category || "Export Commodity"}
-              </span>
-              <span className="flex items-center gap-1 text-xs text-foreground/60">
+        {/* Right: Product Details, Cost Calculator & Import Action */}
+        <div className="lg:col-span-6 flex flex-col gap-6">
+          {/* Header & Meta */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="flex items-center gap-1 text-xs font-semibold text-foreground/70">
                 <MapPin className="h-3.5 w-3.5 text-primary" />
-                Origin: {product.originCountry}
+                <strong className="text-foreground">{product.originCountry}</strong>
               </span>
+
+              {product.portOfLoading && (
+                <span className="flex items-center gap-1 text-xs text-foreground/50">
+                  <Anchor className="h-3 w-3 text-primary" />
+                  Port: {product.portOfLoading}
+                </span>
+              )}
+
+              {product.hsCode && (
+                <span className="rounded-md border border-foreground/10 bg-foreground/3 px-2 py-0.5 text-[10px] font-mono text-foreground/60">
+                  HS Code: {product.hsCode}
+                </span>
+              )}
             </div>
 
             <h1 className={`${pinkAverage.className} text-2xl sm:text-4xl text-foreground leading-tight`}>
               {product.name}
             </h1>
 
-            {/* Price Box */}
-            <div className="flex items-baseline gap-2 rounded-2xl border border-foreground/10 bg-background p-4 inset-shadow-foreground/30 inset-shadow-sm">
-              <span className="text-xs text-foreground/50 uppercase font-semibold">Unit Price:</span>
-              <span className={`${pinkAverage.className} text-3xl font-bold text-primary`}>
-                ৳ {product.price.toLocaleString()}
-              </span>
-            </div>
-
-            {/* Available Quantity & Exporter */}
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="rounded-xl border border-foreground/10 bg-foreground/3 p-3">
-                <span className="text-[10px] text-foreground/45 uppercase block">Available Stock</span>
-                <span className="font-bold text-foreground text-sm">
-                  {product.availableQuantity} units
-                </span>
-              </div>
-              <div className="rounded-xl border border-foreground/10 bg-foreground/3 p-3">
-                <span className="text-[10px] text-foreground/45 uppercase block">Exporting Entity</span>
-                <span className="font-semibold text-foreground text-xs truncate block">
-                  {product.exporterName || "Verified Exporter"}
-                </span>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="flex flex-col gap-1.5 pt-2 border-t border-foreground/10 text-xs">
-              <span className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider">
-                Product Specification & Details
-              </span>
-              <p className="text-foreground/75 leading-relaxed">
-                {product.description ||
-                  "Verified export lot complying with international phytosanitary, trade packing, and digital Bill of Lading standards."}
+            {/* Detailed Product Description */}
+            <div className={`${sansation.className} flex flex-col gap-3 text-foreground/80 text-sm sm:text-base leading-wide text-justify font-extralight`}>
+              <p className="first-letter:text-2xl sm:first-letter:text-3xl first-letter:font-bold first-letter:mr-0.5">
+                {product.description}
+              </p>
+              <p>
+                Harvested and processed under certified commercial export standards in {product.originCountry}, this lot is curated specifically for high-volume cross-border trade. Each consignment is subjected to comprehensive quality grading, ensuring optimal purity, moisture stabilization, and full conformity with global import and phytosanitary regulations.
+              </p>
+              <p>
+                Shipped in {product.packaging || "export-grade hermetic protective packaging"} with an estimated export dispatch window of {product.leadTime || "7 - 14 business days"}{product.portOfLoading ? ` through ${product.portOfLoading}` : ""}. Fully secured under the Elevex 100% Escrow Guarantee, with smart contract settlement released only upon SGS lot verification and port inspection.
               </p>
             </div>
           </div>
 
-          {/* Import Now Action Button */}
-          <div className="pt-4 border-t border-foreground/10 flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setImportQty("1");
-                setImportError(null);
-                setImportModalOpen(true);
-              }}
-              disabled={product.availableQuantity === 0}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Download className="h-4 w-4 stroke-[2.5]" />
-              {product.availableQuantity === 0 ? "Out of Stock" : "Import Now"}
-            </button>
-            <p className="text-center text-[11px] text-foreground/45">
-              Protected by Elevex 100% verified escrow release
-            </p>
+          {/* Pricing & Stock Card */}
+          <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-5 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
+            <div className="flex items-baseline justify-between border-b border-foreground/10 pb-4">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-foreground/45 block">
+                  Commodity Export Unit Price
+                </span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className={`${pinkAverage.className} text-3xl sm:text-4xl font-bold text-primary`}>
+                    ৳ {product.price.toLocaleString()}
+                  </span>
+                  <span className="text-xs text-foreground/50 font-medium">/ {unit}</span>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-foreground/45 block">
+                  Available Stock
+                </span>
+                <span
+                  className={`text-base font-bold block mt-1 ${
+                    isOutOfStock
+                      ? "text-red-500"
+                      : maxStock < 500
+                      ? "text-amber-500"
+                      : "text-emerald-500"
+                  }`}
+                >
+                  {maxStock.toLocaleString()} {unit}
+                </span>
+              </div>
+            </div>
+
+            {/* Live Consignment Financial Calculator Form */}
+            <form onSubmit={handleImportSubmit} className="flex flex-col gap-4">
+              {/* Single Unified Consignment & Cost Breakdown Card */}
+              <div className="flex flex-col gap-3 rounded-2xl border border-foreground/10 bg-foreground/2 p-4 text-xs inset-shadow-foreground/30 inset-shadow-sm">
+                {/* 1. Consignment Quantity Stepper Row */}
+                <div className="flex items-center justify-between pb-3 border-b border-foreground/10">
+                  <div className="flex flex-col gap-0.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-foreground/75">
+                      Consignment Quantity
+                    </label>
+                    {minOrder > 1 && (
+                      <span className="text-[10px] text-foreground/45">
+                        Min. order: {minOrder} {unit}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Integrated Stepper */}
+                  <div className="flex items-center rounded-xl border border-foreground/15 bg-background/70 p-1 shadow-inner">
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(importQty - 1)}
+                      disabled={importQty <= minOrder || isOutOfStock}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/60 hover:bg-foreground/10 hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+
+                    <div className="flex items-center justify-center gap-1.5 px-3">
+                      <input
+                        type="number"
+                        min={minOrder}
+                        max={maxStock}
+                        value={importQty}
+                        onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 0)}
+                        disabled={isOutOfStock}
+                        className="w-12 text-center text-sm font-extrabold text-foreground bg-transparent focus:outline-none"
+                      />
+                      <span className="text-[11px] font-semibold text-foreground/50 select-none">
+                        {unit}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(importQty + 1)}
+                      disabled={importQty >= maxStock || isOutOfStock}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/60 hover:bg-foreground/10 hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Exceeding Stock Warning */}
+                {isExceedingLimit && (
+                  <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-2.5 text-xs text-red-500 font-semibold">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <span>Requested quantity exceeds stock ({maxStock} {unit}).</span>
+                  </div>
+                )}
+
+                {/* 2. Itemized Financial Breakdown */}
+                <div className="flex justify-between text-foreground/60">
+                  <span>Commodity Consignment Value:</span>
+                  <span className="font-semibold text-foreground">
+                    ৳ {subtotal.toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-foreground/60">
+                  <span className="flex items-center gap-1">
+                    <span>Estimated Port Clearance & Duty (2.5%):</span>
+                    <Info className="h-3 w-3 text-foreground/40" />
+                  </span>
+                  <span className="font-semibold text-foreground">
+                    ৳ {portHandlingDutyEst.toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-foreground/60">
+                  <span>Verified Escrow Protection Fee:</span>
+                  <span className="font-bold text-emerald-500">FREE (Elevex Covered)</span>
+                </div>
+
+                {/* 3. Total Landed Cost */}
+                <div className="flex justify-between border-t border-foreground/10 pt-2.5 mt-1 text-sm font-bold text-foreground">
+                  <span>Estimated Landed Consignment Cost:</span>
+                  <span className={`${pinkAverage.className} text-xl font-bold text-primary`}>
+                    ৳ {totalLandedCost.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons: Both half width (grid grid-cols-2) using Button component */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={handleAddToCart}
+                  className={`w-full ${
+                    isInCart
+                      ? "!border-primary !bg-primary/10 !text-primary"
+                      : ""
+                  }`}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  <span>{isInCart ? "In Cart" : "Add to Cart"}</span>
+                </Button>
+
+                <Button
+                  variant="primary"
+                  size="md"
+                  type="submit"
+                  disabled={isInvalidQty || isSubmittingImport}
+                  className="w-full py-3.5 text-xs font-bold rounded-2xl text-white shadow-lg shadow-primary/25"
+                >
+                  <Download className="h-4 w-4 stroke-[2.5]" />
+                  <span className="truncate">
+                    {isOutOfStock
+                      ? "Sold Out"
+                      : isSubmittingImport
+                      ? "Allocating..."
+                      : `Import ${importQty} ${unit} Now`}
+                  </span>
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 text-[11px] text-foreground/45 pt-1">
+                <Lock className="h-3 w-3 text-emerald-500" />
+                <span>Protected by Elevex 100% Escrow & Inspection Guarantee</span>
+              </div>
+            </form>
           </div>
         </div>
       </div>
 
-      {/* Import Modal */}
-      {importModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-md">
-          <div className="relative w-full max-w-md rounded-3xl border border-foreground/15 bg-background p-6 shadow-2xl">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-foreground/10 pb-3 mb-4">
-              <h3 className={`${pinkAverage.className} text-xl text-foreground`}>
-                Import Product
-              </h3>
+
+      {/* 3. Deep Technical & Trade Tabs System */}
+      <div className="flex flex-col gap-6 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 sm:p-8 inset-shadow-foreground/30 inset-shadow-sm mt-4">
+        {/* Tabs Bar */}
+        <div className="flex items-center gap-2 border-b border-foreground/10 pb-3 overflow-x-auto">
+          {[
+            { id: "overview", label: "Overview & Description", icon: Info },
+            { id: "specs", label: "Specifications & Logistics", icon: Layers },
+            { id: "compliance", label: "Certifications & Compliance", icon: ShieldCheck },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            return (
               <button
+                key={tab.id}
                 type="button"
-                onClick={() => setImportModalOpen(false)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/50 hover:text-foreground cursor-pointer"
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`flex items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  activeTab === tab.id
+                    ? "bg-primary text-white shadow-sm shadow-primary/25"
+                    : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+                }`}
               >
-                <X className="h-4 w-4" />
+                <Icon className="h-3.5 w-3.5" />
+                <span>{tab.label}</span>
               </button>
+            );
+          })}
+        </div>
+
+        {/* Tab 1: Overview */}
+        {activeTab === "overview" && (
+          <div className="flex flex-col gap-5 text-sm text-foreground/80 leading-relaxed">
+            <div>
+              <h3 className="text-base font-bold text-foreground mb-2">
+                Commodity Narrative & Sourcing Profile
+              </h3>
+              <p>{product.description}</p>
             </div>
 
-            {importSuccess ? (
-              <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
-                <CheckCircle2 className="h-10 w-10 text-green-500" />
-                <h4 className="text-sm font-bold text-foreground">Import Successful!</h4>
-                <p className="text-xs text-foreground/60">
-                  {importQty} units added to your My Imports section.
-                </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-foreground/8">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
+                  Quality & Origin Highlights
+                </h4>
+                <ul className="flex flex-col gap-2 text-xs text-foreground/75">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span>Single-origin sourcing from certified agricultural cooperatives</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span>Strict phytosanitary and export-grade moisture control standards</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span>Pre-shipment batch chemical and purity assay documentation</span>
+                  </li>
+                </ul>
               </div>
-            ) : (
-              <form onSubmit={handleImportSubmit} className="flex flex-col gap-4 text-xs">
-                <div>
-                  <p className="font-semibold text-foreground text-sm truncate">{product.name}</p>
-                  <p className="text-[11px] text-foreground/50 mt-0.5">
-                    Origin: {product.originCountry} · Unit Price: ৳ {product.price.toLocaleString()}
-                  </p>
+
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
+                  Trade Terms & Handover
+                </h4>
+                <ul className="flex flex-col gap-2 text-xs text-foreground/75">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span>Incoterms: FOB / CIF options supported on request</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span>Electronic Bill of Lading (eBL) transfer upon customs clearance</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span>Full container load (FCL) & less than container load (LCL) enabled</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Specifications & Logistics */}
+        {activeTab === "specs" && (
+          <div className="flex flex-col gap-5">
+            <h3 className="text-base font-bold text-foreground">
+              Technical & Packaging Specifications
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+                <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
+                  Harmonized Tariff (HS Code)
+                </span>
+                <span className="font-bold text-foreground text-sm font-mono mt-0.5 block">
+                  {product.hsCode || "0901.11.00"}
+                </span>
+              </div>
+
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+                <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
+                  Port of Loading
+                </span>
+                <span className="font-bold text-foreground text-sm mt-0.5 block">
+                  {product.portOfLoading || "Origin International Seaport"}
+                </span>
+              </div>
+
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+                <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
+                  Export Packaging Standard
+                </span>
+                <span className="font-bold text-foreground text-sm mt-0.5 block">
+                  {product.packaging || "Export standard hermetic seaworthy packaging"}
+                </span>
+              </div>
+
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+                <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
+                  Estimated Lead Time
+                </span>
+                <span className="font-bold text-foreground text-sm mt-0.5 block">
+                  {product.leadTime || "5 - 10 Business Days"}
+                </span>
+              </div>
+
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+                <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
+                  Guaranteed Shelf Life
+                </span>
+                <span className="font-bold text-foreground text-sm mt-0.5 block">
+                  {product.shelfLife || "24 Months under standard storage"}
+                </span>
+              </div>
+
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+                <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
+                  Minimum Order Quantity
+                </span>
+                <span className="font-bold text-foreground text-sm mt-0.5 block">
+                  {product.minOrderQty || 1} {unit}
+                </span>
+              </div>
+            </div>
+
+            {/* Custom Specs Table if available */}
+            {product.specs && product.specs.length > 0 && (
+              <div className="mt-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground/60 mb-2">
+                  Chemical & Physical Characteristics
+                </h4>
+                <div className="overflow-hidden rounded-2xl border border-foreground/10">
+                  <table className="w-full text-left text-xs">
+                    <tbody className="divide-y divide-foreground/8">
+                      {product.specs.map((item, idx) => (
+                        <tr
+                          key={idx}
+                          className={idx % 2 === 0 ? "bg-foreground/2" : "bg-background"}
+                        >
+                          <td className="px-4 py-3 font-semibold text-foreground/60 w-1/3">
+                            {item.label}
+                          </td>
+                          <td className="px-4 py-3 font-bold text-foreground">{item.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-
-                <div className="rounded-2xl border border-foreground/10 bg-foreground/3 p-3.5">
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-foreground/50 uppercase font-semibold text-[10px]">
-                      Available Quantity in Stock:
-                    </span>
-                    <span className="font-bold text-foreground">
-                      {product.availableQuantity} units
-                    </span>
-                  </div>
-
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-foreground/60 mb-1">
-                    Enter Import Quantity *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max={product.availableQuantity}
-                    required
-                    value={importQty}
-                    onChange={(e) => {
-                      setImportQty(e.target.value);
-                      setImportError(null);
-                    }}
-                    className={`h-11 w-full rounded-xl border bg-background px-3.5 text-sm font-semibold text-foreground focus:outline-none ${
-                      isExceedingLimit
-                        ? "border-red-500 focus:border-red-500"
-                        : "border-foreground/15 focus:border-primary"
-                    }`}
-                  />
-
-                  {/* 🚫 Import Limit Rule Alert */}
-                  {isExceedingLimit && (
-                    <p className="text-[11px] text-red-500 font-semibold mt-1.5 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3 shrink-0" />
-                      Import quantity cannot exceed available stock ({product.availableQuantity} units).
-                    </p>
-                  )}
-                </div>
-
-                {importError && (
-                  <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-500">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span>{importError}</span>
-                  </div>
-                )}
-
-                {/* Total Cost Estimate */}
-                <div className="flex items-center justify-between border-t border-foreground/10 pt-2 text-xs">
-                  <span className="text-foreground/50">Total Estimated Cost:</span>
-                  <span className="font-bold text-primary text-sm">
-                    ৳ {((numericQty || 0) * product.price).toLocaleString()}
-                  </span>
-                </div>
-
-                {/* Modal Submit Actions */}
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setImportModalOpen(false)}
-                    className="rounded-xl px-4 py-2.5 text-xs font-semibold text-foreground/60 hover:bg-foreground/5 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitDisabled}
-                    className="rounded-xl bg-primary px-6 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
-                  >
-                    Submit Import
-                  </button>
-                </div>
-              </form>
+              </div>
             )}
+          </div>
+        )}
+
+        {/* Tab 3: Certifications & Compliance */}
+        {activeTab === "compliance" && (
+          <div className="flex flex-col gap-4">
+            <h3 className="text-base font-bold text-foreground">
+              Phytosanitary & Quality Accreditations
+            </h3>
+            <p className="text-xs text-foreground/65">
+              All listed consignments undergo independent pre-shipment laboratory assays and possess verified certificates of origin.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+              {(
+                product.certifications || [
+                  "ISO 22000 Food Safety Standard",
+                  "USDA Organic Certified",
+                  "Phytosanitary Ministry Release",
+                  "Fair Trade International",
+                ]
+              ).map((cert, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 rounded-2xl border border-foreground/10 bg-background/50 p-4"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-foreground">{cert}</h4>
+                    <p className="text-[11px] text-foreground/50 mt-0.5">
+                      Verified and active for current export season. Certified digital copy available on consignment allocation.
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 4. Similar & Recommended Commodities Section */}
+      {relatedProducts.length > 0 && (
+        <div className="flex flex-col gap-4 mt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                Related Marketplace Lots
+              </span>
+              <h3 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
+                Similar Export Commodities
+              </h3>
+            </div>
+
+            <Link
+              href="/products"
+              className="text-xs font-bold text-primary hover:underline"
+            >
+              View Full Marketplace →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((rel) => (
+              <ProductCard key={rel.id} product={rel} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5. Fullscreen Image Lightbox Modal */}
+      {isLightboxOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          <div
+            className="relative h-[80vh] w-full max-w-5xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={gallery[activeImgIndex] || product.image}
+              alt={product.name}
+              fill
+              className="object-contain"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 6. Success Allocation Modal */}
+      {importSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-3xl border border-foreground/15 bg-background p-6 sm:p-8 shadow-2xl text-center flex flex-col items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 ring-8 ring-emerald-500/5">
+              <CheckCircle2 className="h-10 w-10" />
+            </div>
+
+            <h3 className={`${pinkAverage.className} text-2xl text-foreground`}>
+              Consignment Allocated!
+            </h3>
+
+            <p className="text-xs text-foreground/60 leading-relaxed">
+              Successfully imported{" "}
+              <strong className="text-foreground">
+                {importQty} {unit}
+              </strong>{" "}
+              of {product.name}. Escrow collateral has been provisioned and your consignment is ready in your import portfolio.
+            </p>
+
+            <div className="flex items-center gap-3 w-full pt-2">
+              <button
+                type="button"
+                onClick={() => setImportSuccessModal(false)}
+                className="flex-1 rounded-xl border border-foreground/15 py-3 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors cursor-pointer"
+              >
+                Stay on Page
+              </button>
+
+              <button
+                type="button"
+                onClick={() => router.push("/dashboard/imports")}
+                className="flex-1 rounded-xl bg-primary py-3 text-xs font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 transition-all cursor-pointer"
+              >
+                Go to My Imports
+              </button>
+            </div>
           </div>
         </div>
       )}

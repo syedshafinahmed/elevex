@@ -1,152 +1,339 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useState, useMemo } from "react";
 import {
   Search,
-  Star,
-  MapPin,
-  Eye,
+  LayoutGrid,
+  List,
+  RotateCcw,
   ShoppingBag,
+  Globe2,
+  ShieldCheck,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
+import ProductCard from "@/app/components/products/ProductCard";
+
+type SortOption =
+  | "featured"
+  | "price-low"
+  | "price-high"
+  | "rating-high"
+  | "stock-high"
+  | "newest";
 
 export default function UserProductsPage() {
   const { products } = useProducts();
+
+  // Search & Filters State
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCountry, setSelectedCountry] = useState("All");
+  const [sortBy, setSortBy] = useState<SortOption>("featured");
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const categories = ["All", "Agricultural", "Textile", "Food"];
+  // Extract unique categories and countries
+  const categories = useMemo(() => {
+    const set = new Set(products.map((p) => p.category).filter(Boolean) as string[]);
+    return ["All", ...Array.from(set)];
+  }, [products]);
 
-  const filteredProducts = products.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.originCountry.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "All" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const countries = useMemo(() => {
+    const set = new Set(products.map((p) => p.originCountry).filter(Boolean));
+    return ["All", ...Array.from(set)];
+  }, [products]);
+
+  // Filter & Sort Logic
+  const filteredProducts = useMemo(() => {
+    return products
+      .filter((item) => {
+        const query = searchTerm.toLowerCase().trim();
+        const matchesSearch =
+          !query ||
+          item.name.toLowerCase().includes(query) ||
+          item.originCountry.toLowerCase().includes(query) ||
+          (item.exporterName && item.exporterName.toLowerCase().includes(query)) ||
+          (item.description && item.description.toLowerCase().includes(query)) ||
+          (item.hsCode && item.hsCode.toLowerCase().includes(query));
+
+        const matchesCategory =
+          selectedCategory === "All" || item.category === selectedCategory;
+
+        const matchesCountry =
+          selectedCountry === "All" || item.originCountry === selectedCountry;
+
+        const matchesStock = !inStockOnly || item.availableQuantity > 0;
+
+        return matchesSearch && matchesCategory && matchesCountry && matchesStock;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "price-low":
+            return a.price - b.price;
+          case "price-high":
+            return b.price - a.price;
+          case "rating-high":
+            return b.rating - a.rating;
+          case "stock-high":
+            return b.availableQuantity - a.availableQuantity;
+          case "newest":
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          case "featured":
+          default:
+            return b.rating * b.availableQuantity - a.rating * a.availableQuantity;
+        }
+      });
+  }, [products, searchTerm, selectedCategory, selectedCountry, sortBy, inStockOnly]);
+
+  function handleResetFilters() {
+    setSearchTerm("");
+    setSelectedCategory("All");
+    setSelectedCountry("All");
+    setSortBy("featured");
+    setInStockOnly(false);
+  }
+
+  const hasActiveFilters =
+    searchTerm !== "" ||
+    selectedCategory !== "All" ||
+    selectedCountry !== "All" ||
+    sortBy !== "featured" ||
+    inStockOnly;
 
   return (
     <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
-      {/* Header */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase text-primary">
-            Global Marketplace
-          </span>
-          <span className="text-[11px] text-foreground/45">
-            {products.length} commodities available
-          </span>
+      {/* 1. Header Banner & Marketplace Metrics */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-foreground/10">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-primary border border-primary/20">
+              <Globe2 className="h-3 w-3" />
+              Verified Global Trade Hub
+            </span>
+            <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <ShieldCheck className="h-3 w-3" />
+              100% Escrow Protected
+            </span>
+          </div>
+
+          <h1 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
+            Global Export Commodities
+          </h1>
+          <p className="text-xs sm:text-sm text-foreground/65 max-w-2xl leading-relaxed">
+            Direct access to verified international agricultural, textile, and food commodities. Compare port origin rates, add lots to your cart, and allocate import consignments with zero escrow risk.
+          </p>
         </div>
-        <h1 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground`}>
-          All Export Products
-        </h1>
-        <p className="text-xs sm:text-sm text-foreground/60 max-w-2xl leading-relaxed">
-          Browse verified international export commodities, compare origin pricing, and import goods directly to your personal inventory.
-        </p>
+
+        {/* Trade Metrics Counter */}
+        <div className="flex items-center gap-4 shrink-0 bg-foreground/2 rounded-2xl border border-foreground/10 p-3.5 inset-shadow-foreground/30 inset-shadow-xs">
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-foreground/45">
+              Available Commodities
+            </span>
+            <span className={`${pinkAverage.className} text-xl font-bold text-primary`}>
+              {products.length} Lots
+            </span>
+          </div>
+          <div className="h-8 w-px bg-foreground/10" />
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-semibold text-foreground/45">
+              Origin Ports
+            </span>
+            <span className={`${pinkAverage.className} text-xl font-bold text-foreground`}>
+              {countries.length - 1} Nations
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between rounded-3xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
-        {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {categories.map((cat) => (
+      {/* 2. Advanced Multi-Faceted Filters & Toolbar */}
+      <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-4 sm:p-5 inset-shadow-foreground/30 inset-shadow-sm">
+        {/* Top Row: Search & View Toggle */}
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          {/* Search Box */}
+          <div className="relative flex items-center flex-1 max-w-xl">
+            <Search className="absolute left-3.5 h-4 w-4 text-foreground/40" />
+            <input
+              type="text"
+              placeholder="Search by commodity, country, exporter, or HS code..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-11 w-full rounded-2xl border border-foreground/15 bg-background pl-10 pr-4 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none transition-colors shadow-xs"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 text-[11px] font-semibold text-foreground/40 hover:text-foreground cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Controls: Country Filter, Sort & View Mode */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+            {/* Country Selector */}
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              aria-label="Filter by Country"
+              className="h-11 rounded-2xl border border-foreground/15 bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none cursor-pointer shadow-xs"
+            >
+              <option value="All">All Countries</option>
+              {countries
+                .filter((c) => c !== "All")
+                .map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+            </select>
+
+            {/* Sort Selector */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              aria-label="Sort Commodities"
+              className="h-11 rounded-2xl border border-foreground/15 bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none cursor-pointer shadow-xs"
+            >
+              <option value="featured">Featured (Top Ranked)</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="rating-high">Highest Rated</option>
+              <option value="stock-high">Stock Availability</option>
+              <option value="newest">Newest Additions</option>
+            </select>
+
+            {/* In-stock Only Toggle */}
             <button
-              key={cat}
               type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                selectedCategory === cat
-                  ? "bg-primary text-white shadow-sm"
-                  : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
+              onClick={() => setInStockOnly(!inStockOnly)}
+              className={`h-11 px-3.5 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                inStockOnly
+                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
+                  : "border-foreground/15 bg-background text-foreground/60 hover:text-foreground"
               }`}
             >
-              {cat}
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  inStockOnly ? "bg-emerald-500 animate-pulse" : "bg-foreground/30"
+                }`}
+              />
+              <span>In Stock</span>
             </button>
-          ))}
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center rounded-2xl border border-foreground/15 bg-background p-1 shadow-xs">
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors cursor-pointer ${
+                  viewMode === "grid"
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-foreground/50 hover:text-foreground"
+                }`}
+                title="Grid View"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors cursor-pointer ${
+                  viewMode === "list"
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-foreground/50 hover:text-foreground"
+                }`}
+                title="List View"
+              >
+                <List className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Search Input */}
-        <div className="relative flex items-center min-w-[280px]">
-          <Search className="absolute left-3.5 h-4 w-4 text-foreground/40" />
-          <input
-            type="text"
-            placeholder="Search by product name or country..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-10 w-full rounded-xl border border-foreground/15 bg-background pl-10 pr-4 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none"
-          />
+        {/* Bottom Row: Category Pills & Reset Button */}
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-foreground/8 overflow-x-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-semibold text-foreground/45 uppercase tracking-wider hidden sm:inline">
+              Category:
+            </span>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  selectedCategory === cat
+                    ? "bg-primary text-white shadow-sm shadow-primary/25"
+                    : "bg-background/80 border border-foreground/10 text-foreground/65 hover:bg-foreground/5 hover:text-foreground"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="flex items-center gap-1 rounded-xl text-xs font-semibold text-primary hover:underline whitespace-nowrap cursor-pointer ml-auto"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>Reset All</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 3-Column Grid Layout for Users */}
+      {/* 3. Filter Results Summary */}
+      <div className="flex items-center justify-between text-xs text-foreground/50 px-1">
+        <span>
+          Showing <strong className="text-foreground">{filteredProducts.length}</strong> of{" "}
+          <strong className="text-foreground">{products.length}</strong> export commodities
+        </span>
+
+        {selectedCountry !== "All" && (
+          <span className="rounded-md bg-foreground/5 px-2 py-0.5 text-[11px]">
+            Origin: <strong className="text-foreground">{selectedCountry}</strong>
+          </span>
+        )}
+      </div>
+
+      {/* 4. Products Display (Grid vs List) */}
       {filteredProducts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-2">
-          <ShoppingBag className="h-10 w-10 text-foreground/30 mb-2" />
-          <p className="text-base font-semibold text-foreground">No products found matching &ldquo;{searchTerm}&rdquo;</p>
-          <p className="text-xs text-foreground/50">Try searching for a different keyword or category.</p>
+        <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-3 inset-shadow-foreground/30 inset-shadow-sm">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground/5 text-foreground/40">
+            <ShoppingBag className="h-8 w-8" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground">
+            No Commodities Found
+          </h3>
+          <p className="text-xs text-foreground/50 max-w-md">
+            No export lots match your current combination of search terms, country filters, and stock criteria.
+          </p>
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="mt-2 flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 transition-all cursor-pointer"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reset All Filters
+          </button>
+        </div>
+      ) : viewMode === "grid" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredProducts.map((item) => (
+            <ProductCard key={item.id} product={item} viewMode="grid" />
+          ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-4">
           {filteredProducts.map((item) => (
-            <div
-              key={item.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 p-4 transition-all hover:border-foreground/20 hover:bg-foreground/4 inset-shadow-foreground/30 inset-shadow-sm"
-            >
-              <div>
-                {/* 1. Product Image */}
-                <div className="relative h-52 w-full overflow-hidden rounded-2xl bg-foreground/5 mb-3.5">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {/* Rating */}
-                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-background/80 px-2.5 py-1 text-[11px] font-bold text-foreground backdrop-blur-md">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                    <span>{item.rating}</span>
-                  </div>
-                </div>
-
-                {/* Name & Origin Country */}
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-[11px] text-foreground/50">
-                    <MapPin className="h-3 w-3 text-primary" />
-                    <span>{item.originCountry}</span>
-                  </div>
-                  <h3 className="text-sm font-semibold text-foreground line-clamp-2 min-h-[40px] group-hover:text-primary transition-colors">
-                    {item.name}
-                  </h3>
-                </div>
-
-                {/* Price & Available Quantity */}
-                <div className="mt-3 flex items-center justify-between border-t border-b border-foreground/8 py-2.5 text-xs">
-                  <div>
-                    <span className="text-[10px] text-foreground/45 block uppercase">Price</span>
-                    <span className="font-bold text-primary text-base">৳ {item.price.toLocaleString()}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-foreground/45 block uppercase">Available Quantity</span>
-                    <span className="font-semibold text-foreground">{item.availableQuantity} units</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* "See Details" Button */}
-              <div className="mt-4 pt-1">
-                <Link
-                  href={`/products/${item.id}`}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                  See Details
-                </Link>
-              </div>
-            </div>
+            <ProductCard key={item.id} product={item} viewMode="list" />
           ))}
         </div>
       )}
