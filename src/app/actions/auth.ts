@@ -1,7 +1,28 @@
 "use server";
 
+import { signIn as nextAuthSignIn } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+
+export async function loginWithGoogle() {
+  await nextAuthSignIn("google", { redirectTo: "/" });
+}
+
+export async function loginWithCredentials(data: { email: string; password: string }) {
+  try {
+    await nextAuthSignIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
+    return { success: true };
+  } catch (error: unknown) {
+    if (error instanceof Error && (error.message.includes("CredentialsSignin") || error.name === "CredentialsSignin")) {
+      return { success: false, error: "Invalid email or password" };
+    }
+    return { success: false, error: "Invalid credentials or login failed" };
+  }
+}
 
 export interface RegisterInput {
   name: string;

@@ -18,8 +18,7 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
-import { registerUser } from "@/app/actions/auth";
+import { registerUser, loginWithGoogle, loginWithCredentials } from "@/app/actions/auth";
 
 type Tab = "login" | "register";
 
@@ -105,8 +104,11 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
     setIsLoading(true);
     setAuthError(null);
     try {
-      await signIn("google", { callbackUrl: "/" });
-    } catch (err) {
+      await loginWithGoogle();
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
+        return;
+      }
       setAuthError("Failed to initiate Google sign-in. Please try again.");
       setIsLoading(false);
     }
@@ -121,14 +123,13 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
 
     try {
       if (tab === "login") {
-        const res = await signIn("credentials", {
+        const res = await loginWithCredentials({
           email,
           password,
-          redirect: false,
         });
 
-        if (res?.error) {
-          setAuthError("Invalid email or password");
+        if (!res.success) {
+          setAuthError(res.error || "Invalid email or password");
           setIsLoading(false);
         } else {
           handleClose();
@@ -147,13 +148,12 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
           setIsLoading(false);
         } else {
           setAuthSuccess("Account created! Signing in...");
-          const signInRes = await signIn("credentials", {
+          const signInRes = await loginWithCredentials({
             email,
             password,
-            redirect: false,
           });
 
-          if (signInRes?.error) {
+          if (!signInRes.success) {
             switchTab("login");
             setAuthSuccess("Account created successfully! Please log in.");
             setIsLoading(false);
@@ -164,6 +164,11 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
         }
       }
     } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
+        handleClose();
+        window.location.reload();
+        return;
+      }
       setAuthError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }
