@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { pinkAverage, sansation } from "@/lib/fonts";
+import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import Globe from "../ui/Globe";
 import Button from "../ui/Button";
 import { ArrowUpRight } from "lucide-react";
@@ -53,20 +53,25 @@ export default function GlobalReach() {
   const activeData = saasModules.find((m) => m.id === activeTab) || saasModules[0];
 
   return (
-    <div className="bg-amethyst px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
-      <section className="mx-auto max-w-7xl w-full">
+    <div className="bg-amethyst px-4 py-12 sm:px-6 lg:px-10">
+      <section className={`${sansation.className} mx-auto max-w-7xl w-full`}>
         {/* Outer Container - Seamless surface with solid amethyst background & border */}
         <div className="relative overflow-hidden">
           <div className="relative z-10 grid items-center gap-10 px-4 py-8 sm:px-8 sm:py-12 lg:grid-cols-12 lg:px-12 lg:py-14">
             {/* Left Column: Responsive SaaS Console Content */}
             <div className="flex flex-col gap-5 sm:gap-6 lg:col-span-6">
-              <h2
-                className={`${pinkAverage.className} text-2xl xs:text-3xl sm:text-4xl lg:text-5xl leading-tight sm:leading-[1.08] text-background`}
-              >
-                Direct freight lanes for
-                <br className="hidden xs:inline" />
-                <span className="text-background"> cross-border trade</span>.
-              </h2>
+              <div className="flex flex-col gap-2">
+                <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-background`}>
+                  Global Trade Corridors
+                </p>
+                <h2
+                  className={`${pinkAverage.className} text-2xl xs:text-3xl sm:text-4xl lg:text-5xl leading-tight sm:leading-[1.08] text-background/90`}
+                >
+                  Direct freight lanes for
+                  <br className="hidden xs:inline" />
+                  <span className="text-background/90"> cross-border trade</span>.
+                </h2>
+              </div>
 
               <p
                 className={`${sansation.className} max-w-xl text-xs sm:text-sm lg:text-base leading-relaxed text-background/70`}

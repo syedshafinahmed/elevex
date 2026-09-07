@@ -180,51 +180,52 @@ const MarqueeColumn = ({
 
 const Testimonials = () => {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
-      <p
-        className={`${trunkey.className} mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-primary`}
-      >
-        Social proof
-      </p>
-      <h2
-        className={`${pinkAverage.className} mb-8 text-3xl text-foreground sm:text-4xl`}
-      >
-        What traders say
-      </h2>
+    <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
+      <div className="flex flex-col gap-8">
+        {/* Section Header */}
+        <div className="flex flex-col gap-2">
+          <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
+            Social proof
+          </p>
+          <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
+            What traders say
+          </h2>
+        </div>
 
-      {/* Mobile Only: 2 Horizontal Marquee Rows */}
-      <div className="flex flex-col gap-4 overflow-hidden md:hidden">
-        <div className="overflow-hidden w-full">
-          <div className="flex flex-row flex-nowrap gap-6 w-max animate-marquee-right" style={{ animationDuration: "28s" }}>
-            {[...testimonials.slice(0, 5), ...testimonials.slice(0, 5), ...testimonials.slice(0, 5)].map((t, i) => (
-              <TestimonialCard key={`m1-${t.name}-${i}`} testimonial={t} className="mb-0" />
-            ))}
+        {/* Mobile Only: 2 Horizontal Marquee Rows */}
+        <div className="flex flex-col gap-4 overflow-hidden md:hidden">
+          <div className="overflow-hidden w-full">
+            <div className="flex flex-row flex-nowrap gap-6 w-max animate-marquee-right" style={{ animationDuration: "28s" }}>
+              {[...testimonials.slice(0, 5), ...testimonials.slice(0, 5), ...testimonials.slice(0, 5)].map((t, i) => (
+                <TestimonialCard key={`m1-${t.name}-${i}`} testimonial={t} className="mb-0" />
+              ))}
+            </div>
+          </div>
+          <div className="overflow-hidden w-full">
+            <div className="flex flex-row flex-nowrap gap-6 w-max animate-marquee-left" style={{ animationDuration: "28s" }}>
+              {[...testimonials.slice(5), ...testimonials.slice(5), ...testimonials.slice(5)].map((t, i) => (
+                <TestimonialCard key={`m2-${t.name}-${i}`} testimonial={t} className="mb-0" />
+              ))}
+            </div>
           </div>
         </div>
-        <div className="overflow-hidden w-full">
-          <div className="flex flex-row flex-nowrap gap-6 w-max animate-marquee-left" style={{ animationDuration: "28s" }}>
-            {[...testimonials.slice(5), ...testimonials.slice(5), ...testimonials.slice(5)].map((t, i) => (
-              <TestimonialCard key={`m2-${t.name}-${i}`} testimonial={t} className="mb-0" />
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Desktop Only: Vertical Columns */}
-      <div
-        className="hidden md:flex relative flex-wrap justify-center gap-10"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
-        }}
-      >
-        <MarqueeColumn items={columns[0]} direction="up" duration={28} />
-        <MarqueeColumn items={columns[1]} direction="down" duration={28} />
-        <MarqueeColumn items={columns[2]} direction="up" duration={28} />
-        <MarqueeColumn items={columns[3]} direction="down" duration={28} />
-        <MarqueeColumn items={columns[4]} direction="up" duration={28} />
+        {/* Desktop Only: Vertical Columns */}
+        <div
+          className="hidden md:flex relative flex-wrap justify-center gap-10"
+          style={{
+            maskImage:
+              "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
+          }}
+        >
+          <MarqueeColumn items={columns[0]} direction="up" duration={28} />
+          <MarqueeColumn items={columns[1]} direction="down" duration={28} />
+          <MarqueeColumn items={columns[2]} direction="up" duration={28} />
+          <MarqueeColumn items={columns[3]} direction="down" duration={28} />
+          <MarqueeColumn items={columns[4]} direction="up" duration={28} />
+        </div>
       </div>
     </section>
   );

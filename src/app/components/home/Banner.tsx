@@ -93,7 +93,7 @@ export default function Banner() {
     }
   }
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
+    <section className={`${sansation.className} mx-auto max-w-7xl px-4 pt-2 pb-12 sm:py-12 sm:px-6 lg:px-10`}>
       <div className="grid gap-4 overflow-hidden rounded-3xl md:grid-cols-[1.05fr_1fr]">
         {/* Left: intro panel */}
         <div className="relative flex h-auto min-h-136 flex-col justify-between gap-8 overflow-hidden rounded-3xl border border-background bg-background px-6 py-8 sm:px-8 sm:py-10 md:h-140 md:gap-0 lg:px-12">
@@ -113,15 +113,20 @@ export default function Banner() {
 
           {/* Top: eyebrow + headline */}
           <div className="relative z-10 flex flex-col gap-4 sm:gap-6">
-            <h1
-              className={`${pinkAverage.className} max-w-md text-3xl leading-[1.1] text-foreground sm:text-[2.75rem] sm:leading-[1.08] lg:text-5xl`}
-            >
-              Move goods across
-              <br />
-              <span className="text-primary">62 countries</span>, in
-              <br />
-              one click.
-            </h1>
+            <div className="flex flex-col gap-2">
+              <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
+                Global Trade Infrastructure
+              </p>
+              <h1
+                className={`${pinkAverage.className} max-w-md text-3xl leading-[1.1] text-foreground sm:text-[2.75rem] sm:leading-[1.08] lg:text-5xl`}
+              >
+                Move goods across
+                <br />
+                <span className="text-primary">62 countries</span>, in
+                <br />
+                one click.
+              </h1>
+            </div>
 
             <div
               className={`${sansation.className} max-w-lg text-sm leading-relaxed text-foreground/60 sm:text-base`}

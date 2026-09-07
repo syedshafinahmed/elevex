@@ -105,9 +105,9 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
           type="button"
           onClick={onOpenMobileSidebar}
           aria-label="Open sidebar"
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/10 text-foreground md:hidden shrink-0 cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm md:hidden shrink-0 cursor-pointer"
         >
-          <Menu className="h-4 w-4" />
+          <Menu className="h-4 w-4 stroke-[1.75]" />
         </button>
 
         {/* Unique Dynamic Title and Subtitle for every menu */}

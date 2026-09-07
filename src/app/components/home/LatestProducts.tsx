@@ -23,7 +23,7 @@ export default function LatestProducts() {
             Products
           </p>
           <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
-            Latest Export Commodities
+            Latest Commodities
           </h2>
         </div>
 

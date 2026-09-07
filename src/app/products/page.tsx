@@ -119,13 +119,15 @@ export default function UserProductsPage() {
     inStockOnly;
 
   return (
-    <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
+    <div className={`${sansation.className} mx-auto max-w-7xl px-4 pt-2 pb-12 sm:py-12 sm:px-6 lg:px-10 flex flex-col gap-8`}>
       {/* 1. Header Banner & Marketplace Metrics */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
-        <div className="flex flex-col gap-3">
-          <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>Products</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="flex flex-col gap-2">
+          <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
+            Products
+          </p>
           <h1 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
-            Global Export Commodities
+            Global Commodities
           </h1>
         </div>
 

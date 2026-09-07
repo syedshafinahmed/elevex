@@ -47,16 +47,19 @@ export default function FAQ() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
-      <div className="mb-6 flex flex-col gap-1">
-        <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
-          Support & Guidance
-        </p>
-        <div className="flex items-center justify-between">
-          <h2 className={`${pinkAverage.className} text-3xl text-foreground sm:text-[2.75rem]`}>
-            Frequently asked questions.
-          </h2>
-          <div className="hidden sm:flex items-center gap-1.5">
+    <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
+      <div className="flex flex-col gap-8">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
+              Support & Guidance
+            </p>
+            <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
+              Frequently asked questions.
+            </h2>
+          </div>
+          <div className="hidden sm:flex items-center gap-1.5 shrink-0 self-start sm:self-auto">
             <AlertTriangle className="h-3.5 w-3.5 stroke-[1.75] text-foreground/30" aria-hidden="true" />
             <span className={`${sansation.className} text-xs text-foreground/35`}>
               Can&apos;t find your answer?{" "}
@@ -66,9 +69,8 @@ export default function FAQ() {
             </span>
           </div>
         </div>
-      </div>
 
-      <div className="overflow-hidden rounded-3xl border border-foreground/10 divide-y divide-foreground/10 bg-background">
+        <div className="overflow-hidden rounded-3xl border border-foreground/10 divide-y divide-foreground/10 bg-background">
         {faqs.map((faq, i) => (
           <div key={i}>
             <button
@@ -98,14 +100,15 @@ export default function FAQ() {
         ))}
       </div>
 
-      <div className="mt-4 flex sm:hidden items-center gap-1.5 justify-center">
-        <AlertTriangle className="h-3.5 w-3.5 stroke-[1.75] text-foreground/30" aria-hidden="true" />
-        <span className={`${sansation.className} text-xs text-foreground/35`}>
-          Can&apos;t find your answer?{" "}
-          <a href="/contact" className="text-primary hover:underline">
-            Contact us
-          </a>
-        </span>
+        <div className="mt-4 flex sm:hidden items-center gap-1.5 justify-center">
+          <AlertTriangle className="h-3.5 w-3.5 stroke-[1.75] text-foreground/30" aria-hidden="true" />
+          <span className={`${sansation.className} text-xs text-foreground/35`}>
+            Can&apos;t find your answer?{" "}
+            <a href="/contact" className="text-primary hover:underline">
+              Contact us
+            </a>
+          </span>
+        </div>
       </div>
     </section>
   );

@@ -6,11 +6,12 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X, Sun, Moon, Home, Briefcase, Mail, Package, LogOut, LayoutDashboard, ChevronDown, ShoppingCart } from "lucide-react";
+import { Menu, Sun, Moon, Home, Briefcase, Mail, Package, LogOut, LayoutDashboard, ChevronDown, ShoppingCart } from "lucide-react";
 import { sansation, trunkey } from "@/lib/fonts";
 import Button from "../ui/Button";
 import AuthModal from "../auth/AuthModal";
 import { useProducts } from "@/context/ProductContext";
+import { useUserRole } from "@/context/UserRoleContext";
 import { toast } from "gooey-toast";
 
 const navLinks = [
@@ -29,6 +30,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { cartCount } = useProducts();
+  const { users, currentRole } = useUserRole();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,6 +38,12 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const { data: session } = useSession();
+
+  const dbUser = users.find(
+    (u) => u.email.toLowerCase() === session?.user?.email?.toLowerCase()
+  );
+  const userRole = dbUser?.role || ((session?.user as { role?: string })?.role === "ADMIN" ? "ADMIN" : currentRole) || "USER";
+  const isAdmin = userRole === "ADMIN";
 
   function handleCartClick() {
     if (session?.user) {
@@ -48,7 +56,7 @@ export default function Navbar() {
       setAuthOpen(true);
     }
   }
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -67,10 +75,18 @@ export default function Navbar() {
     };
   }, [userDropdownOpen]);
 
+  // Lock body scroll while the mobile drawer is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   return (
     <header className={`${sansation.className} relative w-full bg-background`}>
       <nav className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-        {/* Left links */}
+        {/* Left links - desktop only */}
         <ul className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => {
             const active = isActive(pathname, link.href);
@@ -92,15 +108,15 @@ export default function Navbar() {
           })}
         </ul>
 
-        {/* Centered Logo */}
+        {/* Logo: static top-left on mobile, absolute-centered on desktop */}
         <Link
           href="/"
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 z-20"
+          className="relative z-20 flex items-center gap-2 md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2"
         >
-          <p className={`${trunkey.className} text-7xl font-extrabold text-primary`}>elevex</p>
+          <p className={`${trunkey.className} text-4xl font-extrabold text-primary md:text-7xl`}>elevex</p>
         </Link>
 
-        {/* Right action controls */}
+        {/* Right action controls - desktop only */}
         <ul className="hidden items-center gap-2.5 md:flex ml-auto">
           <li>
             <Button
@@ -166,7 +182,6 @@ export default function Navbar() {
                   <ChevronDown className={`h-3 w-3 text-foreground/50 transition-transform duration-200 ${userDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
-                {/* Dropdown Menu */}
                 {userDropdownOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 origin-top-right rounded-2xl border border-foreground/10 bg-background/95 p-1.5 shadow-2xl backdrop-blur-md z-50">
                     <div className="px-3 py-2 border-b border-foreground/10 mb-1">
@@ -226,135 +241,206 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* Mobile Action Controls: Cart, Theme Toggle & Hamburger */}
+        {/* Mobile Action Controls: Theme Toggle, Cart & Hamburger - top right */}
         <div className="flex items-center gap-2 md:hidden">
-          <button
+          {mounted && (
+            <Button
+              type="button"
+              variant="ghost"
+              ariaLabel="Toggle theme"
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="h-9 w-9 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
+              ) : (
+                <Moon className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
+              )}
+            </Button>
+          )}
+
+          <Button
             type="button"
+            variant="ghost"
+            ariaLabel="View Cart"
             onClick={handleCartClick}
-            aria-label="View Cart"
-            className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/10 bg-foreground/5 text-foreground transition-all hover:bg-foreground/10"
+            className="relative h-9 w-9 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
           >
-            <ShoppingCart className="h-4 w-4" />
+            <ShoppingCart className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
             {mounted && cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-foreground ring-2 ring-background">
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-foreground ring-2 ring-background">
                 {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
-          </button>
+          </Button>
 
-          {mounted && (
-            <button
-              type="button"
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              aria-label="Toggle theme"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/10 bg-foreground/5 text-foreground transition-all hover:bg-foreground/10"
-            >
-              {resolvedTheme === "dark" ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </button>
-          )}
-
-          <button
+          <Button
             type="button"
-            aria-label="Open menu"
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/10 bg-foreground/5 text-foreground transition-all hover:bg-foreground/10"
+            variant="ghost"
+            ariaLabel="Open menu"
+            onClick={() => setMenuOpen(true)}
+            className="h-9 w-9 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+            <Menu className="h-5 w-5 stroke-[1.75]" aria-hidden="true" />
+          </Button>
         </div>
       </nav>
 
-      {/* Mobile Menu Dropdown */}
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out md:hidden ${
-          menuOpen ? "max-h-[500px] border-b border-foreground/10 py-6" : "max-h-0"
+      {/* Mobile Drawer Backdrop */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm md:hidden"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Drawer Panel - identical styling to dashboard drawer */}
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        className={`fixed inset-y-0 right-0 z-50 w-72 border-l border-foreground/10 bg-background shadow-2xl transition-transform duration-300 md:hidden ${
+          menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <ul className="flex flex-col gap-4 px-6">
-          {navLinks.map((link) => {
-            const active = isActive(pathname, link.href);
-            return (
-              <li key={link.label}>
-                <Link
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`${sansation.className} flex items-center gap-2.5 text-base font-semibold transition-colors duration-200 ${
-                    active ? "text-primary" : "text-foreground/60 hover:text-foreground"
-                  }`}
-                >
-                  <link.icon className={`h-4 w-4 ${active ? "text-primary" : "text-foreground/60"}`} />
-                  {link.label}
-                </Link>
-              </li>
-            );
-          })}
-          {session?.user ? (
-            <li className="flex flex-col gap-2 pt-2 border-t border-foreground/10">
-              <div className="flex items-center gap-2.5 py-1">
-                {session.user.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt={session.user.name || "User"}
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-xs font-bold text-white">
-                    {(session.user.name?.[0] || session.user.email?.[0] || "U").toUpperCase()}
-                  </div>
-                )}
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-foreground">
-                    {session.user.name || "User"}
-                  </span>
-                  <span className="text-[10px] text-foreground/50">
-                    {session.user.email}
-                  </span>
-                </div>
-              </div>
+        <div className={`${sansation.className} flex h-full flex-col justify-between p-4`}>
+          {/* Top section: Logo & Nav */}
+          <div className="flex flex-col gap-6">
+            {/* Brand */}
+            <div className="flex items-center justify-between px-2 pt-1">
               <Link
-                href="/dashboard"
+                href="/"
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 rounded-xl bg-foreground/5 py-2.5 px-3 text-xs font-semibold text-foreground hover:bg-foreground/10 transition-colors"
+                className="flex items-center gap-2.5 overflow-hidden"
               >
-                <LayoutDashboard className="h-4 w-4 text-primary" />
-                Dashboard
+                <span className={`${trunkey.className} text-4xl font-bold tracking-wide text-primary`}>
+                  elevex
+                </span>
               </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  toast.info({
-                    title: "Signed Out",
-                  });
-                  setMenuOpen(false);
-                  signOut({ callbackUrl: "/" });
-                }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-500/10 py-2.5 text-xs font-semibold text-red-500 transition-colors hover:bg-red-500/20"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                Logout
-              </button>
-            </li>
-          ) : (
-            <li className="pt-2">
+            </div>
+
+            {/* Navigation list */}
+            <nav className="flex flex-col gap-1.5">
+              {navLinks.map((item) => {
+                const active = isActive(pathname, item.href);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all ${
+                      active
+                        ? "bg-primary text-white shadow-md shadow-primary/20"
+                        : "text-foreground/65 hover:bg-foreground/6 hover:text-foreground"
+                    }`}
+                  >
+                    <Icon
+                      className={`h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+                        active ? "text-white" : "text-foreground/60 group-hover:text-foreground"
+                      }`}
+                    />
+                    <span className="flex-1 truncate tracking-wide">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Bottom section: User Pill, Side-by-Side Links & Sign Out */}
+          <div className="flex flex-col gap-3 pt-4 border-t border-foreground/10">
+            {session?.user ? (
+              <>
+                {/* User Pill */}
+                <div className="flex items-center gap-2.5 rounded-xl border border-foreground/10 bg-foreground/3 p-2 inset-shadow-foreground/30 inset-shadow-sm">
+                  {session.user.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
+                      width={28}
+                      height={28}
+                      className="h-7 w-7 rounded-lg object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white shrink-0">
+                      {(session.user.name?.[0] || session.user.email?.[0] || "U").toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="truncate text-xs font-semibold text-foreground">
+                        {session.user.name || "User"}
+                      </span>
+                      <span className={`rounded-md px-1.5 py-0.2 text-[9px] font-bold ${
+                        isAdmin ? "bg-primary/20 text-primary" : "bg-foreground/10 text-foreground/70"
+                      }`}>
+                        {userRole}
+                      </span>
+                    </div>
+                    <span className="truncate text-[10px] text-foreground/50">
+                      {session.user.email}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Dashboard & Cart side-by-side */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-foreground/10 bg-foreground/3 px-2.5 py-2 text-xs font-semibold text-foreground/80 hover:bg-foreground/6 hover:text-foreground transition-all"
+                  >
+                    <LayoutDashboard className="h-4 w-4 shrink-0 text-primary" />
+                    <span className="truncate">Dashboard</span>
+                  </Link>
+
+                  <Link
+                    href="/dashboard/cart"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-foreground/10 bg-foreground/3 px-2.5 py-2 text-xs font-semibold text-foreground/80 hover:bg-foreground/6 hover:text-foreground transition-all"
+                  >
+                    <ShoppingCart className="h-4 w-4 shrink-0 text-primary" />
+                    <span className="truncate">Cart</span>
+                    {cartCount > 0 && (
+                      <span className="rounded-full bg-primary/20 px-1.5 py-0.2 text-[9px] font-bold text-primary">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </div>
+
+                {/* Sign Out */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    toast.info({
+                      title: "Signed Out",
+                    });
+                    setMenuOpen(false);
+                    signOut({ callbackUrl: "/" });
+                  }}
+                  className="flex items-center gap-2.5 rounded-xl bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-500/15 cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  <span>Sign Out</span>
+                </button>
+              </>
+            ) : (
               <Button
                 onClick={() => {
                   setMenuOpen(false);
                   setAuthOpen(true);
                 }}
-                className="w-full rounded-2xl bg-primary px-6 py-3 text-center text-base font-semibold text-foreground transition-all hover:-translate-y-0.5"
+                className="w-full text-xs font-semibold py-2.5"
               >
                 Login
               </Button>
-            </li>
-          )}
-        </ul>
-      </div>
+            )}
+          </div>
+        </div>
+      </aside>
+
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { MapPin, Phone } from "lucide-react";
 import { SiGmail } from "react-icons/si";
@@ -38,6 +39,8 @@ const socialLinks = [
 ];
 
 export default function ContactPage() {
+  const pathname = usePathname();
+  const isStandalone = pathname === "/contact";
   const [submitting, setSubmitting] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -55,7 +58,7 @@ export default function ContactPage() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
+    <section className={`mx-auto max-w-7xl px-4 ${isStandalone ? "pt-2 pb-6" : "py-6"} sm:px-6 sm:py-10 lg:px-10 lg:py-12`}>
       {/* Single unified card */}
       <div className="relative overflow-hidden rounded-3xl bg-background">
         {/* Full-card ambient glow */}

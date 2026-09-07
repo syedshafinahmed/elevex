@@ -251,7 +251,7 @@ export default function ProductDetailsPage({
   }
 
   return (
-    <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
+    <div className={`${sansation.className} mx-auto max-w-7xl px-4 pt-2 pb-8 sm:py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       {/* 1. Breadcrumbs & Top Action Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-foreground/10">
@@ -791,20 +791,21 @@ export default function ProductDetailsPage({
 
       {/* 4. Similar & Recommended Commodities Section */}
       {relatedProducts.length > 0 && (
-        <div className="flex flex-col gap-4 mt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+        <div className="flex flex-col gap-8 mt-12">
+          {/* Section Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="flex flex-col gap-2">
+              <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
                 Related Marketplace Lots
-              </span>
-              <h3 className={`${pinkAverage.className} text-2xl sm:text-3xl text-foreground`}>
-                Similar Export Commodities
-              </h3>
+              </p>
+              <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
+                Similar Commodities
+              </h2>
             </div>
 
             <Link
               href="/products"
-              className="text-xs font-bold text-primary hover:underline"
+              className="text-xs font-bold text-primary hover:underline self-start sm:self-auto"
             >
               View Full Marketplace →
             </Link>

@@ -119,7 +119,7 @@ function CoreServices() {
   const svc = coreServices.find((s) => s.id === active)!;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
+    <section className={`${sansation.className} mx-auto max-w-7xl px-4 pt-2 pb-12 sm:py-12 sm:px-6 lg:px-10`}>
       <div className="relative overflow-hidden rounded-3xl bg-background">
         {/* Ambient glow */}
         <div
@@ -133,11 +133,11 @@ function CoreServices() {
 
         <div className="relative z-10 px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
           {/* Header */}
-          <div className="mb-6 flex flex-col gap-1">
+          <div className="mb-8 flex flex-col gap-2">
             <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
               Platform Services
             </p>
-            <h1 className={`${pinkAverage.className} text-3xl text-foreground sm:text-[2.75rem]`}>
+            <h1 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
               Four modules. <span className="text-primary">One workflow.</span>
             </h1>
           </div>
@@ -313,15 +313,15 @@ function HowItWorks() {
   }, [trackHeight]);
 
   return (
-    <div className="bg-amethyst px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
-      <section className="mx-auto max-w-7xl w-full">
+    <div className="bg-amethyst px-4 py-12 sm:px-6 lg:px-10">
+      <section className={`${sansation.className} mx-auto max-w-7xl w-full`}>
         <div className="px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
           {/* Header */}
-          <div className="mb-8 flex flex-col gap-1">
+          <div className="mb-8 flex flex-col gap-2">
             <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-background`}>
               The Process
             </p>
-            <h2 className={`${pinkAverage.className} text-3xl text-background/90 sm:text-[2.75rem]`}>
+            <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-background/90 leading-tight`}>
               From listing to settlement.
             </h2>
           </div>
@@ -442,66 +442,68 @@ const comparisonRows = [
 
 function WhyElevex() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
-      {/* Differentiators */}
-      <div className="mb-4 flex flex-col gap-1">
-        <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
-          Why Elevex
-        </p>
-        <h2 className={`${pinkAverage.className} text-3xl text-foreground sm:text-[2.75rem]`}>
-          Infrastructure that earns trust.
-        </h2>
-      </div>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {differentiators.map((d) => {
-          const Icon = d.icon;
-          return (
-            <div
-              key={d.title}
-              className="relative overflow-hidden flex flex-col justify-between gap-4 rounded-3xl border border-foreground/10 bg-background/50 p-6 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md"
-            >
-              <div className="flex flex-col gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-                  <Icon className="h-4.5 w-4.5 stroke-[1.75] text-primary" aria-hidden="true" />
-                </div>
-                <div>
-                  <p className={`${pinkAverage.className} text-lg text-foreground`}>{d.title}</p>
-                  <p className={`${sansation.className} mt-1.5 text-xs leading-relaxed text-foreground/55`}>{d.desc}</p>
-                </div>
-              </div>
-              <div className="border-t border-foreground/10 pt-3">
-                <p className={`${pinkAverage.className} text-xl text-primary`}>{d.stat}</p>
-                <p className={`${sansation.className} text-[10px] uppercase tracking-[0.1em] text-foreground/40`}>{d.statLabel}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Before / After comparison table */}
-      <div className="mt-6 overflow-hidden rounded-3xl border border-foreground/10 bg-background/50 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md">
-        <div className="grid grid-cols-3 border-b border-foreground/10 px-6 py-3 sm:px-8">
-          <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/40`}>Workflow</span>
-          <div className="flex items-center gap-1.5">
-            <XCircle className="h-3.5 w-3.5 stroke-[1.75] text-red-400/70" aria-hidden="true" />
-            <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/40`}>Traditional</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-3.5 w-3.5 stroke-[1.75] text-primary" aria-hidden="true" />
-            <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.12em] text-primary`}>With Elevex</span>
-          </div>
+    <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
+      <div className="flex flex-col gap-8">
+        {/* Section Header */}
+        <div className="flex flex-col gap-2">
+          <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
+            Why Elevex
+          </p>
+          <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
+            Infrastructure that earns trust.
+          </h2>
         </div>
-        {comparisonRows.map((row, i) => (
-          <div
-            key={row.label}
-            className={`grid grid-cols-3 px-6 py-3.5 sm:px-8 ${i !== comparisonRows.length - 1 ? "border-b border-foreground/10" : ""}`}
-          >
-            <span className={`${sansation.className} text-xs font-semibold text-foreground/70`}>{row.label}</span>
-            <span className={`${sansation.className} text-xs text-foreground/40`}>{row.before}</span>
-            <span className={`${sansation.className} text-xs text-primary`}>{row.after}</span>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {differentiators.map((d) => {
+            const Icon = d.icon;
+            return (
+              <div
+                key={d.title}
+                className="relative overflow-hidden flex flex-col justify-between gap-4 rounded-3xl border border-foreground/10 bg-background/50 p-6 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md"
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+                    <Icon className="h-4.5 w-4.5 stroke-[1.75] text-primary" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className={`${pinkAverage.className} text-lg text-foreground`}>{d.title}</p>
+                    <p className={`${sansation.className} mt-1.5 text-xs leading-relaxed text-foreground/55`}>{d.desc}</p>
+                  </div>
+                </div>
+                <div className="border-t border-foreground/10 pt-3">
+                  <p className={`${pinkAverage.className} text-xl text-primary`}>{d.stat}</p>
+                  <p className={`${sansation.className} text-[10px] uppercase tracking-[0.1em] text-foreground/40`}>{d.statLabel}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Before / After comparison table */}
+        <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-background/50 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-md">
+          <div className="grid grid-cols-3 border-b border-foreground/10 px-6 py-3 sm:px-8">
+            <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/40`}>Workflow</span>
+            <div className="flex items-center gap-1.5">
+              <XCircle className="h-3.5 w-3.5 stroke-[1.75] text-red-400/70" aria-hidden="true" />
+              <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/40`}>Traditional</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 stroke-[1.75] text-primary" aria-hidden="true" />
+              <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.12em] text-primary`}>With Elevex</span>
+            </div>
           </div>
-        ))}
+          {comparisonRows.map((row, i) => (
+            <div
+              key={row.label}
+              className={`grid grid-cols-3 px-6 py-3.5 sm:px-8 ${i !== comparisonRows.length - 1 ? "border-b border-foreground/10" : ""}`}
+            >
+              <span className={`${sansation.className} text-xs font-semibold text-foreground/70`}>{row.label}</span>
+              <span className={`${sansation.className} text-xs text-foreground/40`}>{row.before}</span>
+              <span className={`${sansation.className} text-xs text-primary`}>{row.after}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -534,7 +536,7 @@ const enterpriseFeatures = [
 
 function EnterpriseSolutions() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
+    <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
       <div className="relative overflow-hidden rounded-3xl bg-background p-6 sm:p-10 lg:p-12">
         {/* ambient backdrop */}
         <div
@@ -548,11 +550,11 @@ function EnterpriseSolutions() {
 
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_1.2fr]">
           <div className="flex flex-col justify-between gap-6">
-            <div>
+            <div className="flex flex-col gap-2">
               <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
                 Enterprise Infrastructure
               </p>
-              <h2 className={`${pinkAverage.className} mt-2 text-3xl text-foreground sm:text-4xl`}>
+              <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-foreground leading-tight`}>
                 Tailored solutions for global trade houses.
               </h2>
             </div>
