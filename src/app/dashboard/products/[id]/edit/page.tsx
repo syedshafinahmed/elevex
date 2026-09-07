@@ -13,10 +13,13 @@ import {
   Shirt,
   Utensils,
   Gem,
+  FlaskConical,
+  Cog,
   Eye,
   Plus,
   Trash2,
   ShieldCheck,
+  ShieldAlert,
   Package,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
@@ -34,6 +37,8 @@ const categoryOptions: DropdownOption[] = [
   { value: "Textile", label: "Textile", description: "Fabrics, garments, fibers", icon: Shirt },
   { value: "Food", label: "Food", description: "Processed food & spices", icon: Utensils },
   { value: "Minerals", label: "Minerals", description: "Ores, metals, building stones", icon: Gem },
+  { value: "Chemicals", label: "Chemicals", description: "Polymers, solvents, specialty chemicals", icon: FlaskConical },
+  { value: "Machinery", label: "Machinery", description: "Industrial equipment, tools & parts", icon: Cog },
 ];
 
 const SAVED_CERTIFICATIONS = [
@@ -329,7 +334,11 @@ export default function EditExportPage({ params }: EditExportPageProps) {
       });
 
       setTimeout(() => {
-        router.push(`/dashboard/products/${product.slug || slugify(name) || product.id}`);
+        if (isAdmin) {
+          router.push(`/dashboard/products/${product.slug || slugify(name) || product.id}`);
+        } else {
+          router.push("/dashboard/exports");
+        }
       }, 700);
     } catch (err: any) {
       toast.error({
@@ -341,16 +350,60 @@ export default function EditExportPage({ params }: EditExportPageProps) {
     }
   }
 
-  if (!product) {
-    if (productsLoading || isFetching) {
-      return (
-        <div className={`${sansation.className} flex flex-col items-center justify-center py-24 text-center gap-4`}>
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-xs text-foreground/50">Loading commodity data for editing...</p>
-        </div>
-      );
-    }
+  const userRole = (session?.user as { role?: string } | undefined)?.role;
+  const isAdmin = userRole === "ADMIN";
+  const currentUserId = session?.user?.id;
+  const currentUserName = session?.user?.name?.toLowerCase().trim();
+  const currentUserEmail = session?.user?.email?.toLowerCase().trim();
 
+  const isOwner = Boolean(
+    product && (
+      (product.userId && currentUserId && product.userId === currentUserId) ||
+      (product.exporterName && (
+        (currentUserName && product.exporterName.toLowerCase().trim() === currentUserName) ||
+        (currentUserEmail && product.exporterName.toLowerCase().trim() === currentUserEmail)
+      ))
+    )
+  );
+
+  const canEdit = isAdmin || isOwner;
+
+  if (productsLoading || isFetching) {
+    return (
+      <div className={`${sansation.className} flex flex-col items-center justify-center py-24 text-center gap-4`}>
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <p className="text-xs text-foreground/50">Loading commodity data for editing...</p>
+      </div>
+    );
+  }
+
+  if (!session?.user) {
+    return (
+      <div className={`${sansation.className} flex flex-col items-center justify-center py-20 text-center gap-4`}>
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-foreground/10 bg-foreground/3">
+          <ShieldAlert className="h-8 w-8 text-foreground/40" />
+        </div>
+        <div>
+          <h2 className={`${pinkAverage.className} text-2xl text-foreground`}>
+            Authentication Required
+          </h2>
+          <p className="text-xs text-foreground/50 mt-1">
+            Please sign in with your account to edit export commodities.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setAuthOpen(true)}
+          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 cursor-pointer"
+        >
+          <span>Sign In to Continue</span>
+        </button>
+      </div>
+    );
+  }
+
+  if (!product) {
     return (
       <div className={`${sansation.className} flex flex-col items-center justify-center py-20 text-center gap-4`}>
         <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-foreground/10 bg-foreground/3">
@@ -365,12 +418,45 @@ export default function EditExportPage({ params }: EditExportPageProps) {
           </p>
         </div>
         <Link
-          href="/dashboard/products"
+          href={isAdmin ? "/dashboard/products" : "/dashboard/exports"}
           className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to All Products</span>
+          <span>{isAdmin ? "Back to All Products" : "Back to My Exports"}</span>
         </Link>
+      </div>
+    );
+  }
+
+  if (!canEdit) {
+    return (
+      <div className={`${sansation.className} flex flex-col items-center justify-center py-20 text-center gap-4`}>
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-red-500/20 bg-red-500/10 text-red-500">
+          <ShieldAlert className="h-8 w-8" />
+        </div>
+        <div>
+          <h2 className={`${pinkAverage.className} text-2xl text-foreground`}>
+            Access Restricted
+          </h2>
+          <p className="text-xs text-foreground/50 mt-1 max-w-md">
+            You can only edit export commodities that you uploaded. Platform administrators have permission to edit all commodities.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/exports"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to My Exports</span>
+          </Link>
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-foreground/5"
+          >
+            <span>Dashboard Overview</span>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -890,7 +976,7 @@ export default function EditExportPage({ params }: EditExportPageProps) {
             {/* Submit Action */}
             <div className="pt-4 border-t border-foreground/10 flex items-center justify-between">
               <Link
-                href={`/dashboard/products/${product.slug || slugify(product.name) || product.id}`}
+                href={isAdmin ? `/dashboard/products/${product.slug || slugify(product.name) || product.id}` : "/dashboard/exports"}
                 className="rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-all"
               >
                 Cancel
@@ -909,7 +995,6 @@ export default function EditExportPage({ params }: EditExportPageProps) {
             </div>
           </form>
         </div>
-
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   ArrowLeft,
   MapPin,
@@ -16,6 +17,7 @@ import {
   Clock,
   X,
   ShieldCheck,
+  ShieldAlert,
   BadgeCheck,
   Layers,
   Anchor,
@@ -34,7 +36,7 @@ import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import Button from "@/app/components/ui/Button";
 import { toast } from "gooey-toast";
-import { Sprout, Shirt, Utensils, Gem } from "lucide-react";
+import { Sprout, Shirt, Utensils, Gem, FlaskConical, Cog } from "lucide-react";
 import { slugify } from "@/lib/utils";
 
 const categoryOptions: DropdownOption[] = [
@@ -42,6 +44,8 @@ const categoryOptions: DropdownOption[] = [
   { value: "Textile", label: "Textile", description: "Fabrics, garments, fibers", icon: Shirt },
   { value: "Food", label: "Food", description: "Processed food & spices", icon: Utensils },
   { value: "Minerals", label: "Minerals", description: "Ores, metals, building stones", icon: Gem },
+  { value: "Chemicals", label: "Chemicals", description: "Polymers, solvents, specialty chemicals", icon: FlaskConical },
+  { value: "Machinery", label: "Machinery", description: "Industrial equipment, tools & parts", icon: Cog },
 ];
 
 interface AdminProductDetailsPageProps {
@@ -91,6 +95,25 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
   // Modal States
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const { data: session } = useSession();
+  const userRole = (session?.user as { role?: string } | undefined)?.role;
+  const isAdmin = userRole === "ADMIN";
+  const currentUserId = session?.user?.id;
+  const currentUserName = session?.user?.name?.toLowerCase().trim();
+  const currentUserEmail = session?.user?.email?.toLowerCase().trim();
+
+  const isOwner = Boolean(
+    product && (
+      (product.userId && currentUserId && product.userId === currentUserId) ||
+      (product.exporterName && (
+        (currentUserName && product.exporterName.toLowerCase().trim() === currentUserName) ||
+        (currentUserEmail && product.exporterName.toLowerCase().trim() === currentUserEmail)
+      ))
+    )
+  );
+
+  const canAccess = isAdmin || isOwner;
+
   if (!product) {
     if (productsLoading || isFetching) {
       return (
@@ -115,12 +138,45 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
           </p>
         </div>
         <Link
-          href="/dashboard/products"
+          href={isAdmin ? "/dashboard/products" : "/dashboard/exports"}
           className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to All Products</span>
+          <span>{isAdmin ? "Back to All Products" : "Back to My Exports"}</span>
         </Link>
+      </div>
+    );
+  }
+
+  if (!canAccess) {
+    return (
+      <div className={`${sansation.className} flex flex-col items-center justify-center py-20 text-center gap-4`}>
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-red-500/20 bg-red-500/10 text-red-500">
+          <ShieldAlert className="h-8 w-8" />
+        </div>
+        <div>
+          <h2 className={`${pinkAverage.className} text-2xl text-foreground`}>
+            Access Restricted
+          </h2>
+          <p className="text-xs text-foreground/50 mt-1 max-w-md">
+            You can only view dashboard specifications for export commodities that you uploaded.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/exports"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to My Exports</span>
+          </Link>
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-foreground/5"
+          >
+            <span>Dashboard Overview</span>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -132,7 +188,11 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
     deleteProduct(product.id);
     setIsDeleteModalOpen(false);
     toast.success({ title: "Product Deleted Successfully" });
-    router.push("/dashboard/products");
+    if (isAdmin) {
+      router.push("/dashboard/products");
+    } else {
+      router.push("/dashboard/exports");
+    }
   };
 
   return (
@@ -145,8 +205,8 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
               Dashboard
             </Link>
             <ChevronRight className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
-            <Link href="/dashboard/products" className="hover:text-primary transition-colors">
-              Products
+            <Link href={isAdmin ? "/dashboard/products" : "/dashboard/exports"} className="hover:text-primary transition-colors">
+              {isAdmin ? "Products" : "My Exports"}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
             <span className="font-bold text-foreground truncate max-w-[200px] sm:max-w-xs">

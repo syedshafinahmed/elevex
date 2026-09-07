@@ -36,6 +36,7 @@ export interface Product {
   shelfLife?: string;
   specs?: { label: string; value: string }[];
   reviews?: ProductReview[];
+  userId?: string;
 }
 
 export interface ImportedProduct {

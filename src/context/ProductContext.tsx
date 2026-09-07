@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { useSession } from "next-auth/react";
 import { Product, ImportedProduct, initialProducts, initialImports } from "@/lib/productsData";
 
 export interface CartItem {
@@ -86,8 +87,29 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cartItems, mounted]);
 
-  // User's exports
-  const myExports = products;
+  const { data: session } = useSession();
+
+  // User's exports (strictly filtered by logged-in user)
+  const myExports = useMemo(() => {
+    if (!session?.user) return [];
+    const currentUserId = session.user.id;
+    const currentUserName = session.user.name?.toLowerCase().trim();
+    const currentUserEmail = session.user.email?.toLowerCase().trim();
+
+    return products.filter((p) => {
+      // 1. Direct match on userId if assigned
+      if (p.userId && currentUserId && p.userId === currentUserId) {
+        return true;
+      }
+      // 2. Fallback match on exporterName
+      if (p.exporterName && (currentUserName || currentUserEmail)) {
+        const exp = p.exporterName.toLowerCase().trim();
+        if (currentUserName && exp === currentUserName) return true;
+        if (currentUserEmail && exp === currentUserEmail) return true;
+      }
+      return false;
+    });
+  }, [products, session]);
 
   function addToCart(productId: string, quantity?: number) {
     const targetProduct = products.find((p) => p.id === productId || p.slug === productId);

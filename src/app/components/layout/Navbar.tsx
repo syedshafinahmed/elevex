@@ -198,7 +198,7 @@ export default function Navbar() {
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-colors"
                     >
-                      <LayoutDashboard className="h-4 w-4 text-primary" />
+                      <LayoutDashboard className="h-4 w-4 text-secondary" />
                       Dashboard
                     </Link>
 
@@ -208,7 +208,7 @@ export default function Navbar() {
                       className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
-                        <ShoppingCart className="h-4 w-4 text-primary" />
+                        <ShoppingCart className="h-4 w-4 text-secondary" />
                         Cart Items
                       </div>
                       {cartCount > 0 && (
@@ -241,7 +241,7 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* Mobile Action Controls: Theme Toggle, Cart & Hamburger - top right */}
+        {/* Mobile Action Controls: Theme Toggle, Cart & Hamburger */}
         <div className="flex items-center gap-2 md:hidden">
           {mounted && (
             <Button
@@ -295,7 +295,7 @@ export default function Navbar() {
         />
       )}
 
-      {/* Mobile Drawer Panel - identical styling to dashboard drawer */}
+      {/* Mobile Drawer Panel */}
       <aside
         role="dialog"
         aria-modal="true"
@@ -384,7 +384,7 @@ export default function Navbar() {
                   </div>
                 </div>
 
-                {/* Dashboard & Cart side-by-side */}
+                {/* Dashboard & Cart */}
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/dashboard"

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
+import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,14 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please sign in to edit commodities." },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await req.json();
 
@@ -52,6 +61,27 @@ export async function PUT(
       return NextResponse.json(
         { error: "Product not found" },
         { status: 404 }
+      );
+    }
+
+    const user = session.user as { id?: string; name?: string; email?: string; role?: string };
+    const isAdmin = user.role === "ADMIN";
+    const currentUserId = user.id;
+    const currentUserName = user.name?.toLowerCase().trim();
+    const currentUserEmail = user.email?.toLowerCase().trim();
+
+    const isOwner = Boolean(
+      (existingProduct.userId && currentUserId && existingProduct.userId === currentUserId) ||
+      (existingProduct.exporterName && (
+        (currentUserName && existingProduct.exporterName.toLowerCase().trim() === currentUserName) ||
+        (currentUserEmail && existingProduct.exporterName.toLowerCase().trim() === currentUserEmail)
+      ))
+    );
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { error: "Forbidden: You only have permission to edit your own export commodities." },
+        { status: 403 }
       );
     }
 
@@ -117,6 +147,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please sign in to delete commodities." },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     const existingProduct = await prisma.product.findFirst({
@@ -129,6 +167,27 @@ export async function DELETE(
       return NextResponse.json(
         { error: "Product not found" },
         { status: 404 }
+      );
+    }
+
+    const user = session.user as { id?: string; name?: string; email?: string; role?: string };
+    const isAdmin = user.role === "ADMIN";
+    const currentUserId = user.id;
+    const currentUserName = user.name?.toLowerCase().trim();
+    const currentUserEmail = user.email?.toLowerCase().trim();
+
+    const isOwner = Boolean(
+      (existingProduct.userId && currentUserId && existingProduct.userId === currentUserId) ||
+      (existingProduct.exporterName && (
+        (currentUserName && existingProduct.exporterName.toLowerCase().trim() === currentUserName) ||
+        (currentUserEmail && existingProduct.exporterName.toLowerCase().trim() === currentUserEmail)
+      ))
+    );
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { error: "Forbidden: You only have permission to delete your own export commodities." },
+        { status: 403 }
       );
     }
 

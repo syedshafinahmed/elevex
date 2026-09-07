@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
-  LayoutGrid,
-  List,
   RotateCcw,
   ShoppingBag,
   Globe2,
@@ -24,24 +23,31 @@ type SortOption =
   | "newest";
 
 const sortOptions: DropdownOption<SortOption>[] = [
+  { value: "newest", label: "Newest Additions" },
   { value: "featured", label: "Featured (Top Ranked)" },
   { value: "price-low", label: "Price: Low to High" },
   { value: "price-high", label: "Price: High to Low" },
   { value: "rating-high", label: "Highest Rated" },
   { value: "stock-high", label: "Stock Availability" },
-  { value: "newest", label: "Newest Additions" },
 ];
 
-export default function UserProductsPage() {
+function ProductsContent() {
   const { products } = useProducts();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
 
   // Search & Filters State
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam || "All");
   const [selectedCountry, setSelectedCountry] = useState("All");
-  const [sortBy, setSortBy] = useState<SortOption>("featured");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
 
   // Extract unique categories and countries
   const categories = useMemo(() => {
@@ -94,11 +100,11 @@ export default function UserProductsPage() {
             return b.rating - a.rating;
           case "stock-high":
             return b.availableQuantity - a.availableQuantity;
-          case "newest":
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
           case "featured":
-          default:
             return b.rating * b.availableQuantity - a.rating * a.availableQuantity;
+          case "newest":
+          default:
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         }
       });
   }, [products, searchTerm, selectedCategory, selectedCountry, sortBy, inStockOnly]);
@@ -107,7 +113,7 @@ export default function UserProductsPage() {
     setSearchTerm("");
     setSelectedCategory("All");
     setSelectedCountry("All");
-    setSortBy("featured");
+    setSortBy("newest");
     setInStockOnly(false);
   }
 
@@ -115,7 +121,7 @@ export default function UserProductsPage() {
     searchTerm !== "" ||
     selectedCategory !== "All" ||
     selectedCountry !== "All" ||
-    sortBy !== "featured" ||
+    sortBy !== "newest" ||
     inStockOnly;
 
   return (
@@ -215,34 +221,6 @@ export default function UserProductsPage() {
               />
               <span>In Stock</span>
             </button>
-
-            {/* View Mode Toggle */}
-            <div className="flex items-center rounded-2xl border border-foreground/15 bg-background p-1 shadow-xs">
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors cursor-pointer ${
-                  viewMode === "grid"
-                    ? "bg-primary text-white shadow-xs"
-                    : "text-foreground/50 hover:text-foreground"
-                }`}
-                title="Grid View"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors cursor-pointer ${
-                  viewMode === "list"
-                    ? "bg-primary text-white shadow-xs"
-                    : "text-foreground/50 hover:text-foreground"
-                }`}
-                title="List View"
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </div>
           </div>
         </div>
 
@@ -295,7 +273,7 @@ export default function UserProductsPage() {
         )}
       </div>
 
-      {/* 4. Products Display (Grid vs List) */}
+      {/* 4. Products Display (Grid View Only) */}
       {filteredProducts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-3 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground/5 text-foreground/40">
@@ -316,19 +294,27 @@ export default function UserProductsPage() {
             Reset All Filters
           </button>
         </div>
-      ) : viewMode === "grid" ? (
+      ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((item) => (
-            <ProductCard key={item.id} product={item} viewMode="grid" />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {filteredProducts.map((item) => (
-            <ProductCard key={item.id} product={item} viewMode="list" />
+            <ProductCard key={item.id} product={item} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+export default function UserProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-7xl px-4 py-24 flex items-center justify-center text-xs text-foreground/50">
+          Loading commodities catalog...
+        </div>
+      }
+    >
+      <ProductsContent />
+    </Suspense>
   );
 }

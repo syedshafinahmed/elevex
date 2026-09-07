@@ -80,6 +80,17 @@ export default function ProductDetailsPage({
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  // Autoplay gallery when multiple images
+  useEffect(() => {
+    if (gallery.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setActiveImgIndex((prev) => (prev + 1) % gallery.length);
+    }, 1500);
+
+    return () => clearInterval(timer);
+  }, [gallery.length]);
+
   // Cart State
   const isInCart = product ? checkIsInCart(product.id) : false;
 
@@ -270,7 +281,7 @@ export default function ProductDetailsPage({
           </span>
         </nav>
 
-        {/* Toolbar Buttons: Back to Catalog, Cart, Share */}
+        {/* Toolbar Buttons: Back to Catalog, Share */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             type="button"
@@ -279,20 +290,6 @@ export default function ProductDetailsPage({
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Back to Catalog</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all shadow-xs cursor-pointer ${
-              isInCart
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-foreground/15 bg-background text-foreground/70 hover:border-primary hover:text-primary"
-            }`}
-            title="Cart"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            <span>{isInCart ? "In Cart" : "Add to Cart"}</span>
           </button>
 
           <button
@@ -311,7 +308,7 @@ export default function ProductDetailsPage({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: Interactive Media Gallery (Sticky on scroll) */}
         <div className="lg:col-span-6 lg:sticky lg:top-24 flex flex-col gap-4 self-start">
-          {/* Main Showcase Image (Clean without overlay badges, only expand button) */}
+          {/* Main Showcase Image */}
           <div className="group relative h-80 sm:h-[440px] w-full overflow-hidden rounded-3xl border border-foreground/15 bg-foreground/3 shadow-xl inset-shadow-foreground/30 inset-shadow-sm">
             <Image
               src={gallery[activeImgIndex] || product.image}
@@ -322,14 +319,21 @@ export default function ProductDetailsPage({
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
 
-            {/* Expand / Lightbox Trigger (Only button on image) */}
+            {/* Top-Left Category Badge with System Inset Shadow */}
+            {product.category && (
+              <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-4 py-2 text-[8px] font-bold uppercase tracking-wider text-foreground inset-shadow-foreground/30 inset-shadow-sm">
+                <span>{product.category}</span>
+              </div>
+            )}
+
+            {/* Expand / Lightbox Trigger (Appears on hover) */}
             <button
               type="button"
               onClick={() => setIsLightboxOpen(true)}
-              className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur-md shadow-md hover:bg-primary hover:text-white transition-all cursor-pointer"
+              className="absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-xl bg-background text-foreground shadow-md opacity-0 group-hover:opacity-100 hover:bg-primary hover:text-white transition-all duration-300 cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
               title="Expand Image"
             >
-              <Maximize2 className="h-4 w-4" />
+              <Maximize2 className="h-3 w-3" />
             </button>
           </div>
 
@@ -616,7 +620,7 @@ export default function ProductDetailsPage({
               <h3 className="text-base font-bold text-foreground mb-2">
                 Commodity Narrative & Sourcing Profile
               </h3>
-              <p>{product.description}</p>
+              <p className="text-justify">{product.description}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-foreground/8">

@@ -16,6 +16,8 @@ import {
   Shirt,
   Utensils,
   Gem,
+  FlaskConical,
+  Cog,
   ChevronRight,
   Eye,
   Plus,
@@ -36,6 +38,8 @@ const categoryOptions: DropdownOption[] = [
   { value: "Textile", label: "Textile", description: "Fabrics, garments, fibers", icon: Shirt },
   { value: "Food", label: "Food", description: "Processed food & spices", icon: Utensils },
   { value: "Minerals", label: "Minerals", description: "Ores, metals, building stones", icon: Gem },
+  { value: "Chemicals", label: "Chemicals", description: "Polymers, solvents, specialty chemicals", icon: FlaskConical },
+  { value: "Machinery", label: "Machinery", description: "Industrial equipment, tools & parts", icon: Cog },
 ];
 
 const SAVED_CERTIFICATIONS = [
@@ -254,7 +258,7 @@ export default function AddExportPage() {
       });
 
       setTimeout(() => {
-        router.push("/dashboard/products");
+        router.push("/dashboard/exports");
       }, 800);
     } catch (err: any) {
       toast.error({

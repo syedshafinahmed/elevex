@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import {
   Plus,
   Search,
@@ -13,8 +13,8 @@ import {
   Eye,
   Star,
   MapPin,
-  X,
   FileSpreadsheet,
+  Package,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
@@ -24,59 +24,21 @@ import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
 export default function MyExportsPage() {
-  const { myExports, deleteProduct, updateProduct } = useProducts();
+  const { data: session, status } = useSession();
+  const { myExports, deleteProduct, loading: productsLoading } = useProducts();
   const [search, setSearch] = useState("");
   const [mounted, setMounted] = useState(false);
-  const [editModalItem, setEditModalItem] = useState<Product | null>(null);
   const [itemToDelete, setItemToDelete] = useState<Product | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Prefilled modal form state
-  const [editName, setEditName] = useState("");
-  const [editImage, setEditImage] = useState("");
-  const [editPrice, setEditPrice] = useState<number>(0);
-  const [editOrigin, setEditOrigin] = useState("");
-  const [editRating, setEditRating] = useState<number>(5);
-  const [editQuantity, setEditQuantity] = useState<number>(0);
-
   const filteredExports = myExports.filter(
     (item) =>
       item.name.toLowerCase().includes(search.toLowerCase()) ||
       item.originCountry.toLowerCase().includes(search.toLowerCase())
   );
-
-  function openEditModal(item: Product) {
-    setEditModalItem(item);
-    setEditName(item.name);
-    setEditImage(item.image);
-    setEditPrice(item.price);
-    setEditOrigin(item.originCountry);
-    setEditRating(item.rating);
-    setEditQuantity(item.availableQuantity);
-  }
-
-  function handleUpdateSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!editModalItem) return;
-
-    updateProduct(editModalItem.id, {
-      name: editName,
-      image: editImage,
-      price: Number(editPrice),
-      originCountry: editOrigin,
-      rating: Number(editRating),
-      availableQuantity: Number(editQuantity),
-    });
-
-    toast.success({
-      title: "Export Updated",
-    });
-
-    setEditModalItem(null);
-  }
 
   function handleDownloadCSV() {
     const headers = ["ID", "Name", "Price", "Origin Country", "Rating", "Available Quantity", "Created At"];
@@ -140,15 +102,38 @@ export default function MyExportsPage() {
       </div>
 
       {/* Exports Grid (3-column layout matching requirements) */}
-      {filteredExports.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-2">
-          <p className="text-sm font-semibold text-foreground">No export products found.</p>
-          <p className="text-xs text-foreground/50">Add your first product to start exporting globally.</p>
+      {status === "loading" || productsLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-xs text-foreground/50">Loading your export listings...</p>
+        </div>
+      ) : filteredExports.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-3 inset-shadow-foreground/30 inset-shadow-sm">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Package className="h-7 w-7" />
+          </div>
+          <div className="flex flex-col gap-1 max-w-sm">
+            <p className="text-sm font-semibold text-foreground">
+              {search
+                ? `No exports found matching "${search}"`
+                : !session?.user
+                ? "Please sign in to view your export listings"
+                : "You haven't uploaded any export commodities yet"}
+            </p>
+            <p className="text-xs text-foreground/50">
+              {search
+                ? "Try searching for a different commodity title or country."
+                : !session?.user
+                ? "Sign in with your trader or enterprise account to manage your listings."
+                : "Commodities you create and publish via Add Export will appear here."}
+            </p>
+          </div>
           <Link
             href="/dashboard/add-export"
-            className="mt-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white"
+            className="mt-2 flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
           >
-            Add Export Now
+            <Plus className="h-4 w-4 stroke-[2.5]" />
+            <span>Add Export Now</span>
           </Link>
         </div>
       ) : (
@@ -250,129 +235,6 @@ export default function MyExportsPage() {
         }}
         onClose={() => setItemToDelete(null)}
       />
-
-      {/* Prefilled Update Modal */}
-      {editModalItem && mounted && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
-          <div className="relative w-full max-w-lg rounded-3xl border border-foreground/15 bg-background p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-foreground/10 pb-3 mb-4">
-              <h3 className={`${pinkAverage.className} text-xl text-foreground`}>
-                Update Export Product
-              </h3>
-              <button
-                type="button"
-                onClick={() => setEditModalItem(null)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/50 hover:text-foreground cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleUpdateSubmit} className="flex flex-col gap-3.5 text-xs">
-              <div>
-                <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-foreground/15 bg-foreground/3 px-3 text-foreground focus:border-primary focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
-                  Product Image URL *
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={editImage}
-                  onChange={(e) => setEditImage(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-foreground/15 bg-foreground/3 px-3 text-foreground focus:border-primary focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
-                    Price (৳) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={editPrice}
-                    onChange={(e) => setEditPrice(Number(e.target.value))}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-foreground/3 px-3 text-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
-                    Origin Country *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editOrigin}
-                    onChange={(e) => setEditOrigin(e.target.value)}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-foreground/3 px-3 text-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
-                    Rating (1 to 5) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="1"
-                    max="5"
-                    required
-                    value={editRating}
-                    onChange={(e) => setEditRating(Number(e.target.value))}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-foreground/3 px-3 text-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
-                    Available Quantity *
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={editQuantity}
-                    onChange={(e) => setEditQuantity(Number(e.target.value))}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-foreground/3 px-3 text-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-center justify-end gap-2 pt-3 border-t border-foreground/10">
-                <button
-                  type="button"
-                  onClick={() => setEditModalItem(null)}
-                  className="rounded-xl px-4 py-2 text-xs font-semibold text-foreground/60 hover:bg-foreground/5 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 cursor-pointer"
-                >
-                  Submit Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>,
-        document.body
-      )}
     </div>
   );
 }

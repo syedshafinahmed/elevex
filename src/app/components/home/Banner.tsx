@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -9,77 +9,52 @@ import {
   MapPin,
 } from "lucide-react";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
+import { useProducts } from "@/context/ProductContext";
 import Button from "../ui/Button";
 import AuthModal from "../auth/AuthModal";
 import { toast } from "gooey-toast";
 
-// const tickerStats = [
-//   { label: "Exporters", value: "3,140+", icon: Package },
-//   { label: "Countries", value: "62", icon: Globe2 },
-//   { label: "Protected", value: "100%", icon: ShieldCheck },
-//   { label: "Revenue", value: "৳4.2lac", icon: TrendingUp },
-// ];
-
-const liveListings = [
-  {
-    name: "Single-Origin Coffee",
-    origin: "Colombia",
-    price: "৳ 2950.50/kg",
-    tag: "Agricultural",
-  },
-  {
-    name: "Raw Jute Fibre",
-    origin: "Bangladesh",
-    price: "৳ 100.50/kg",
-    tag: "Textile",
-  },
-  {
-    name: "Arabica Green Beans",
-    origin: "Ethiopia",
-    price: "৳ 90.20/kg",
-    tag: "Agricultural",
-  },
-  {
-    name: "Handwoven Cotton",
-    origin: "India",
-    price: "৳ 40.00/m",
-    tag: "Textile",
-  },
-  {
-    name: "Cashew Kernels W320",
-    origin: "Ivory Coast",
-    price: "৳ 600.00/kg",
-    tag: "Agricultural",
-  },
-  {
-    name: "Freeze-Dried Mangoes",
-    origin: "Philippines",
-    price: "৳ 180.00/kg",
-    tag: "Food",
-  },
-];
-
 export default function Banner() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { products } = useProducts();
   const [authOpen, setAuthOpen] = useState(false);
   const [offset, setOffset] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
 
+  // Latest 3 commodities from products
+  const liveListings = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    return [...products]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3)
+      .map((p) => ({
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        origin: p.originCountry,
+        price: `৳ ${p.price.toLocaleString()}/${p.unit || "kg"}`,
+        tag: p.category || "Agricultural",
+      }));
+  }, [products]);
+
   useEffect(() => {
+    if (liveListings.length <= 1) return;
     const interval = setInterval(() => {
       setPrev(offset);
       setOffset((o) => (o + 1) % liveListings.length);
       setTimeout(() => setPrev(null), 400);
     }, 3000);
     return () => clearInterval(interval);
-  }, [offset]);
+  }, [offset, liveListings.length]);
 
-  const visible = [0, 1].map((i) => ({
-    item: liveListings[(offset + i) % liveListings.length],
-    isNew: i === 1,
-    isLeaving: prev !== null && i === 0,
-  }));
+  const visible = liveListings.length > 0
+    ? (liveListings.length === 1 ? [0] : [0, 1]).map((i) => ({
+        item: liveListings[(offset + i) % liveListings.length],
+        isNew: i === 1,
+        isLeaving: prev !== null && i === 0,
+      }))
+    : [];
 
   function handleAddExportClick() {
     if (session?.user) {
