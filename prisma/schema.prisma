@@ -5,6 +5,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client"
 }
 
 enum Role {
@@ -22,6 +23,8 @@ model User {
   role          Role      @default(USER)
   accounts      Account[]
   sessions      Session[]
+  products      Product[]
+  imports       ImportedProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -64,4 +67,53 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+model Product {
+  id                String    @id @default(cuid())
+  slug              String    @unique
+  name              String
+  image             String
+  gallery           String[]  @default([])
+  price             Float
+  unit              String    @default("kg")
+  originCountry     String
+  rating            Float     @default(5.0)
+  reviewsCount      Int       @default(0)
+  availableQuantity Int
+  minOrderQty       Int       @default(1)
+  description       String?   @db.Text
+  category          String    @default("Agricultural")
+  exporterName      String?
+  exporterRating    Float?
+  exporterShipments Int       @default(0)
+  portOfLoading     String?
+  leadTime          String?
+  hsCode            String?
+  packaging         String?
+  certifications    String[]  @default([])
+  shelfLife         String?
+  specs             Json?
+
+  userId            String?
+  user              User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model ImportedProduct {
+  id               String    @id @default(cuid())
+  productId        String
+  name             String
+  image            String
+  price            Float
+  unit             String?   @default("kg")
+  rating           Float?    @default(5.0)
+  originCountry    String
+  importedQuantity Int
+  importedAt       DateTime  @default(now())
+
+  userId           String?
+  user             User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

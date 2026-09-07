@@ -13,6 +13,7 @@ import {
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import ProductCard from "@/app/components/products/ProductCard";
+import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 
 type SortOption =
   | "featured"
@@ -21,6 +22,15 @@ type SortOption =
   | "rating-high"
   | "stock-high"
   | "newest";
+
+const sortOptions: DropdownOption<SortOption>[] = [
+  { value: "featured", label: "Featured (Top Ranked)" },
+  { value: "price-low", label: "Price: Low to High" },
+  { value: "price-high", label: "Price: High to Low" },
+  { value: "rating-high", label: "Highest Rated" },
+  { value: "stock-high", label: "Stock Availability" },
+  { value: "newest", label: "Newest Additions" },
+];
 
 export default function UserProductsPage() {
   const { products } = useProducts();
@@ -43,6 +53,13 @@ export default function UserProductsPage() {
     const set = new Set(products.map((p) => p.originCountry).filter(Boolean));
     return ["All", ...Array.from(set)];
   }, [products]);
+
+  const countryOptions: DropdownOption<string>[] = useMemo(() => {
+    return countries.map((c) => ({
+      value: c,
+      label: c === "All" ? "All Countries" : c,
+    }));
+  }, [countries]);
 
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
@@ -162,36 +179,22 @@ export default function UserProductsPage() {
           {/* Controls: Country Filter, Sort & View Mode */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
             {/* Country Selector */}
-            <select
+            <Dropdown<string>
               value={selectedCountry}
-              onChange={(e) => setSelectedCountry(e.target.value)}
-              aria-label="Filter by Country"
-              className="h-11 rounded-2xl border border-foreground/15 bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none cursor-pointer shadow-xs"
-            >
-              <option value="All">All Countries</option>
-              {countries
-                .filter((c) => c !== "All")
-                .map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-            </select>
+              options={countryOptions}
+              onChange={(val) => setSelectedCountry(val)}
+              className="w-36 sm:w-44 shrink-0"
+              triggerClassName="!h-11 !rounded-2xl"
+            />
 
             {/* Sort Selector */}
-            <select
+            <Dropdown<SortOption>
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              aria-label="Sort Commodities"
-              className="h-11 rounded-2xl border border-foreground/15 bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none cursor-pointer shadow-xs"
-            >
-              <option value="featured">Featured (Top Ranked)</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating-high">Highest Rated</option>
-              <option value="stock-high">Stock Availability</option>
-              <option value="newest">Newest Additions</option>
-            </select>
+              options={sortOptions}
+              onChange={(val) => setSortBy(val)}
+              className="w-44 sm:w-52 shrink-0"
+              triggerClassName="!h-11 !rounded-2xl"
+            />
 
             {/* In-stock Only Toggle */}
             <button

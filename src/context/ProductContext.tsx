@@ -14,65 +14,69 @@ interface ProductContextType {
   myExports: Product[];
   cartItems: CartItem[];
   cartCount: number;
-  addProduct: (product: Omit<Product, "id" | "createdAt">) => Product;
-  updateProduct: (id: string, updated: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-  importProduct: (productId: string, quantity: number) => { success: boolean; error?: string };
-  removeImport: (id: string) => void;
+  loading: boolean;
+  addProduct: (product: Omit<Product, "id" | "createdAt">) => Promise<Product>;
+  updateProduct: (id: string, updated: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  importProduct: (productId: string, quantity: number) => Promise<{ success: boolean; error?: string }>;
+  removeImport: (id: string) => Promise<void>;
   addToCart: (productId: string, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   isInCart: (productId: string) => boolean;
+  refreshProducts: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const PRODUCTS_STORAGE_KEY = "elevex_products_v1";
-const IMPORTS_STORAGE_KEY = "elevex_my_imports_v1";
 const CART_STORAGE_KEY = "elevex_cart_items";
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [myImports, setMyImports] = useState<ImportedProduct[]>(initialImports);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [myImports, setMyImports] = useState<ImportedProduct[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  // Fetch initial data from APIs
+  async function fetchProductsFromAPI() {
+    try {
+      const res = await fetch("/api/products");
+      if (res.ok) {
+        const data: Product[] = await res.json();
+        setProducts(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+    }
+  }
+
+  async function fetchImportsFromAPI() {
+    try {
+      const res = await fetch("/api/imports");
+      if (res.ok) {
+        const data: ImportedProduct[] = await res.json();
+        setMyImports(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch imports:", err);
+    }
+  }
 
   useEffect(() => {
     try {
-      const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-      const savedImports = localStorage.getItem(IMPORTS_STORAGE_KEY);
       const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (savedProducts) {
-        setProducts(JSON.parse(savedProducts));
-      }
-      if (savedImports) {
-        setMyImports(JSON.parse(savedImports));
-      }
       if (savedCart) {
         setCartItems(JSON.parse(savedCart));
       }
-    } catch {
-      // fallback to initial demo data
-    }
-    setMounted(true);
+    } catch {}
+
+    Promise.all([fetchProductsFromAPI(), fetchImportsFromAPI()]).finally(() => {
+      setLoading(false);
+      setMounted(true);
+    });
   }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      try {
-        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
-      } catch {}
-    }
-  }, [products, mounted]);
-
-  useEffect(() => {
-    if (mounted) {
-      try {
-        localStorage.setItem(IMPORTS_STORAGE_KEY, JSON.stringify(myImports));
-      } catch {}
-    }
-  }, [myImports, mounted]);
 
   useEffect(() => {
     if (mounted) {
@@ -82,22 +86,24 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cartItems, mounted]);
 
-  // Derived: user's exports (for demo, first 4 or user-created items)
+  // User's exports
   const myExports = products;
 
   function addToCart(productId: string, quantity?: number) {
-    const targetProduct = products.find((p) => p.id === productId);
+    const targetProduct = products.find((p) => p.id === productId || p.slug === productId);
     const defaultQty = targetProduct?.minOrderQty || 1;
     const itemQty = quantity && quantity > 0 ? quantity : defaultQty;
 
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === productId);
+      const existing = prev.find((item) => item.id === (targetProduct?.id || productId));
       if (existing) {
         return prev.map((item) =>
-          item.id === productId ? { ...item, quantity: item.quantity + itemQty } : item
+          item.id === (targetProduct?.id || productId)
+            ? { ...item, quantity: item.quantity + itemQty }
+            : item
         );
       }
-      return [...prev, { id: productId, quantity: itemQty }];
+      return [...prev, { id: targetProduct?.id || productId, quantity: itemQty }];
     });
   }
 
@@ -125,69 +131,118 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
   const cartCount = cartItems.length;
 
-  function addProduct(productData: Omit<Product, "id" | "createdAt">) {
-    const newProd: Product = {
-      ...productData,
-      id: `prod-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    setProducts((prev) => [newProd, ...prev]);
-    return newProd;
-  }
+  async function addProduct(productData: Omit<Product, "id" | "createdAt">): Promise<Product> {
+    try {
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
 
-  function updateProduct(id: string, updated: Partial<Product>) {
-    setProducts((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updated } : item))
-    );
-  }
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to create product");
+      }
 
-  function deleteProduct(id: string) {
-    setProducts((prev) => prev.filter((item) => item.id !== id));
-  }
-
-  function importProduct(productId: string, quantity: number) {
-    const target = products.find((p) => p.id === productId);
-    if (!target) {
-      return { success: false, error: "Product not found" };
+      const created: Product = await res.json();
+      setProducts((prev) => [created, ...prev]);
+      return created;
+    } catch (err) {
+      console.error("addProduct error:", err);
+      throw err;
     }
-    if (quantity <= 0) {
-      return { success: false, error: "Quantity must be greater than zero" };
-    }
-    if (quantity > target.availableQuantity) {
-      return {
-        success: false,
-        error: `Cannot import more than available quantity (${target.availableQuantity})`,
-      };
-    }
-
-    // Deduct available quantity
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === productId
-          ? { ...p, availableQuantity: p.availableQuantity - quantity }
-          : p
-      )
-    );
-
-    // Add to myImports
-    const newImport: ImportedProduct = {
-      id: `imp-${Date.now()}`,
-      productId: target.id,
-      name: target.name,
-      image: target.image,
-      price: target.price,
-      rating: target.rating,
-      originCountry: target.originCountry,
-      importedQuantity: quantity,
-      importedAt: new Date().toISOString(),
-    };
-
-    setMyImports((prev) => [newImport, ...prev]);
-    return { success: true };
   }
 
-  function removeImport(id: string) {
-    setMyImports((prev) => prev.filter((item) => item.id !== id));
+  async function updateProduct(id: string, updated: Partial<Product>): Promise<void> {
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to update product");
+      }
+
+      const updatedProduct: Product = await res.json();
+      setProducts((prev) =>
+        prev.map((item) => (item.id === id || item.slug === id ? updatedProduct : item))
+      );
+    } catch (err) {
+      console.error("updateProduct error:", err);
+      throw err;
+    }
+  }
+
+  async function deleteProduct(id: string): Promise<void> {
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to delete product");
+      }
+
+      setProducts((prev) => prev.filter((item) => item.id !== id && item.slug !== id));
+      removeFromCart(id);
+    } catch (err) {
+      console.error("deleteProduct error:", err);
+      throw err;
+    }
+  }
+
+  async function importProduct(productId: string, quantity: number): Promise<{ success: boolean; error?: string }> {
+    try {
+      const res = await fetch("/api/imports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        return { success: false, error: errorData.error || "Failed to allocate import" };
+      }
+
+      const createdImport: ImportedProduct = await res.json();
+      setMyImports((prev) => [createdImport, ...prev]);
+
+      // Update product stock locally
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === productId || p.slug === productId
+            ? { ...p, availableQuantity: Math.max(0, p.availableQuantity - quantity) }
+            : p
+        )
+      );
+
+      return { success: true };
+    } catch (err) {
+      console.error("importProduct error:", err);
+      return { success: false, error: "An unexpected error occurred" };
+    }
+  }
+
+  async function removeImport(id: string): Promise<void> {
+    try {
+      const res = await fetch(`/api/imports/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to remove import");
+      }
+
+      setMyImports((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error("removeImport error:", err);
+      throw err;
+    }
   }
 
   return (
@@ -198,6 +253,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         myExports,
         cartItems,
         cartCount,
+        loading,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -208,6 +264,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         updateCartQuantity,
         clearCart,
         isInCart,
+        refreshProducts: fetchProductsFromAPI,
       }}
     >
       {children}

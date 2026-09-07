@@ -78,10 +78,17 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
   // Determine current title and subtitle based on pathname
   let pageMeta = routeMetadata[pathname];
   if (!pageMeta && pathname.startsWith("/dashboard/products/")) {
-    pageMeta = {
-      title: "Product Specifications",
-      subtitle: "Admin inspection, inventory valuation & stock controls",
-    };
+    if (pathname.endsWith("/edit")) {
+      pageMeta = {
+        title: "Edit Product Listing",
+        subtitle: "Update commodity details, specifications & pricing",
+      };
+    } else {
+      pageMeta = {
+        title: "Product Specifications",
+        subtitle: "Admin inspection, inventory valuation & stock controls",
+      };
+    }
   }
   if (!pageMeta) {
     pageMeta = {

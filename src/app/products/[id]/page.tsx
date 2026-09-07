@@ -47,14 +47,30 @@ export default function ProductDetailsPage({
   const router = useRouter();
   const { data: session } = useSession();
   const [authOpen, setAuthOpen] = useState(false);
-  const { products, importProduct, isInCart: checkIsInCart, addToCart, removeFromCart } = useProducts();
+  const { products, loading: productsLoading, importProduct, isInCart: checkIsInCart, addToCart, removeFromCart } = useProducts();
+  const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
 
-  // Find product or fallback
-  const product =
-    products.find((p) => p.id === resolvedParams.id) || products[0];
+  // Find product by slug or id
+  useEffect(() => {
+    const existing = products.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id);
+    if (!existing) {
+      setIsFetching(true);
+      fetch(`/api/products/${resolvedParams.id}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data) setFetchedProduct(data);
+        })
+        .catch(() => {})
+        .finally(() => setIsFetching(false));
+    }
+  }, [resolvedParams.id, products]);
+
+  const product = products.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id) || fetchedProduct;
 
   // Gallery & Lightbox State
   const gallery = useMemo(() => {
+    if (!product) return [];
     if (product.gallery && product.gallery.length > 0) {
       return product.gallery;
     }
@@ -65,9 +81,31 @@ export default function ProductDetailsPage({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Cart State
-  const isInCart = checkIsInCart(product.id);
+  const isInCart = product ? checkIsInCart(product.id) : false;
+
+  // Active Tab
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "specs" | "compliance"
+  >("overview");
+
+  // Import Configurator State
+  const unit = product?.unit || "units";
+  const minOrder = product?.minOrderQty || 1;
+  const maxStock = product?.availableQuantity || 0;
+  const [importQty, setImportQty] = useState<number>(minOrder);
+  const [isSubmittingImport, setIsSubmittingImport] = useState(false);
+  const [importSuccessModal, setImportSuccessModal] = useState(false);
+
+  // Synchronize initial importQty when product loads
+  useEffect(() => {
+    if (product) {
+      setImportQty(product.minOrderQty || 1);
+    }
+  }, [product]);
 
   function handleAddToCart() {
+    if (!product) return;
+
     if (!session?.user) {
       toast.error({
         title: "Please log in to add items to cart",
@@ -114,19 +152,6 @@ export default function ProductDetailsPage({
     }
   }
 
-  // Active Tab
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "specs" | "compliance"
-  >("overview");
-
-  // Import Configurator State
-  const unit = product.unit || "units";
-  const minOrder = product.minOrderQty || 1;
-  const maxStock = product.availableQuantity;
-  const [importQty, setImportQty] = useState<number>(minOrder);
-  const [isSubmittingImport, setIsSubmittingImport] = useState(false);
-  const [importSuccessModal, setImportSuccessModal] = useState(false);
-
   // Financial Calculations
   const isOutOfStock = maxStock <= 0;
   const isExceedingLimit = importQty > maxStock;
@@ -134,7 +159,7 @@ export default function ProductDetailsPage({
   const isInvalidQty =
     !importQty || isNaN(importQty) || isBelowMin || isExceedingLimit || isOutOfStock;
 
-  const subtotal = (importQty || 0) * product.price;
+  const subtotal = (importQty || 0) * (product?.price || 0);
   const portHandlingDutyEst = Math.round(subtotal * 0.025);
   const totalLandedCost = subtotal + portHandlingDutyEst;
 
@@ -143,7 +168,7 @@ export default function ProductDetailsPage({
     setImportQty(clamped);
   }
 
-  function handleImportSubmit(e: React.FormEvent) {
+  async function handleImportSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!session?.user) {
       toast.error({
@@ -154,11 +179,11 @@ export default function ProductDetailsPage({
       return;
     }
 
-    if (isInvalidQty) return;
+    if (!product || isInvalidQty) return;
 
     setIsSubmittingImport(true);
     try {
-      const res = importProduct(product.id, importQty);
+      const res = await importProduct(product.id, importQty);
       if (res.success) {
         setIsSubmittingImport(false);
         setImportSuccessModal(true);
@@ -181,6 +206,7 @@ export default function ProductDetailsPage({
 
   // Related Products
   const relatedProducts = useMemo(() => {
+    if (!product) return [];
     return products
       .filter(
         (p) =>
@@ -189,6 +215,40 @@ export default function ProductDetailsPage({
       )
       .slice(0, 4);
   }, [products, product]);
+
+  if (!product) {
+    if (productsLoading || isFetching) {
+      return (
+        <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-24 flex flex-col items-center justify-center text-center gap-4`}>
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm text-foreground/60">Loading commodity details from global exchange...</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-20 flex flex-col items-center justify-center text-center gap-6`}>
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-foreground/5 text-foreground/40 border border-foreground/10">
+          <Package className="h-8 w-8 stroke-[1.5]" />
+        </div>
+        <div className="flex flex-col gap-2 max-w-md">
+          <h1 className={`${pinkAverage.className} text-3xl font-bold text-foreground`}>
+            Commodity Not Found
+          </h1>
+          <p className="text-sm text-foreground/60">
+            The requested commodity lot could not be located in our verified trade exchange. It may have been archived or fully settled.
+          </p>
+        </div>
+        <Link
+          href="/products"
+          className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-98"
+        >
+          <span>Explore All Commodities</span>
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 flex flex-col gap-8`}>
@@ -328,13 +388,7 @@ export default function ProductDetailsPage({
               {product.portOfLoading && (
                 <span className="flex items-center gap-1 text-xs text-foreground/50">
                   <Anchor className="h-3 w-3 text-primary" />
-                  Port: {product.portOfLoading}
-                </span>
-              )}
-
-              {product.hsCode && (
-                <span className="rounded-md border border-foreground/10 bg-foreground/3 px-2 py-0.5 text-[10px] font-mono text-foreground/60">
-                  HS Code: {product.hsCode}
+                  {product.portOfLoading}
                 </span>
               )}
             </div>
@@ -343,12 +397,9 @@ export default function ProductDetailsPage({
               {product.name}
             </h1>
 
-            {/* Detailed Product Description */}
+            {/* Trade & Export Overview */}
             <div className={`${sansation.className} flex flex-col gap-3 text-foreground/80 text-sm sm:text-base leading-wide text-justify font-extralight`}>
               <p className="first-letter:text-2xl sm:first-letter:text-3xl first-letter:font-bold first-letter:mr-0.5">
-                {product.description}
-              </p>
-              <p>
                 Harvested and processed under certified commercial export standards in {product.originCountry}, this lot is curated specifically for high-volume cross-border trade. Each consignment is subjected to comprehensive quality grading, ensuring optimal purity, moisture stabilization, and full conformity with global import and phytosanitary regulations.
               </p>
               <p>
@@ -569,7 +620,7 @@ export default function ProductDetailsPage({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-foreground/8">
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4 inset-shadow-foreground/30 inset-shadow-sm">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
                   Quality & Origin Highlights
                 </h4>
@@ -589,7 +640,7 @@ export default function ProductDetailsPage({
                 </ul>
               </div>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-4 inset-shadow-foreground/30 inset-shadow-sm">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-2">
                   Trade Terms & Handover
                 </h4>
@@ -620,7 +671,7 @@ export default function ProductDetailsPage({
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
                 <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
                   Harmonized Tariff (HS Code)
                 </span>
@@ -629,7 +680,7 @@ export default function ProductDetailsPage({
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
                 <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
                   Port of Loading
                 </span>
@@ -638,7 +689,7 @@ export default function ProductDetailsPage({
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
                 <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
                   Export Packaging Standard
                 </span>
@@ -647,7 +698,7 @@ export default function ProductDetailsPage({
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
                 <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
                   Estimated Lead Time
                 </span>
@@ -656,7 +707,7 @@ export default function ProductDetailsPage({
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
                 <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
                   Guaranteed Shelf Life
                 </span>
@@ -665,7 +716,7 @@ export default function ProductDetailsPage({
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5">
+              <div className="rounded-2xl border border-foreground/10 bg-background/50 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
                 <span className="text-[10px] uppercase font-semibold text-foreground/45 block">
                   Minimum Order Quantity
                 </span>
@@ -709,10 +760,6 @@ export default function ProductDetailsPage({
             <h3 className="text-base font-bold text-foreground">
               Phytosanitary & Quality Accreditations
             </h3>
-            <p className="text-xs text-foreground/65">
-              All listed consignments undergo independent pre-shipment laboratory assays and possess verified certificates of origin.
-            </p>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
               {(
                 product.certifications || [
@@ -724,7 +771,7 @@ export default function ProductDetailsPage({
               ).map((cert, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-3 rounded-2xl border border-foreground/10 bg-background/50 p-4"
+                  className="flex items-start gap-3 rounded-2xl border border-foreground/10 bg-background/50 p-4 inset-shadow-foreground/30 inset-shadow-sm"
                 >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
                     <ShieldCheck className="h-5 w-5" />

@@ -18,6 +18,7 @@ import { useProducts } from "@/context/ProductContext";
 import { ImportedProduct } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import { toast } from "gooey-toast";
+import { slugify } from "@/lib/utils";
 
 export default function MyImportsPage() {
   const { myImports, removeImport } = useProducts();
@@ -164,7 +165,7 @@ export default function MyImportsPage() {
               <div className="mt-4 flex items-center justify-between gap-2 pt-1">
                 {/* 8. See Details Button */}
                 <Link
-                  href={`/products/${item.productId}`}
+                  href={`/products/${slugify(item.name) || item.productId}`}
                   className="flex items-center gap-1 rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
                 >
                   <Eye className="h-3.5 w-3.5 text-primary" />

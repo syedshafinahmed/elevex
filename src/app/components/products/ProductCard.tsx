@@ -17,6 +17,8 @@ import AuthModal from "@/app/components/auth/AuthModal";
 import { useProducts } from "@/context/ProductContext";
 import { toast } from "gooey-toast";
 
+import { slugify } from "@/lib/utils";
+
 interface ProductCardProps {
   product: Product;
   viewMode?: "grid" | "list";
@@ -36,6 +38,7 @@ export default function ProductCard({
   const unit = product.unit || "units";
   const isOutOfStock = product.availableQuantity <= 0;
   const isLowStock = product.availableQuantity > 0 && product.availableQuantity <= 500;
+  const productIdentifier = product.slug || slugify(product.name) || product.id;
 
   function handleAddToCart(e?: React.MouseEvent) {
     if (e) {
@@ -73,7 +76,7 @@ export default function ProductCard({
   }
 
   const handleCardClick = () => {
-    router.push(`/products/${product.id}`);
+    router.push(`/products/${productIdentifier}`);
   };
 
   // Calculate stock meter percentage (clamped between 8% and 100%)
@@ -184,7 +187,7 @@ export default function ProductCard({
           <Button
             variant="primary"
             size="sm"
-            href={`/products/${product.id}`}
+            href={`/products/${productIdentifier}`}
             className="text-white"
           >
             <span>View Details</span>
@@ -239,12 +242,9 @@ export default function ProductCard({
           {product.name}
         </h3>
 
-        {/* 4. Price & Available Stock (Structured as before, without a nested container box) */}
-        <div className="mt-2.5 flex items-end justify-between">
+        {/* 4. Price & Available Stock */}
+        <div className="mt-2 flex items-end justify-between">
           <div>
-            <span className="text-[10px] text-foreground/45 block uppercase font-semibold">
-              Price
-            </span>
             <div className="flex items-baseline gap-1 mt-0.5">
               <span className="font-extrabold text-primary text-base sm:text-lg">
                 ৳ {product.price.toLocaleString()}
@@ -254,7 +254,7 @@ export default function ProductCard({
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] text-foreground/45 block uppercase font-semibold">
+            <span className="text-[8px] text-foreground/45 block uppercase font-semibold">
               Available Stock
             </span>
             <span
@@ -305,7 +305,7 @@ export default function ProductCard({
         <Button
           variant="primary"
           size="sm"
-          href={`/products/${product.id}`}
+          href={`/products/${productIdentifier}`}
           className="w-full text-white"
         >
           <span>View Details</span>

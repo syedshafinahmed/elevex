@@ -23,6 +23,7 @@ import { useProducts } from "@/context/ProductContext";
 import Button from "@/app/components/ui/Button";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import { toast } from "gooey-toast";
+import { slugify } from "@/lib/utils";
 
 export default function CartItemsPage() {
   const router = useRouter();
@@ -243,7 +244,7 @@ export default function CartItemsPage() {
                         </div>
 
                         <Link
-                          href={`/products/${product.id}`}
+                          href={`/products/${product.slug || slugify(product.name) || product.id}`}
                           className="text-sm font-bold text-foreground hover:text-primary transition-colors line-clamp-1"
                         >
                           {product.name}
@@ -312,7 +313,7 @@ export default function CartItemsPage() {
 
                       <div className="flex items-center gap-1.5">
                         <Link
-                          href={`/products/${product.id}`}
+                          href={`/products/${product.slug || slugify(product.name) || product.id}`}
                           aria-label="View product details"
                           className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10 bg-foreground/5 text-foreground/60 hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all"
                         >

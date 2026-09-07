@@ -1,26 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { use, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
-  Upload,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   ArrowLeft,
-  Image as ImageIcon,
   Sprout,
   Shirt,
   Utensils,
   Gem,
-  ChevronRight,
   Eye,
   Plus,
   Trash2,
   ShieldCheck,
+  Package,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
@@ -30,6 +27,7 @@ import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import Button from "@/app/components/ui/Button";
 import AuthModal from "@/app/components/auth/AuthModal";
 import { toast } from "gooey-toast";
+import { slugify } from "@/lib/utils";
 
 const categoryOptions: DropdownOption[] = [
   { value: "Agricultural", label: "Agricultural", description: "Crops, grains, raw materials", icon: Sprout },
@@ -46,11 +44,47 @@ const SAVED_CERTIFICATIONS = [
   "HACCP Quality Compliance",
 ];
 
-export default function AddExportPage() {
+interface EditExportPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function EditExportPage({ params }: EditExportPageProps) {
+  const resolvedParams = use(params);
   const router = useRouter();
   const { data: session } = useSession();
   const [authOpen, setAuthOpen] = useState(false);
-  const { addProduct } = useProducts();
+  const { products, updateProduct, loading: productsLoading } = useProducts();
+
+  const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Find product from context or fallback to API fetch
+  const product = useMemo(() => {
+    return (
+      products.find(
+        (p) =>
+          p.slug === resolvedParams.id ||
+          slugify(p.name) === resolvedParams.id ||
+          p.id === resolvedParams.id
+      ) || fetchedProduct
+    );
+  }, [products, resolvedParams.id, fetchedProduct]);
+
+  useEffect(() => {
+    if (!product && !productsLoading) {
+      setIsFetching(true);
+      fetch(`/api/products/${resolvedParams.id}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && !data.error) {
+            setFetchedProduct(data);
+          }
+        })
+        .catch((err) => console.error("Error fetching product to edit:", err))
+        .finally(() => setIsFetching(false));
+    }
+  }, [product, productsLoading, resolvedParams.id]);
 
   // Basic Details (Product Model)
   const [name, setName] = useState("");
@@ -90,8 +124,43 @@ export default function AddExportPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Computed Exporter Name from session
-  const currentExporterName = session?.user?.name || "Verified Global Exporter";
+  // Initialize fields once product is loaded
+  useEffect(() => {
+    if (product && !hasInitialized) {
+      setName(product.name || "");
+      setCategory(product.category || "Agricultural");
+      setOriginCountry(product.originCountry || "");
+      setImage(product.image || "");
+      if (product.gallery && product.gallery.length > 1) {
+        setGalleryInput(product.gallery.slice(1).join("\n"));
+      } else {
+        setGalleryInput("");
+      }
+      setDescription(product.description || "");
+      setPrice(product.price ? product.price.toString() : "");
+      setUnit(product.unit || "kg");
+      setAvailableQuantity(product.availableQuantity ? product.availableQuantity.toString() : "");
+      setMinOrderQty((product.minOrderQty || 1).toString());
+      setRating((product.rating || 5.0).toString());
+      setExporterRating((product.exporterRating || 4.9).toString());
+      setExporterShipments((product.exporterShipments || 0).toString());
+      setHsCode(product.hsCode || "");
+      setPortOfLoading(product.portOfLoading || "");
+      setLeadTime(product.leadTime || "");
+      setPackaging(product.packaging || "");
+      setShelfLife(product.shelfLife || "");
+      setCertifications(product.certifications || []);
+      if (product.specs && product.specs.length > 0) {
+        setSpecs(product.specs);
+      } else {
+        setSpecs([{ label: "", value: "" }]);
+      }
+      setHasInitialized(true);
+    }
+  }, [product, hasInitialized]);
+
+  // Computed Exporter Name
+  const currentExporterName = product?.exporterName || session?.user?.name || "Verified Global Exporter";
 
   // Reactive Product Preview
   const previewProduct: Product = useMemo(() => {
@@ -101,10 +170,12 @@ export default function AddExportPage() {
       .filter((u) => u.length > 0);
     const mainImg =
       image.trim() ||
+      product?.image ||
       "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1200&auto=format&fit=crop";
 
     return {
-      id: "preview-commodity",
+      id: product?.id || "preview-commodity",
+      slug: product?.slug,
       name: name.trim() || "Export Commodity Title",
       image: mainImg,
       gallery: extraImages.length > 0 ? [mainImg, ...extraImages] : [mainImg],
@@ -115,7 +186,7 @@ export default function AddExportPage() {
       availableQuantity: Number(availableQuantity) || 0,
       minOrderQty: Number(minOrderQty) || 1,
       category: category || "Agricultural",
-      createdAt: new Date().toISOString(),
+      createdAt: product?.createdAt || new Date().toISOString(),
       description: description.trim(),
       exporterName: currentExporterName,
       exporterRating: Number(exporterRating) || 4.9,
@@ -129,6 +200,7 @@ export default function AddExportPage() {
       specs: specs.filter((s) => s.label.trim() && s.value.trim()),
     };
   }, [
+    product,
     name,
     image,
     galleryInput,
@@ -186,10 +258,15 @@ export default function AddExportPage() {
 
     if (!session?.user) {
       toast.error({
-        title: "Please log in to add an export",
-        description: "You must be signed in to create and manage export commodities.",
+        title: "Please log in to edit an export",
+        description: "You must be signed in to manage export commodities.",
       });
       setAuthOpen(true);
+      return;
+    }
+
+    if (!product) {
+      setError("Commodity record not found.");
       return;
     }
 
@@ -223,10 +300,10 @@ export default function AddExportPage() {
     );
 
     try {
-      await addProduct({
+      await updateProduct(product.id, {
         name: name.trim(),
         image: image.trim(),
-        gallery: fullGallery.length > 1 ? fullGallery : undefined,
+        gallery: fullGallery.length > 1 ? fullGallery : [image.trim()],
         price: numPrice,
         unit: unit.trim() || "kg",
         originCountry: originCountry.trim(),
@@ -240,9 +317,7 @@ export default function AddExportPage() {
         shelfLife: shelfLife.trim() || undefined,
         certifications: certifications.length > 0 ? certifications : undefined,
         specs: validSpecs.length > 0 ? validSpecs : undefined,
-        description:
-          description.trim() ||
-          "High quality export commodity produced under certified agricultural protocols, packed in export-ready seaworthy standards, and fully eligible for international trade and escrow.",
+        description: description.trim(),
         category,
         exporterName: currentExporterName,
         exporterRating: Number(exporterRating) || 4.9,
@@ -250,116 +325,60 @@ export default function AddExportPage() {
       });
 
       toast.success({
-        title: "Export Listing Created Successfully",
+        title: "Export Listing Updated Successfully",
       });
 
       setTimeout(() => {
-        router.push("/dashboard/products");
-      }, 800);
+        router.push(`/dashboard/products/${product.slug || slugify(name) || product.id}`);
+      }, 700);
     } catch (err: any) {
       toast.error({
-        title: "Failed to Add Export",
+        title: "Failed to Update Export",
         description: err?.message || "Please check your network and try again.",
       });
-      setError(err?.message || "Failed to add product. Please try again.");
+      setError(err?.message || "Failed to update product. Please try again.");
       setLoading(false);
     }
   }
 
-  // Demo presets for fast testing
-  function handleFillSample(sampleType: "coffee" | "jute" | "spices") {
-    if (sampleType === "coffee") {
-      setName("Single-Origin Colombian Arabica Coffee Beans (Excelso EP)");
-      setImage("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Roasted_coffee_beans.jpg/1280px-Roasted_coffee_beans.jpg");
-      setGalleryInput("https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80\nhttps://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=800&q=80");
-      setPrice("2950");
-      setUnit("kg");
-      setOriginCountry("Colombia");
-      setRating("4.9");
-      setAvailableQuantity("4500");
-      setMinOrderQty("50");
-      setHsCode("0901.11.00");
-      setPortOfLoading("Port of Buenaventura");
-      setLeadTime("7 - 12 business days");
-      setPackaging("GrainPro hermetic liners in 60kg jute export bags");
-      setShelfLife("24 Months");
-      setCategory("Agricultural");
-      setCertifications([
-        "ISO 22000 Food Safety Standard",
-        "USDA Organic Certified",
-        "Phytosanitary Ministry Release",
-        "Fair Trade International",
-      ]);
-      setSpecs([
-        { label: "Grade", value: "Excelso European Preparation (EP)" },
-        { label: "Screen Size", value: "15/16 Strictly Hard Bean" },
-        { label: "Moisture Content", value: "11.2% Max" },
-        { label: "Processing Method", value: "Fully Washed & Sun Dried" },
-        { label: "Defect Count", value: "< 0.5% (SCAA Standard)" },
-      ]);
-      setDescription("Hand-picked high-altitude Arabica beans from the volcanic soil of Huila, Colombia. Features balanced acidity, silky body, and distinct aromatic cupping notes of dark cocoa, orange blossom, and wild honey.");
-    } else if (sampleType === "jute") {
-      setName("Eco-Friendly Raw Hessian Jute Fabric (Grade A)");
-      setImage("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80");
-      setGalleryInput("https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80");
-      setPrice("180");
-      setUnit("meters");
-      setOriginCountry("Bangladesh");
-      setRating("4.8");
-      setAvailableQuantity("15000");
-      setMinOrderQty("100");
-      setHsCode("5303.10.10");
-      setPortOfLoading("Chittagong Seaport");
-      setLeadTime("3 - 5 business days");
-      setPackaging("High density hydraulic pressed export bales");
-      setShelfLife("36 Months");
-      setCategory("Textile");
-      setCertifications([
-        "OEKO-TEX Standard 100",
-        "Global Organic Textile Standard (GOTS)",
-        "ISO 9001 Quality Management",
-      ]);
-      setSpecs([
-        { label: "Weave Structure", value: "Plain Weave 10x10 porter/shots" },
-        { label: "GSM Density", value: "320 GSM" },
-        { label: "Tensile Strength", value: "> 95 lbs warp / 85 lbs weft" },
-        { label: "Biodegradability", value: "100% Organic Natural Jute" },
-      ]);
-      setDescription("Export-grade heavy duty hessian rolls for industrial packaging, eco geotextiles, and global agro-industrial transport.");
-    } else if (sampleType === "spices") {
-      setName("High-Curcumin Alleppey Finger Turmeric");
-      setImage("https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80");
-      setGalleryInput("https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80");
-      setPrice("420");
-      setUnit("kg");
-      setOriginCountry("India");
-      setRating("4.9");
-      setAvailableQuantity("3500");
-      setMinOrderQty("50");
-      setHsCode("0910.30.00");
-      setPortOfLoading("Cochin Port");
-      setLeadTime("5 - 8 business days");
-      setPackaging("Vacuum-sealed double poly-lined woven sacks");
-      setShelfLife("24 Months");
-      setCategory("Food");
-      setCertifications([
-        "FSSAI Export Clearance",
-        "USDA Organic Certified",
-        "Spices Board Quality Seal",
-      ]);
-      setSpecs([
-        { label: "Curcumin Content", value: "5.2% Certified" },
-        { label: "Moisture Content", value: "< 9.5%" },
-        { label: "Total Ash", value: "< 7.0%" },
-        { label: "Extraneous Matter", value: "< 0.2%" },
-      ]);
-      setDescription("Sun-dried whole turmeric fingers with certified 5.2% natural curcumin content. Sourced directly from Kerala organic farmer collectives.");
+  if (!product) {
+    if (productsLoading || isFetching) {
+      return (
+        <div className={`${sansation.className} flex flex-col items-center justify-center py-24 text-center gap-4`}>
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-xs text-foreground/50">Loading commodity data for editing...</p>
+        </div>
+      );
     }
+
+    return (
+      <div className={`${sansation.className} flex flex-col items-center justify-center py-20 text-center gap-4`}>
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-foreground/10 bg-foreground/3">
+          <Package className="h-8 w-8 text-foreground/40" />
+        </div>
+        <div>
+          <h2 className={`${pinkAverage.className} text-2xl text-foreground`}>
+            Product Not Found
+          </h2>
+          <p className="text-xs text-foreground/50 mt-1">
+            The commodity with identifier &ldquo;{resolvedParams.id}&rdquo; does not exist or has been removed.
+          </p>
+        </div>
+        <Link
+          href="/dashboard/products"
+          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to All Products</span>
+        </Link>
+      </div>
+    );
   }
 
   return (
     <div className={`${sansation.className} flex flex-col w-full pb-12`}>
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+
       {/* Main Grid: Left Side = Sticky ProductCard Showcase Preview, Right Side = Form Input Fields */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-1">
         
@@ -380,6 +399,20 @@ export default function AddExportPage() {
             onSubmit={handleSubmit}
             className="flex flex-col gap-5 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 sm:p-7 inset-shadow-foreground/30 inset-shadow-sm"
           >
+            <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
+              <div>
+                <h2 className={`${pinkAverage.className} text-2xl text-foreground`}>
+                  Edit Export Commodity
+                </h2>
+                <p className="text-xs text-foreground/50">
+                  Update specifications, trade pricing, stock, and compliance credentials.
+                </p>
+              </div>
+              <span className="rounded-lg bg-foreground/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/60 border border-foreground/10">
+                SKU: {product.id.slice(-8).toUpperCase()}
+              </span>
+            </div>
+
             {error && (
               <div className="flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs text-red-500 font-semibold">
                 <AlertCircle className="h-4 w-4 shrink-0" />
@@ -548,7 +581,7 @@ export default function AddExportPage() {
               </div>
             </div>
 
-            {/* Section 3: Exporter Identity (Session-bound) */}
+            {/* Section 3: Exporter Identity */}
             <div className="flex flex-col gap-4 pt-2">
               <div className="flex items-center justify-between border-b border-foreground/10 pb-2">
                 <h3 className={`${pinkAverage.className} text-lg text-foreground`}>
@@ -857,7 +890,7 @@ export default function AddExportPage() {
             {/* Submit Action */}
             <div className="pt-4 border-t border-foreground/10 flex items-center justify-between">
               <Link
-                href="/dashboard/products"
+                href={`/dashboard/products/${product.slug || slugify(product.name) || product.id}`}
                 className="rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-all"
               >
                 Cancel
@@ -871,7 +904,7 @@ export default function AddExportPage() {
                 className="px-6 text-white shadow-lg shadow-primary/25"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                <span>{loading ? "Publishing Listing..." : "Publish Export Listing"}</span>
+                <span>{loading ? "Saving Changes..." : "Save Commodity Updates"}</span>
               </Button>
             </div>
           </form>

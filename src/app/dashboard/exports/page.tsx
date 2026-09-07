@@ -21,6 +21,7 @@ import { useProducts } from "@/context/ProductContext";
 import { Product } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import { toast } from "gooey-toast";
+import { slugify } from "@/lib/utils";
 
 export default function MyExportsPage() {
   const { myExports, deleteProduct, updateProduct } = useProducts();
@@ -200,7 +201,7 @@ export default function MyExportsPage() {
               {/* Action Buttons: 6. Delete Button, 8. Update Button, See Details */}
               <div className="mt-4 flex items-center justify-between gap-2 pt-1">
                 <Link
-                  href={`/products/${item.id}`}
+                  href={`/products/${item.slug || slugify(item.name) || item.id}`}
                   className="flex items-center gap-1 text-xs font-semibold text-foreground/60 hover:text-primary transition-colors"
                 >
                   <Eye className="h-3.5 w-3.5" />
@@ -208,15 +209,14 @@ export default function MyExportsPage() {
                 </Link>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => openEditModal(item)}
-                    className="flex items-center gap-1 rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
-                    title="Update Product"
+                  <Link
+                    href={`/dashboard/products/${item.slug || slugify(item.name) || item.id}/edit`}
+                    className="flex items-center gap-1 rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-colors inset-shadow-foreground/30 inset-shadow-sm"
+                    title="Edit Commodity"
                   >
                     <Edit2 className="h-3 w-3 text-primary" />
-                    <span>Update</span>
-                  </button>
+                    <span>Edit</span>
+                  </Link>
                   <button
                     type="button"
                     onClick={() => setItemToDelete(item)}

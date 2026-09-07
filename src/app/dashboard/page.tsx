@@ -18,6 +18,7 @@ import { ImportedProduct } from "@/lib/productsData";
 import { useState } from "react";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import { toast } from "gooey-toast";
+import { slugify } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -203,7 +204,7 @@ export default function DashboardPage() {
                     ৳ {item.price.toLocaleString()}
                   </span>
                   <Link
-                    href={`/products/${item.id}`}
+                    href={`/products/${item.slug || slugify(item.name) || item.id}`}
                     className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/10 text-foreground/60 hover:text-primary hover:border-primary transition-colors"
                     title="See Details"
                   >
@@ -275,7 +276,7 @@ export default function DashboardPage() {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <Link
-                      href={`/products/${item.productId}`}
+                      href={`/products/${slugify(item.name) || item.productId}`}
                       className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/10 text-foreground/60 hover:text-primary hover:border-primary transition-colors"
                       title="See Details"
                     >

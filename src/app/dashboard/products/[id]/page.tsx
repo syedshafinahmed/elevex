@@ -35,6 +35,7 @@ import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import Button from "@/app/components/ui/Button";
 import { toast } from "gooey-toast";
 import { Sprout, Shirt, Utensils, Gem } from "lucide-react";
+import { slugify } from "@/lib/utils";
 
 const categoryOptions: DropdownOption[] = [
   { value: "Agricultural", label: "Agricultural", description: "Crops, grains, raw materials", icon: Sprout },
@@ -50,14 +51,30 @@ interface AdminProductDetailsPageProps {
 export default function AdminProductDetailsPage({ params }: AdminProductDetailsPageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
-  const { products, updateProduct, deleteProduct } = useProducts();
+  const { products, loading: productsLoading, updateProduct, deleteProduct } = useProducts();
+  const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const product = products.find((p) => p.id === resolvedParams.id) || products[0];
+  useEffect(() => {
+    const existing = products.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id);
+    if (!existing) {
+      setIsFetching(true);
+      fetch(`/api/products/${resolvedParams.id}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data) setFetchedProduct(data);
+        })
+        .catch(() => { })
+        .finally(() => setIsFetching(false));
+    }
+  }, [resolvedParams.id, products]);
+
+  const product = products.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id) || fetchedProduct;
 
   // Gallery & Lightbox
   const gallery = useMemo(() => {
@@ -73,30 +90,17 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
 
   // Modal States
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // Form edit states
-  const [editName, setEditName] = useState("");
-  const [editImage, setEditImage] = useState("");
-  const [editGallery, setEditGallery] = useState("");
-  const [editPrice, setEditPrice] = useState<number>(0);
-  const [editUnit, setEditUnit] = useState("kg");
-  const [editOrigin, setEditOrigin] = useState("");
-  const [editRating, setEditRating] = useState<number>(5);
-  const [editQuantity, setEditQuantity] = useState<number>(0);
-  const [editCategory, setEditCategory] = useState("Agricultural");
-  const [editDescription, setEditDescription] = useState("");
-  const [editHsCode, setEditHsCode] = useState("");
-  const [editPort, setEditPort] = useState("");
-  const [editLeadTime, setEditLeadTime] = useState("");
-  const [editPackaging, setEditPackaging] = useState("");
-  const [editShelfLife, setEditShelfLife] = useState("");
-  const [editMinOrderQty, setEditMinOrderQty] = useState<number>(1);
-  const [editCertifications, setEditCertifications] = useState<string[]>([]);
-  const [editNewCert, setEditNewCert] = useState("");
-  const [editSpecs, setEditSpecs] = useState<{ label: string; value: string }[]>([]);
 
   if (!product) {
+    if (productsLoading || isFetching) {
+      return (
+        <div className={`${sansation.className} flex flex-col items-center justify-center py-24 text-center gap-4`}>
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-xs text-foreground/50">Loading commodity specifications...</p>
+        </div>
+      );
+    }
+
     return (
       <div className={`${sansation.className} flex flex-col items-center justify-center py-20 text-center gap-4`}>
         <div className="flex h-16 w-16 items-center justify-center rounded-3xl border border-foreground/10 bg-foreground/3">
@@ -107,7 +111,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
             Product Not Found
           </h2>
           <p className="text-xs text-foreground/50 mt-1">
-            The commodity with ID &ldquo;{resolvedParams.id}&rdquo; does not exist or has been removed.
+            The commodity with identifier &ldquo;{resolvedParams.id}&rdquo; does not exist or has been removed.
           </p>
         </div>
         <Link
@@ -123,104 +127,12 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
 
   const unit = product.unit || "kg";
   const minOrder = product.minOrderQty || 1;
-  const totalValuation = product.price * product.availableQuantity;
-
-  const openEditModal = () => {
-    setEditName(product.name);
-    setEditImage(product.image);
-    setEditGallery(product.gallery ? product.gallery.join("\n") : "");
-    setEditPrice(product.price);
-    setEditUnit(product.unit || "kg");
-    setEditOrigin(product.originCountry);
-    setEditRating(product.rating);
-    setEditQuantity(product.availableQuantity);
-    setEditCategory(product.category || "Agricultural");
-    setEditDescription(product.description || "");
-    setEditHsCode(product.hsCode || "");
-    setEditPort(product.portOfLoading || "");
-    setEditLeadTime(product.leadTime || "");
-    setEditPackaging(product.packaging || "");
-    setEditShelfLife(product.shelfLife || "");
-    setEditMinOrderQty(product.minOrderQty || 1);
-    setEditCertifications(product.certifications || []);
-    setEditSpecs(product.specs || []);
-    setIsEditModalOpen(true);
-  };
-
-  const handleUpdateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editName.trim() || !editImage.trim() || editPrice <= 0 || editQuantity <= 0) {
-      toast.error({ title: "Please fill in all required fields." });
-      return;
-    }
-
-    const extraGallery = editGallery
-      .split("\n")
-      .map((u) => u.trim())
-      .filter((u) => u.length > 0);
-
-    const validSpecs = editSpecs.filter(
-      (s) => s.label.trim().length > 0 && s.value.trim().length > 0
-    );
-
-    updateProduct(product.id, {
-      name: editName.trim(),
-      image: editImage.trim(),
-      gallery: extraGallery.length > 0 ? [editImage.trim(), ...extraGallery] : [editImage.trim()],
-      price: editPrice,
-      unit: editUnit.trim() || "kg",
-      originCountry: editOrigin.trim(),
-      rating: editRating,
-      availableQuantity: editQuantity,
-      category: editCategory,
-      description: editDescription.trim(),
-      hsCode: editHsCode.trim() || undefined,
-      portOfLoading: editPort.trim() || undefined,
-      leadTime: editLeadTime.trim() || undefined,
-      packaging: editPackaging.trim() || undefined,
-      shelfLife: editShelfLife.trim() || undefined,
-      minOrderQty: editMinOrderQty,
-      certifications: editCertifications.length > 0 ? editCertifications : undefined,
-      specs: validSpecs.length > 0 ? validSpecs : undefined,
-    });
-
-    setIsEditModalOpen(false);
-    toast.success({ title: "Export Listing Updated Successfully" });
-  };
 
   const handleDelete = () => {
     deleteProduct(product.id);
     setIsDeleteModalOpen(false);
     toast.success({ title: "Product Deleted Successfully" });
     router.push("/dashboard/products");
-  };
-
-  // Cert helpers
-  const handleAddCertToModal = () => {
-    if (!editNewCert.trim()) return;
-    if (!editCertifications.includes(editNewCert.trim())) {
-      setEditCertifications([...editCertifications, editNewCert.trim()]);
-    }
-    setEditNewCert("");
-  };
-
-  const handleRemoveCertFromModal = (cert: string) => {
-    setEditCertifications(editCertifications.filter((c) => c !== cert));
-  };
-
-  // Spec helpers
-  const handleAddSpecToModal = () => {
-    setEditSpecs([...editSpecs, { label: "", value: "" }]);
-  };
-
-  const handleRemoveSpecFromModal = (index: number) => {
-    setEditSpecs(editSpecs.filter((_, i) => i !== index));
-  };
-
-  const handleUpdateSpecInModal = (index: number, field: "label" | "value", val: string) => {
-    const updated = [...editSpecs];
-    updated[index][field] = val;
-    setEditSpecs(updated);
   };
 
   return (
@@ -281,30 +193,28 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 shrink-0">
           <Link
-            href={`/products/${product.id}`}
+            href={`/products/${product.slug || slugify(product.name) || product.id}`}
             target="_blank"
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-all shadow-xs"
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-all shadow-xs shrink-0"
           >
             <ExternalLink className="h-3.5 w-3.5 text-primary" />
             <span>Buyer View</span>
           </Link>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={openEditModal}
-            className="flex items-center gap-1.5"
+          <Link
+            href={`/dashboard/products/${product.slug || slugify(product.name) || product.id}/edit`}
+            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-all shadow-xs shrink-0"
           >
-            <Edit2 className="h-3.5 w-3.5" />
-            <span>Edit Commodity</span>
-          </Button>
+            <Edit2 className="h-3.5 w-3.5 text-primary" />
+            <span>Edit</span>
+          </Link>
 
           <button
             type="button"
             onClick={() => setIsDeleteModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all cursor-pointer shrink-0"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>Delete</span>
@@ -313,59 +223,61 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
       </div>
 
       {/* 2. Key Product Data Points (Executive Metrics Grid) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Unit Price</span>
-          <span className={`${pinkAverage.className} text-xl font-bold text-primary block mt-0.5`}>
-            ৳ {product.price.toLocaleString()}
-          </span>
-          <span className="text-[10px] text-foreground/50">per {unit}</span>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-foreground/45 block">Unit Price</span>
+            <span className={`${pinkAverage.className} text-xl font-bold text-primary block mt-0.5`}>
+              ৳ {product.price.toLocaleString()}
+            </span>
+          </div>
+          <span className="text-[10px] text-foreground/50 mt-1">per {unit}</span>
         </div>
 
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Available Stock</span>
-          <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5`}>
-            {product.availableQuantity.toLocaleString()}
-          </span>
-          <span className="text-[10px] text-foreground/50">{unit} in stock</span>
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-foreground/45 block">Available Stock</span>
+            <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5`}>
+              {product.availableQuantity.toLocaleString()}
+            </span>
+          </div>
+          <span className="text-[10px] text-foreground/50 mt-1">{unit} in stock</span>
         </div>
 
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Min Order (MOQ)</span>
-          <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5`}>
-            {minOrder}
-          </span>
-          <span className="text-[10px] text-foreground/50">{unit} threshold</span>
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-foreground/45 block">Min Order (MOQ)</span>
+            <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5`}>
+              {minOrder}
+            </span>
+          </div>
+          <span className="text-[10px] text-foreground/50 mt-1">{unit} threshold</span>
         </div>
 
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Lot Valuation</span>
-          <span className={`${pinkAverage.className} text-xl font-bold text-emerald-500 block mt-0.5`}>
-            ৳ {totalValuation.toLocaleString()}
-          </span>
-          <span className="text-[10px] text-foreground/50">Total value</span>
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-foreground/45 block">Lead Time</span>
+            <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5 truncate`}>
+              {product.leadTime || "5 - 10 Days"}
+            </span>
+          </div>
+          <span className="text-[10px] text-foreground/50 mt-1">Dispatch window</span>
         </div>
 
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Lead Time</span>
-          <span className="text-xs font-bold text-foreground block mt-1 truncate">
-            {product.leadTime || "5 - 10 Days"}
-          </span>
-          <span className="text-[10px] text-foreground/50">Dispatch window</span>
-        </div>
-
-        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-          <span className="text-[10px] uppercase font-bold text-foreground/45 block">Shelf Life</span>
-          <span className="text-xs font-bold text-foreground block mt-1 truncate">
-            {product.shelfLife || "24 Months"}
-          </span>
-          <span className="text-[10px] text-foreground/50">Guaranteed</span>
+        <div className="rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-foreground/45 block">Shelf Life</span>
+            <span className={`${pinkAverage.className} text-xl font-bold text-foreground block mt-0.5 truncate`}>
+              {product.shelfLife || "24 Months"}
+            </span>
+          </div>
+          <span className="text-[10px] text-foreground/50 mt-1">Guaranteed</span>
         </div>
       </div>
 
       {/* 3. Product Content Grid: Media + Description (Left) & Specs + Compliance (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
+
         {/* Left Column (6 cols): Media Gallery, Packaging & Description */}
         <div className="lg:col-span-6 flex flex-col gap-6">
           {/* Media Showcase */}
@@ -394,11 +306,10 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
                     key={idx}
                     type="button"
                     onClick={() => setActiveImgIndex(idx)}
-                    className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
-                      activeImgIndex === idx
+                    className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${activeImgIndex === idx
                         ? "border-primary shadow-md"
                         : "border-foreground/10 opacity-60 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     <Image src={imgUrl} alt="" fill className="object-cover" />
                   </button>
@@ -452,7 +363,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
 
         {/* Right Column (6 cols): Specifications & Compliance */}
         <div className="lg:col-span-6 flex flex-col gap-6">
-          
+
           {/* Specifications Table */}
           <div className="rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm flex flex-col gap-4">
             <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
@@ -567,343 +478,6 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
           onConfirm={handleDelete}
         />
       )}
-
-      {/* 6. Comprehensive Edit Modal */}
-      {isEditModalOpen && mounted && typeof document !== "undefined" &&
-        createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-foreground/15 bg-background p-6 sm:p-8 shadow-2xl flex flex-col gap-6">
-              
-              {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
-                <div>
-                  <h3 className={`${pinkAverage.className} text-2xl text-foreground`}>
-                    Edit Commodity Listing
-                  </h3>
-                  <p className="text-xs text-foreground/50 mt-0.5">
-                    Update technical data, pricing, stock, certifications, and shipping specifications.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="rounded-full p-2 text-foreground/40 hover:bg-foreground/5 hover:text-foreground transition-colors cursor-pointer"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {/* Edit Form */}
-              <form onSubmit={handleUpdateSubmit} className="flex flex-col gap-4">
-                
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                    Commodity Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Category *
-                    </label>
-                    <Dropdown
-                      options={categoryOptions}
-                      value={editCategory}
-                      onChange={(val) => setEditCategory(val)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Origin Country *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editOrigin}
-                      onChange={(e) => setEditOrigin(e.target.value)}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                    Primary Image URL *
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    value={editImage}
-                    onChange={(e) => setEditImage(e.target.value)}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                    Additional Gallery Images (one per line)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={editGallery}
-                    onChange={(e) => setEditGallery(e.target.value)}
-                    className="w-full rounded-xl border border-foreground/15 bg-background p-2.5 text-xs text-foreground font-mono focus:border-primary focus:outline-none resize-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Export Unit Price (৳) *
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="1"
-                      value={editPrice}
-                      onChange={(e) => setEditPrice(Number(e.target.value))}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Unit of Measurement
-                    </label>
-                    <input
-                      type="text"
-                      value={editUnit}
-                      onChange={(e) => setEditUnit(e.target.value)}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Available Stock *
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="1"
-                      value={editQuantity}
-                      onChange={(e) => setEditQuantity(Number(e.target.value))}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Minimum Order (MOQ)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={editMinOrderQty}
-                      onChange={(e) => setEditMinOrderQty(Number(e.target.value))}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      HS Tariff Code
-                    </label>
-                    <input
-                      type="text"
-                      value={editHsCode}
-                      onChange={(e) => setEditHsCode(e.target.value)}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs font-mono text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Port of Loading
-                    </label>
-                    <input
-                      type="text"
-                      value={editPort}
-                      onChange={(e) => setEditPort(e.target.value)}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Estimated Lead Time
-                    </label>
-                    <input
-                      type="text"
-                      value={editLeadTime}
-                      onChange={(e) => setEditLeadTime(e.target.value)}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                      Packaging Specification
-                    </label>
-                    <input
-                      type="text"
-                      value={editPackaging}
-                      onChange={(e) => setEditPackaging(e.target.value)}
-                      className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                    Guaranteed Shelf Life
-                  </label>
-                  <input
-                    type="text"
-                    value={editShelfLife}
-                    onChange={(e) => setEditShelfLife(e.target.value)}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-xs text-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70 mb-1">
-                    Commodity Description
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                    className="w-full rounded-xl border border-foreground/15 bg-background p-3 text-xs text-foreground focus:border-primary focus:outline-none resize-none"
-                  />
-                </div>
-
-                {/* Edit Certifications Section */}
-                <div className="flex flex-col gap-2 pt-2 border-t border-foreground/10">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70">
-                    Certifications & Accreditations
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="Add certification..."
-                      value={editNewCert}
-                      onChange={(e) => setEditNewCert(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddCertToModal();
-                        }
-                      }}
-                      className="h-9 flex-1 rounded-xl border border-foreground/15 bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddCertToModal}
-                      className="h-9 px-3 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-xs font-bold text-foreground cursor-pointer"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  {editCertifications.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {editCertifications.map((c, i) => (
-                        <span
-                          key={i}
-                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                        >
-                          <ShieldCheck className="h-3 w-3" />
-                          {c}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveCertFromModal(c)}
-                            className="ml-1 text-foreground/40 hover:text-red-500 cursor-pointer"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Edit Technical Specs Section */}
-                <div className="flex flex-col gap-2 pt-2 border-t border-foreground/10">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-foreground/70">
-                      Technical Specifications Matrix
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleAddSpecToModal}
-                      className="text-xs font-bold text-primary hover:underline cursor-pointer"
-                    >
-                      + Add Row
-                    </button>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {editSpecs.map((row, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          placeholder="Spec Name"
-                          value={row.label}
-                          onChange={(e) => handleUpdateSpecInModal(idx, "label", e.target.value)}
-                          className="h-9 flex-1 rounded-xl border border-foreground/15 bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Value"
-                          value={row.value}
-                          onChange={(e) => handleUpdateSpecInModal(idx, "value", e.target.value)}
-                          className="h-9 flex-1 rounded-xl border border-foreground/15 bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSpecFromModal(idx)}
-                          className="h-9 w-9 flex items-center justify-center rounded-xl text-foreground/40 hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Modal Footer Actions */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-foreground/10">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditModalOpen(false)}
-                    className="rounded-xl border border-foreground/15 px-4 py-2.5 text-xs font-semibold text-foreground/70 hover:bg-foreground/5 transition-colors cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-
-                  <Button variant="primary" size="md" type="submit" className="px-5 text-white">
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>,
-          document.body
-        )}
     </div>
   );
 }
