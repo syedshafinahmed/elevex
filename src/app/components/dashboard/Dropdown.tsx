@@ -150,7 +150,7 @@ export default function Dropdown<T extends string = string>({
             width: `${coords.width}px`,
             maxHeight: "260px",
           }}
-          className={`${sansation.className} z-[99999] overflow-y-auto origin-top-left rounded-2xl border border-foreground/15 bg-background p-1.5 shadow-2xl backdrop-blur-2xl ring-1 ring-black/5 dark:ring-white/10 transition-all duration-150 animate-in fade-in-0 zoom-in-95 ${menuClassName}`}
+          className={`${sansation.className} z-[99999] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-primary/80 [scrollbar-width:thin] [scrollbar-color:var(--color-primary)_transparent] origin-top-left rounded-2xl border border-foreground/15 bg-background p-1.5 shadow-2xl backdrop-blur-2xl ring-1 ring-black/5 dark:ring-white/10 transition-all duration-150 animate-in fade-in-0 zoom-in-95 ${menuClassName}`}
         >
           <div className="flex flex-col gap-0.5">
             {options.map((option) => {

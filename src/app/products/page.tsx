@@ -41,7 +41,6 @@ function ProductsContent() {
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "All");
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [inStockOnly, setInStockOnly] = useState(false);
 
   useEffect(() => {
     if (categoryParam) {
@@ -49,11 +48,30 @@ function ProductsContent() {
     }
   }, [categoryParam]);
 
+  const DEFAULT_CATEGORIES = [
+    "Agricultural",
+    "Textile",
+    "Food",
+    "Minerals",
+    "Chemicals",
+    "Machinery",
+  ];
+
   // Extract unique categories and countries
   const categories = useMemo(() => {
-    const set = new Set(products.map((p) => p.category).filter(Boolean) as string[]);
+    const set = new Set([
+      ...DEFAULT_CATEGORIES,
+      ...(products.map((p) => p.category).filter(Boolean) as string[]),
+    ]);
     return ["All", ...Array.from(set)];
   }, [products]);
+
+  const categoryOptions: DropdownOption<string>[] = useMemo(() => {
+    return categories.map((c) => ({
+      value: c,
+      label: c === "All" ? "All Categories" : c,
+    }));
+  }, [categories]);
 
   const countries = useMemo(() => {
     const set = new Set(products.map((p) => p.originCountry).filter(Boolean));
@@ -86,9 +104,7 @@ function ProductsContent() {
         const matchesCountry =
           selectedCountry === "All" || item.originCountry === selectedCountry;
 
-        const matchesStock = !inStockOnly || item.availableQuantity > 0;
-
-        return matchesSearch && matchesCategory && matchesCountry && matchesStock;
+        return matchesSearch && matchesCategory && matchesCountry;
       })
       .sort((a, b) => {
         switch (sortBy) {
@@ -107,22 +123,20 @@ function ProductsContent() {
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         }
       });
-  }, [products, searchTerm, selectedCategory, selectedCountry, sortBy, inStockOnly]);
+  }, [products, searchTerm, selectedCategory, selectedCountry, sortBy]);
 
   function handleResetFilters() {
     setSearchTerm("");
     setSelectedCategory("All");
     setSelectedCountry("All");
     setSortBy("newest");
-    setInStockOnly(false);
   }
 
   const hasActiveFilters =
     searchTerm !== "" ||
     selectedCategory !== "All" ||
     selectedCountry !== "All" ||
-    sortBy !== "newest" ||
-    inStockOnly;
+    sortBy !== "newest";
 
   return (
     <div className={`${sansation.className} mx-auto max-w-7xl px-4 pt-2 pb-12 sm:py-12 sm:px-6 lg:px-10 flex flex-col gap-8`}>
@@ -161,10 +175,10 @@ function ProductsContent() {
 
       {/* 2. Advanced Multi-Faceted Filters & Toolbar */}
       <div className="flex flex-col gap-4 rounded-3xl border border-foreground/10 bg-foreground/2 p-4 sm:p-5 inset-shadow-foreground/30 inset-shadow-sm">
-        {/* Top Row: Search & View Toggle */}
-        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        {/* Search & Filter Controls */}
+        <div className="flex flex-col xl:flex-row gap-3 items-stretch xl:items-center justify-between">
           {/* Search Box */}
-          <div className="relative flex items-center flex-1 max-w-xl">
+          <div className="relative flex items-center flex-1">
             <Search className="absolute left-3.5 h-4 w-4 text-foreground/40" />
             <input
               type="text"
@@ -184,8 +198,17 @@ function ProductsContent() {
             )}
           </div>
 
-          {/* Controls: Country Filter, Sort & View Mode */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+          {/* Controls: Category Selector, Country Selector, Sort & Reset */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 overflow-x-auto pb-1 xl:pb-0">
+            {/* Category Selector */}
+            <Dropdown<string>
+              value={selectedCategory}
+              options={categoryOptions}
+              onChange={(val) => setSelectedCategory(val)}
+              className="w-36 sm:w-44 shrink-0"
+              triggerClassName="!h-11 !rounded-2xl"
+            />
+
             {/* Country Selector */}
             <Dropdown<string>
               value={selectedCountry}
@@ -200,77 +223,45 @@ function ProductsContent() {
               value={sortBy}
               options={sortOptions}
               onChange={(val) => setSortBy(val)}
-              className="w-44 sm:w-52 shrink-0"
+              className="w-44 sm:w-48 shrink-0"
               triggerClassName="!h-11 !rounded-2xl"
             />
 
-            {/* In-stock Only Toggle */}
-            <button
-              type="button"
-              onClick={() => setInStockOnly(!inStockOnly)}
-              className={`h-11 px-3.5 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-                inStockOnly
-                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
-                  : "border-foreground/15 bg-background text-foreground/60 hover:text-foreground"
-              }`}
-            >
-              <span
-                className={`h-2 w-2 rounded-full ${
-                  inStockOnly ? "bg-emerald-500 animate-pulse" : "bg-foreground/30"
-                }`}
-              />
-              <span>In Stock</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Bottom Row: Category Pills & Reset Button */}
-        <div className="flex items-center justify-between gap-3 pt-2 overflow-x-auto">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold text-foreground/45 uppercase tracking-wider hidden sm:inline">
-              Category:
-            </span>
-            {categories.map((cat) => (
+            {/* Reset All */}
+            {hasActiveFilters && (
               <button
-                key={cat}
                 type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  selectedCategory === cat
-                    ? "bg-primary text-white shadow-sm shadow-primary/25"
-                    : "bg-background/80 border border-foreground/10 text-foreground/65 hover:bg-foreground/5 hover:text-foreground"
-                }`}
+                onClick={handleResetFilters}
+                className="flex items-center gap-1 h-11 px-3 rounded-2xl text-xs font-semibold text-primary hover:bg-primary/10 transition-colors whitespace-nowrap cursor-pointer shrink-0"
+                title="Reset all filters"
               >
-                {cat}
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>Reset</span>
               </button>
-            ))}
+            )}
           </div>
-
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="flex items-center gap-1 rounded-xl text-xs font-semibold text-primary hover:underline whitespace-nowrap cursor-pointer ml-auto"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              <span>Reset All</span>
-            </button>
-          )}
         </div>
       </div>
 
       {/* 3. Filter Results Summary */}
-      <div className="flex items-center justify-between text-xs text-foreground/50 px-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-foreground/50 px-1">
         <span>
           Showing <strong className="text-foreground">{filteredProducts.length}</strong> of{" "}
           <strong className="text-foreground">{products.length}</strong> export commodities
         </span>
 
-        {selectedCountry !== "All" && (
-          <span className="rounded-md bg-foreground/5 px-2 py-0.5 text-[11px]">
-            Origin: <strong className="text-foreground">{selectedCountry}</strong>
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {selectedCategory !== "All" && (
+            <span className="rounded-md bg-foreground/5 px-2 py-0.5 text-[11px]">
+              Category: <strong className="text-foreground">{selectedCategory}</strong>
+            </span>
+          )}
+          {selectedCountry !== "All" && (
+            <span className="rounded-md bg-foreground/5 px-2 py-0.5 text-[11px]">
+              Origin: <strong className="text-foreground">{selectedCountry}</strong>
+            </span>
+          )}
+        </div>
       </div>
 
       {/* 4. Products Display (Grid View Only) */}
@@ -283,7 +274,7 @@ function ProductsContent() {
             No Commodities Found
           </h3>
           <p className="text-xs text-foreground/50 max-w-md">
-            No export lots match your current combination of search terms, country filters, and stock criteria.
+            No export lots match your current combination of search terms, category, and country filters.
           </p>
           <button
             type="button"
