@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   Building,
-  Heart,
   MapPin,
 } from "lucide-react";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
@@ -192,18 +191,6 @@ export default function Banner() {
             className="path-shadow pointer-events-none absolute inset-0"
             aria-hidden="true"
           />
-
-          {/* Save / wishlist button */}
-          <button
-            type="button"
-            aria-label="Save product"
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-mist/30 text-mist backdrop-blur-sm transition-colors hover:bg-mist/40 sm:right-4 sm:top-4 sm:h-10 sm:w-10"
-          >
-            <Heart
-              className="h-4 w-4 stroke-[1.75] sm:h-5 sm:w-5"
-              aria-hidden="true"
-            />
-          </button>
 
           {/* Product mini-card */}
           <div className="absolute left-1 top-1 flex items-center gap-2 border border-foreground/10 rounded-xl md:rounded-2xl bg-background p-1.5 pr-3 inset-shadow-foreground/30 inset-shadow-sm backdrop-blur-sm sm:gap-3 sm:p-2 sm:pr-4">

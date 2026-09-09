@@ -345,7 +345,7 @@ export default function ProductDetailsPage({
                   key={idx}
                   type="button"
                   onClick={() => setActiveImgIndex(idx)}
-                  className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 transition-all cursor-pointer ${
+                  className={`relative w-[87.5px] aspect-square shrink-0 overflow-hidden rounded-2xl border-2 transition-all cursor-pointer ${
                     activeImgIndex === idx
                       ? "border-primary scale-95 shadow-md shadow-primary/20"
                       : "border-foreground/15 opacity-70 hover:opacity-100"

@@ -187,14 +187,19 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
   const unit = product.unit || "kg";
   const minOrder = product.minOrderQty || 1;
 
-  const handleDelete = () => {
-    deleteProduct(product.id);
-    setIsDeleteModalOpen(false);
-    toast.success({ title: "Product Deleted Successfully" });
-    if (isAdmin) {
-      router.push("/dashboard/products");
-    } else {
-      router.push("/dashboard/exports");
+  const handleDelete = async () => {
+    try {
+      await deleteProduct(product.id);
+      setIsDeleteModalOpen(false);
+      toast.success({ title: "Product Deleted Successfully" });
+      if (isAdmin) {
+        router.push("/dashboard/products");
+      } else {
+        router.push("/dashboard/exports");
+      }
+    } catch (err) {
+      console.error("Failed to delete product:", err);
+      toast.error({ title: "Failed to delete product" });
     }
   };
 
@@ -278,11 +283,10 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
           </Button>
 
           <Button
-            variant="ghost"
+            variant="danger"
             size="sm"
             type="button"
             onClick={() => setIsDeleteModalOpen(true)}
-            className="border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 shadow-xs"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>Delete</span>

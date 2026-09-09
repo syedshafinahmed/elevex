@@ -119,39 +119,37 @@ export default function Navbar() {
         {/* Right action controls - desktop only */}
         <ul className="hidden items-center gap-2.5 md:flex ml-auto">
           <li>
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              ariaLabel="Toggle theme"
+              aria-label="Toggle theme"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="h-10 w-10 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
             >
               {mounted ? (
                 resolvedTheme === "dark" ? (
-                  <Sun className="h-4 w-4 stroke-[1.75] z-50" aria-hidden="true" />
+                  <Sun className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
                 ) : (
-                  <Moon className="h-4 w-4 stroke-[1.75] z-50" aria-hidden="true" />
+                  <Moon className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
                 )
               ) : (
                 <span className="h-4 w-4" />
               )}
-            </Button>
+            </button>
           </li>
           <li>
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              ariaLabel="View Cart"
+              aria-label="View Cart"
               onClick={handleCartClick}
-              className="relative h-10 w-10 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
             >
-              <ShoppingCart className="h-4 w-4 stroke-[1.75] z-10" aria-hidden="true" />
+              <ShoppingCart className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
               {mounted && cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-foreground shadow-sm ring-2 ring-background">
+                <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white shadow-sm ring-2 ring-background">
                   {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
-            </Button>
+            </button>
           </li>
           <li>
             {session?.user ? (
@@ -198,7 +196,7 @@ export default function Navbar() {
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-colors"
                     >
-                      <LayoutDashboard className="h-4 w-4 text-secondary" />
+                      <LayoutDashboard className="h-4 w-4 text-primary" />
                       Dashboard
                     </Link>
 
@@ -208,7 +206,7 @@ export default function Navbar() {
                       className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-foreground/80 hover:bg-foreground/5 hover:text-foreground transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
-                        <ShoppingCart className="h-4 w-4 text-secondary" />
+                        <ShoppingCart className="h-4 w-4 text-primary" />
                         Cart Items
                       </div>
                       {cartCount > 0 && (
@@ -243,46 +241,45 @@ export default function Navbar() {
 
         {/* Mobile Action Controls: Theme Toggle, Cart & Hamburger */}
         <div className="flex items-center gap-2 md:hidden">
-          {mounted && (
-            <Button
-              type="button"
-              variant="ghost"
-              ariaLabel="Toggle theme"
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className="h-9 w-9 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
-            >
-              {resolvedTheme === "dark" ? (
+          <button
+            type="button"
+            aria-label="Toggle theme"
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
+          >
+            {mounted ? (
+              resolvedTheme === "dark" ? (
                 <Sun className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
               ) : (
                 <Moon className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
-              )}
-            </Button>
-          )}
+              )
+            ) : (
+              <span className="h-4 w-4" />
+            )}
+          </button>
 
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            ariaLabel="View Cart"
+            aria-label="View Cart"
             onClick={handleCartClick}
-            className="relative h-9 w-9 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+            className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
           >
             <ShoppingCart className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
             {mounted && cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-foreground ring-2 ring-background">
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-white ring-2 ring-background">
                 {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
-          </Button>
+          </button>
 
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            ariaLabel="Open menu"
+            aria-label="Open menu"
             onClick={() => setMenuOpen(true)}
-            className="h-9 w-9 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:text-foreground hover:translate-y-0 active:scale-100 text-inherit"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
           >
-            <Menu className="h-5 w-5 stroke-[1.75]" aria-hidden="true" />
-          </Button>
+            <Menu className="h-4 w-4 stroke-[1.75]" aria-hidden="true" />
+          </button>
         </div>
       </nav>
 
