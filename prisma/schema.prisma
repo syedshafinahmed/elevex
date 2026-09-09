@@ -5,7 +5,6 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/client"
 }
 
 enum Role {
@@ -21,13 +20,34 @@ model User {
   image         String?
   password      String?
   role          Role      @default(USER)
+  phone         String?
+  company       String?
+  designation   String?
   accounts      Account[]
   sessions      Session[]
   products      Product[]
   imports       ImportedProduct[]
+  userSessions  UserSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model UserSession {
+  id         String   @id @default(cuid())
+  userId     String
+  deviceType String   @default("desktop")
+  deviceName String
+  browser    String
+  os         String
+  ipAddress  String
+  location   String
+  lastActive DateTime @default(now())
+  isCurrent  Boolean  @default(false)
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Account {

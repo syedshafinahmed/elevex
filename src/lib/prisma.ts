@@ -1,26 +1,25 @@
-import { PrismaClient } from "@/generated/client";
+import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-function getClient(): PrismaClient {
-  if (!globalForPrisma.prisma || !(globalForPrisma.prisma as any).product) {
-    globalForPrisma.prisma = new PrismaClient({
-      log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-    });
+// Force reset any old cached instance from memory
+if (globalForPrisma.prisma) {
+  try {
+    globalForPrisma.prisma.$disconnect();
+  } catch {
+    // ignore
   }
-  return globalForPrisma.prisma;
+  delete globalForPrisma.prisma;
 }
 
-export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop) {
-    const client = getClient();
-    const value = (client as any)[prop];
-    if (typeof value === "function") {
-      return value.bind(client);
-    }
-    return value;
-  },
-});
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  });
 
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
