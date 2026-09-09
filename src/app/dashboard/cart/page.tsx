@@ -142,13 +142,15 @@ export default function CartItemsPage() {
               <span>Clear Cart</span>
             </button>
           )}
-          <Link
+          <Button
             href="/products"
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+            variant="primary"
+            size="sm"
+            className="flex items-center gap-1.5 shadow-xl shadow-primary/20 text-white"
           >
             <ShoppingCart className="h-4 w-4" />
             <span>Add More Commodities</span>
-          </Link>
+          </Button>
         </div>
       </div>
 
@@ -165,13 +167,15 @@ export default function CartItemsPage() {
             Browse our verified international trade catalog, compare prices, and add agricultural, textile, or food lots to your cart.
           </p>
           <div className="mt-6 flex items-center gap-3">
-            <Link
+            <Button
               href="/products"
-              className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-98"
+              variant="primary"
+              size="sm"
+              className="flex items-center gap-2 shadow-lg shadow-primary/20 text-white"
             >
               <span>Explore Products</span>
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </Button>
           </div>
         </div>
       ) : (

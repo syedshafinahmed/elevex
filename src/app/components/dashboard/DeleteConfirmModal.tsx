@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, Trash2, X, RefreshCw } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
+import Button from "@/app/components/ui/Button";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -99,19 +100,23 @@ export default function DeleteConfirmModal({
 
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-2.5 pt-2">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               type="button"
               disabled={isLoading}
               onClick={onClose}
-              className="rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground/75 hover:bg-foreground/5 hover:text-foreground transition-all cursor-pointer disabled:opacity-50"
+              className="border border-foreground/15"
             >
               {cancelText}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               type="button"
               disabled={isLoading}
               onClick={onConfirm}
-              className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-red-600/20 hover:bg-red-700 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60"
+              className="bg-red-600 text-white shadow-xl shadow-red-600/20 hover:bg-red-700 active:scale-[0.98]"
             >
               {isLoading ? (
                 <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -119,7 +124,7 @@ export default function DeleteConfirmModal({
                 <Trash2 className="h-3.5 w-3.5" />
               )}
               <span>{confirmText}</span>
-            </button>
+            </Button>
           </div>
         </div>
       </div>

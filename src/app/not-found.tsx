@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 
+import Button from "@/app/components/ui/Button";
+
 export default function NotFound() {
   const router = useRouter();
 
@@ -51,30 +53,35 @@ export default function NotFound() {
 
           {/* Quick Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2 w-full sm:w-auto">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => router.back()}
-              className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl border border-foreground/15 bg-background text-foreground/80 text-xs font-semibold transition-all cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
+              className="border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Go Back</span>
-            </button>
+            </Button>
 
-            <Link
+            <Button
               href="/"
-              className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-primary text-white text-xs font-semibold shadow-md shadow-primary/25 hover:bg-primary/90 transition-all cursor-pointer"
+              variant="primary"
+              size="sm"
             >
               <Home className="h-4 w-4" />
               <span>Return Home</span>
-            </Link>
+            </Button>
 
-            <Link
+            <Button
               href="/products"
-              className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl border border-foreground/15 bg-background text-foreground/80 text-xs font-semibold transition-all cursor-pointer inset-shadow-foreground/30 inset-shadow-sm"
+              variant="secondary"
+              size="sm"
+              className="border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm"
             >
               <ShoppingBag className="h-4 w-4" />
               <span>Browse Catalog</span>
-            </Link>
+            </Button>
           </div>
         </div>
       </div>

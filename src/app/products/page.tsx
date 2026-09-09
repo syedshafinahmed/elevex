@@ -13,6 +13,7 @@ import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import ProductCard from "@/app/components/products/ProductCard";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
+import Button from "@/app/components/ui/Button";
 
 type SortOption =
   | "featured"
@@ -276,14 +277,14 @@ function ProductsContent() {
           <p className="text-xs text-foreground/50 max-w-md">
             No export lots match your current combination of search terms, category, and country filters.
           </p>
-          <button
-            type="button"
+          <Button
+            variant="primary"
             onClick={handleResetFilters}
-            className="mt-2 flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 transition-all cursor-pointer"
+            className="mt-2"
           >
             <RotateCcw className="h-4 w-4" />
             Reset All Filters
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

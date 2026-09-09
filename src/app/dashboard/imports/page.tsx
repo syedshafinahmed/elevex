@@ -17,6 +17,7 @@ import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import { ImportedProduct } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import Button from "@/app/components/ui/Button";
 import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
@@ -102,12 +103,14 @@ export default function MyImportsPage() {
           <p className="text-xs text-foreground/50">
             Visit the marketplace to discover products and click &ldquo;Import Now&rdquo;.
           </p>
-          <Link
+          <Button
             href="/products"
-            className="mt-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white"
+            variant="primary"
+            size="sm"
+            className="mt-2"
           >
-            Explore All Products
-          </Link>
+            <span>Explore All Products</span>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

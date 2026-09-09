@@ -10,6 +10,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { toast } from "gooey-toast";
+import Button from "@/app/components/ui/Button";
 import AddPaymentMethodModal, {
   PaymentMethodItem,
 } from "./AddPaymentMethodModal";
@@ -23,6 +24,7 @@ const initialPaymentMethods: PaymentMethodItem[] = [
     last4: "4920",
     accountNumber: "01712344920",
     providerName: "BKASH",
+    accountType: "Merchant",
     isDefault: true,
   },
   {
@@ -41,6 +43,7 @@ const initialPaymentMethods: PaymentMethodItem[] = [
     name: "Bengal Prime Commodities Ltd.",
     last4: "9042",
     bankName: "Eastern Bank PLC",
+    swiftCode: "EBLDBDDAXXX",
     isDefault: false,
   },
 ];
@@ -56,7 +59,7 @@ export default function BillingTab() {
         isDefault: m.id === id,
       }))
     );
-    toast.success({ title: "Primary payment method updated" });
+    toast.success({ title: "Primary settlement method updated" });
   };
 
   const handleRemove = (id: string) => {
@@ -71,7 +74,7 @@ export default function BillingTab() {
   const handleAddMethod = (newMethod: PaymentMethodItem) => {
     setMethods((prev) => {
       if (newMethod.isDefault) {
-        return [...prev.map((m) => ({ ...m, isDefault: false })), newMethod];
+        return [newMethod, ...prev.map((m) => ({ ...m, isDefault: false }))];
       }
       return [...prev, newMethod];
     });
@@ -113,18 +116,22 @@ export default function BillingTab() {
             </div>
             <div>
               <div>Saved Payment & Settlement Methods</div>
-              <p className="text-[11px] font-normal text-foreground/50">Manage your MFS wallets, debit/credit cards, and bank settlement accounts</p>
+              <p className="text-[11px] font-normal text-foreground/50">
+                Manage your MFS wallets, debit/credit cards, and bank settlement accounts
+              </p>
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 self-start sm:self-auto rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all cursor-pointer"
+            className="flex items-center gap-2 self-start sm:self-auto"
           >
             <Plus className="h-4 w-4" />
-            Add Payment Method
-          </button>
+            <span>Add Payment Method</span>
+          </Button>
         </div>
 
         {/* Cards Grid */}
@@ -134,7 +141,7 @@ export default function BillingTab() {
               key={method.id}
               className={`relative flex flex-col justify-between rounded-2xl border p-5 transition-all overflow-hidden ${
                 method.isDefault
-                  ? "border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-sm"
+                  ? "border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-sm ring-1 ring-primary/20"
                   : "border-foreground/10 bg-foreground/2 hover:border-foreground/20"
               }`}
             >
@@ -149,7 +156,11 @@ export default function BillingTab() {
                         {getMethodTitle(method)}
                       </span>
                       <span className="text-[10px] text-foreground/45 uppercase font-mono">
-                        {method.type === "mfs" ? "Mobile Wallet" : method.type === "card" ? "Debit/Credit" : "Bank Wire"}
+                        {method.type === "mfs"
+                          ? `${method.accountType || "Mobile"} Wallet`
+                          : method.type === "card"
+                          ? "Debit/Credit"
+                          : "Bank Settlement"}
                       </span>
                     </div>
                   </div>
@@ -164,7 +175,7 @@ export default function BillingTab() {
 
                 <div className="font-mono text-base font-bold text-foreground tracking-wider mb-2">
                   {method.type === "mfs"
-                    ? `${method.accountNumber?.slice(0, 4)} •••• ${method.last4}`
+                    ? `${method.accountNumber?.slice(0, 4) || "0171"} •••• ${method.last4}`
                     : `•••• •••• •••• ${method.last4}`}
                 </div>
 

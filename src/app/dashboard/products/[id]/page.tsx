@@ -137,13 +137,14 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
             The commodity with identifier &ldquo;{resolvedParams.id}&rdquo; does not exist or has been removed.
           </p>
         </div>
-        <Link
+        <Button
+          variant="primary"
           href={isAdmin ? "/dashboard/products" : "/dashboard/exports"}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20"
+          className="gap-2 text-xs"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>{isAdmin ? "Back to All Products" : "Back to My Exports"}</span>
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -163,19 +164,21 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
+          <Button
+            variant="primary"
             href="/dashboard/exports"
-            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20"
+            className="gap-2 text-xs"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to My Exports</span>
-          </Link>
-          <Link
+          </Button>
+          <Button
+            variant="outline"
             href="/dashboard"
-            className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-foreground/5"
+            className="gap-2 text-xs"
           >
             <span>Dashboard Overview</span>
-          </Link>
+          </Button>
         </div>
       </div>
     );
@@ -254,31 +257,36 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
-          <Link
+          <Button
+            variant="secondary"
+            size="sm"
             href={`/products/${product.slug || slugify(product.name) || product.id}`}
-            target="_blank"
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-all shadow-xs shrink-0"
+            className="border border-foreground/15 shadow-xs"
           >
             <ExternalLink className="h-3.5 w-3.5 text-primary" />
             <span>Buyer View</span>
-          </Link>
+          </Button>
 
-          <Link
+          <Button
+            variant="secondary"
+            size="sm"
             href={`/dashboard/products/${product.slug || slugify(product.name) || product.id}/edit`}
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-foreground/5 transition-all shadow-xs shrink-0"
+            className="border border-foreground/15 shadow-xs"
           >
             <Edit2 className="h-3.5 w-3.5 text-primary" />
             <span>Edit</span>
-          </Link>
+          </Button>
 
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             type="button"
             onClick={() => setIsDeleteModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-all cursor-pointer shrink-0"
+            className="border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 shadow-xs"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>Delete</span>
-          </button>
+          </Button>
         </div>
       </div>
 

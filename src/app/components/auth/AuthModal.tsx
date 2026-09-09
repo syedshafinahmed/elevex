@@ -20,6 +20,7 @@ import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import Image from "next/image";
 import { registerUser, loginWithGoogle, loginWithCredentials } from "@/app/actions/auth";
 import { toast } from "gooey-toast";
+import Button from "@/app/components/ui/Button";
 
 type Tab = "login" | "register";
 
@@ -638,10 +639,12 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 </>
               )}
 
-              <button
+              <Button
                 type="submit"
+                variant="primary"
+                size="md"
                 disabled={!canSubmit || isLoading}
-                className={`${sansation.className} mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
+                className="mt-1 w-full"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin text-white" />
@@ -650,7 +653,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 ) : (
                   "Create account"
                 )}
-              </button>
+              </Button>
             </form>
 
             <p

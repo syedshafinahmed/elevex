@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
@@ -9,8 +10,10 @@ import {
   Moon,
   Search,
   Bell,
+  ShoppingCart,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
+import { useProducts } from "@/context/ProductContext";
 
 interface DashboardHeaderProps {
   onOpenMobileSidebar: () => void;
@@ -54,6 +57,7 @@ const routeMetadata: Record<string, { title: string; subtitle: string }> = {
 export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeaderProps) {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
+  const { cartCount } = useProducts();
   const [mounted, setMounted] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
@@ -135,6 +139,21 @@ export default function DashboardHeader({ onOpenMobileSidebar }: DashboardHeader
             ⌘K
           </kbd>
         </div>
+
+        {/* Trade Cart Button */}
+        <Link
+          href="/dashboard/cart"
+          aria-label="View Trade Cart"
+          className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-foreground/15 bg-foreground/3 text-foreground transition-all hover:bg-foreground/8 inset-shadow-foreground/30 inset-shadow-sm cursor-pointer"
+          title="Trade Cart"
+        >
+          <ShoppingCart className="h-4 w-4 stroke-[1.75]" />
+          {mounted && cartCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white shadow-sm ring-2 ring-background">
+              {cartCount > 99 ? "99+" : cartCount}
+            </span>
+          )}
+        </Link>
 
         {/* Notification Bell */}
         <div className="relative" ref={notifMenuRef}>

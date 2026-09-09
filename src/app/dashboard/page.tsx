@@ -20,6 +20,8 @@ import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
+import Button from "@/app/components/ui/Button";
+
 export default function DashboardPage() {
   const { data: session } = useSession();
   const { products, myExports, myImports, removeImport } = useProducts();
@@ -40,15 +42,6 @@ export default function DashboardPage() {
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
       {/* Top Banner Greeting */}
       <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/3 p-6 sm:p-8 inset-shadow-foreground/30 inset-shadow-sm">
-        {/* <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            background:
-              "radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--color-amethyst) 30%, transparent), transparent 60%)",
-          }}
-        /> */}
-
         <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1.5">
             <h1 className={`${pinkAverage.className} text-2xl sm:text-4xl text-foreground`}>
@@ -61,20 +54,24 @@ export default function DashboardPage() {
 
           {/* Quick Action CTAs */}
           <div className="flex items-center gap-2.5 sm:self-center">
-            <Link
+            <Button
               href="/dashboard/add-export"
-              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+              variant="primary"
+              size="sm"
+              className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4 stroke-[2.5]" />
-              Add Export Product
-            </Link>
-            <Link
+              <span>Add Export Product</span>
+            </Button>
+            <Button
               href="/products"
-              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground transition-all hover:bg-foreground/5 hover:border-foreground/30 active:scale-[0.98] inset-shadow-foreground/30 inset-shadow-sm"
+              variant="secondary"
+              size="sm"
+              className="flex items-center gap-2 border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:border-foreground/30"
             >
               <ShoppingBag className="h-4 w-4 text-primary" />
-              Browse Marketplace
-            </Link>
+              <span>Browse Marketplace</span>
+            </Button>
           </div>
         </div>
       </div>
@@ -174,46 +171,59 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <div className="flex flex-col gap-3">
-            {myExports.slice(0, 4).map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-foreground/8 bg-foreground/2 p-3 transition-colors hover:bg-foreground/5"
+          {myExports.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+              <Upload className="h-8 w-8 text-foreground/30" />
+              <p className="text-xs text-foreground/50">You have not listed any export products yet.</p>
+              <Link
+                href="/dashboard/add-export"
+                className="mt-1 text-xs font-semibold text-primary underline"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-foreground/5">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                    />
+                Add Your First Export Product →
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {myExports.slice(0, 4).map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-foreground/8 bg-foreground/2 p-3 transition-colors hover:bg-foreground/5"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-foreground/5">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-semibold text-foreground truncate">
+                        {item.name}
+                      </span>
+                      <span className="text-[11px] text-foreground/50">
+                        {item.originCountry} · {item.availableQuantity} units available
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-semibold text-foreground truncate">
-                      {item.name}
-                    </span>
-                    <span className="text-[11px] text-foreground/50">
-                      {item.originCountry} · {item.availableQuantity} units available
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-xs font-bold text-primary">
-                    ৳ {item.price.toLocaleString()}
-                  </span>
-                  <Link
-                    href={`/products/${item.slug || slugify(item.name) || item.id}`}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/10 text-foreground/60 hover:text-primary hover:border-primary transition-colors"
-                    title="See Details"
-                  >
-                    <Eye className="h-3.5 w-3.5" />
-                  </Link>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs font-bold text-primary">
+                      ৳ {item.price.toLocaleString()}
+                    </span>
+                    <Link
+                      href={`/products/${item.slug || slugify(item.name) || item.id}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/10 text-foreground/60 hover:text-primary hover:border-primary transition-colors"
+                      title="See Details"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right: My Recent Imports */}

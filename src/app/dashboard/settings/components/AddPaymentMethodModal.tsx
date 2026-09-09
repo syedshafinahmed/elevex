@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { toast } from "gooey-toast";
 import { sansation } from "@/lib/fonts";
+import Dropdown from "@/app/components/dashboard/Dropdown";
+import Button from "@/app/components/ui/Button";
 
 export interface PaymentMethodItem {
   id: string;
@@ -20,9 +22,11 @@ export interface PaymentMethodItem {
   last4: string;
   accountNumber?: string;
   providerName?: string;
+  accountType?: "Merchant" | "Personal";
   expDate?: string;
   isDefault: boolean;
   bankName?: string;
+  swiftCode?: string;
 }
 
 interface AddPaymentMethodModalProps {
@@ -57,7 +61,7 @@ export default function AddPaymentMethodModal({
   const [swiftCode, setSwiftCode] = useState("");
   const [beneficiaryName, setBeneficiaryName] = useState("");
 
-  const [setAsDefault, setSetAsDefault] = useState(true);
+  const [setAsDefault, setSetAsDefault] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -117,21 +121,22 @@ export default function AddPaymentMethodModal({
           last4: cleanNum.slice(-4),
           accountNumber: cleanNum,
           providerName: mfsProvider.toUpperCase(),
+          accountType: mfsAccountType,
           isDefault: setAsDefault,
         };
         onAdd(newMethod);
         setIsSubmitting(false);
         toast.success({ title: `${mfsProvider.toUpperCase()} Account Added Successfully` });
         onClose();
-      }, 500);
+      }, 300);
     } else if (methodType === "card") {
-      if (!cardHolder.trim() || cardNumber.replace(/\s/g, "").length < 16 || expDate.length < 5 || cvv.length < 3) {
+      const rawNum = cardNumber.replace(/\s/g, "");
+      if (!cardHolder.trim() || rawNum.length < 16 || expDate.length < 5 || cvv.length < 3) {
         toast.error({ title: "Please fill in all valid card details" });
         return;
       }
       setIsSubmitting(true);
       setTimeout(() => {
-        const rawNum = cardNumber.replace(/\s/g, "");
         const newMethod: PaymentMethodItem = {
           id: `pm-${Date.now()}`,
           type: "card",
@@ -145,7 +150,7 @@ export default function AddPaymentMethodModal({
         setIsSubmitting(false);
         toast.success({ title: "Card Added Successfully" });
         onClose();
-      }, 500);
+      }, 300);
     } else {
       if (!bankName.trim() || !accountNumber.trim() || !swiftCode.trim() || !beneficiaryName.trim()) {
         toast.error({ title: "Please fill in all bank wire fields" });
@@ -160,13 +165,14 @@ export default function AddPaymentMethodModal({
           name: beneficiaryName,
           last4: accountNumber.slice(-4),
           bankName,
+          swiftCode,
           isDefault: setAsDefault,
         };
         onAdd(newMethod);
         setIsSubmitting(false);
         toast.success({ title: "Bank Account Added Successfully" });
         onClose();
-      }, 500);
+      }, 300);
     }
   };
 
@@ -307,14 +313,14 @@ export default function AddPaymentMethodModal({
                   <label className="block text-[11px] font-semibold text-foreground/60 uppercase tracking-wider mb-1">
                     Account Type
                   </label>
-                  <select
+                  <Dropdown<"Merchant" | "Personal">
                     value={mfsAccountType}
-                    onChange={(e) => setMfsAccountType(e.target.value as "Merchant" | "Personal")}
-                    className="h-10 w-full rounded-xl border border-foreground/15 bg-foreground/2 px-3 text-foreground focus:border-primary focus:outline-none cursor-pointer"
-                  >
-                    <option value="Merchant">Merchant Account</option>
-                    <option value="Personal">Personal Account</option>
-                  </select>
+                    options={[
+                      { value: "Merchant", label: "Merchant Account", description: "For business and trade settlement" },
+                      { value: "Personal", label: "Personal Account", description: "For personal mobile wallet" },
+                    ]}
+                    onChange={(val) => setMfsAccountType(val)}
+                  />
                 </div>
               </div>
             </>
@@ -448,28 +454,34 @@ export default function AddPaymentMethodModal({
               type="checkbox"
               checked={setAsDefault}
               onChange={(e) => setSetAsDefault(e.target.checked)}
-              className="h-4 w-4 rounded accent-primary text-primary"
+              className="h-4 w-4 rounded accent-primary text-primary cursor-pointer"
             />
-            <span className="text-xs text-foreground/75 font-medium">Set as primary payment / settlement method</span>
+            <span className="text-xs text-foreground/75 font-medium">
+              Set as primary payment / settlement method
+            </span>
           </label>
 
           {/* Footer CTAs */}
           <div className="flex items-center justify-end gap-3 border-t border-foreground/10 pt-4 mt-2">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={onClose}
-              className="rounded-xl border border-foreground/15 bg-background px-4 py-2.5 text-xs font-semibold text-foreground/70 hover:bg-foreground/5 transition-colors cursor-pointer"
+              className="border border-foreground/15 inset-shadow-foreground/30 inset-shadow-sm hover:border-foreground/30"
             >
-              Cancel
-            </button>
-            <button
+              <span>Cancel</span>
+            </Button>
+            <Button
               type="submit"
+              variant="primary"
+              size="sm"
               disabled={isSubmitting}
-              className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
-              {isSubmitting ? "Adding..." : "Add Payment Method"}
-            </button>
+              <span>{isSubmitting ? "Adding..." : "Add Payment Method"}</span>
+            </Button>
           </div>
         </form>
       </div>

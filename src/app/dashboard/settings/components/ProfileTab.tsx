@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "gooey-toast";
 import { getUserProfile, updateUserProfile } from "@/app/actions/users";
+import Button from "@/app/components/ui/Button";
 
 export default function ProfileTab() {
   const { data: session, update: updateSession } = useSession();
@@ -186,7 +187,7 @@ export default function ProfileTab() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute -bottom-1 -right-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background hover:scale-110 active:scale-95 transition-transform cursor-pointer"
+                className="absolute -bottom-1 -right-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-primary border-2 border-background text-background hover:scale-110 active:scale-95 transition-transform cursor-pointer"
                 title="Upload Photo"
               >
                 <Camera className="h-4 w-4" />
@@ -277,18 +278,20 @@ export default function ProfileTab() {
 
       {/* Save Button */}
       <div className="flex items-center justify-end gap-3 pt-2">
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          size="sm"
           disabled={isSaving}
-          className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-xs font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 hover:shadow-lg transition-all hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-2"
         >
           {isSaving ? (
             <RefreshCw className="h-4 w-4 animate-spin" />
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {isSaving ? "Saving Profile..." : "Save Profile"}
-        </button>
+          <span>{isSaving ? "Saving Profile..." : "Save Profile"}</span>
+        </Button>
       </div>
     </form>
   );

@@ -162,8 +162,8 @@ export default function AdminProductsPage() {
                   <tr className="border-b border-foreground/10 bg-foreground/3 text-[10px] uppercase tracking-wider text-foreground/50 font-semibold">
                     <th className="py-3.5 pl-6 pr-4">Product Details</th>
                     <th className="py-3.5 px-4">Origin & Port</th>
-                    <th className="py-3.5 px-4">Export Unit Price</th>
-                    <th className="py-3.5 px-4">Available Stock</th>
+                    <th className="py-3.5 px-4">Unit Price</th>
+                    <th className="py-3.5 px-4">Stock</th>
                     <th className="py-3.5 px-4">Exporter Name</th>
                     <th className="py-3.5 pr-6 text-center">Actions</th>
                   </tr>
@@ -205,7 +205,7 @@ export default function AdminProductsPage() {
                           </div>
                           {item.portOfLoading && (
                             <span className="text-[10px] text-foreground/45">
-                              Port: {item.portOfLoading}
+                              {item.portOfLoading}
                             </span>
                           )}
                         </div>

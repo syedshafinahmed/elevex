@@ -27,6 +27,7 @@ import {
   revokeAllOtherSessions,
   ActiveSessionData,
 } from "@/app/actions/security";
+import Button from "@/app/components/ui/Button";
 
 export default function PrivacyTab() {
   const { data: session } = useSession();
@@ -355,18 +356,20 @@ export default function PrivacyTab() {
             </div>
 
             <div className="flex justify-end pt-2">
-              <button
+              <Button
                 type="submit"
+                variant="primary"
+                size="sm"
                 disabled={isUpdatingPassword}
-                className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-primary/25 hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50"
+                className="flex items-center gap-2"
               >
                 {isUpdatingPassword ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Lock className="h-3.5 w-3.5" />
                 )}
-                {isUpdatingPassword ? "Updating Password..." : "Update Password"}
-              </button>
+                <span>{isUpdatingPassword ? "Updating Password..." : "Update Password"}</span>
+              </Button>
             </div>
           </form>
         )}
