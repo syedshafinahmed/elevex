@@ -21,6 +21,7 @@ import { useProducts } from "@/context/ProductContext";
 import Button from "@/app/components/ui/Button";
 import { Product } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import { DashboardExportsSkeleton } from "@/app/components/skeletons";
 import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
@@ -67,6 +68,10 @@ export default function MyExportsPage() {
     });
   }
 
+  if (status === "loading" || productsLoading) {
+    return <DashboardExportsSkeleton />;
+  }
+
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>
       {/* Top Search & Actions Bar */}
@@ -105,12 +110,7 @@ export default function MyExportsPage() {
       </div>
 
       {/* Exports Grid (3-column layout matching requirements) */}
-      {status === "loading" || productsLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-xs text-foreground/50">Loading your export listings...</p>
-        </div>
-      ) : filteredExports.length === 0 ? (
+      {filteredExports.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-3 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Package className="h-7 w-7" />

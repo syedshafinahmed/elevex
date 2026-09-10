@@ -21,11 +21,16 @@ import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
 import Button from "@/app/components/ui/Button";
+import { DashboardOverviewSkeleton } from "@/app/components/skeletons";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const { products, myExports, myImports, removeImport } = useProducts();
+  const { products, myExports, myImports, removeImport, loading } = useProducts();
   const [recentImportToRemove, setRecentImportToRemove] = useState<ImportedProduct | null>(null);
+
+  if (loading) {
+    return <DashboardOverviewSkeleton />;
+  }
 
   const userName = session?.user?.name?.split(" ")[0] || "Trader";
 

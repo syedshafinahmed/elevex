@@ -18,11 +18,12 @@ import { useProducts } from "@/context/ProductContext";
 import { ImportedProduct } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import Button from "@/app/components/ui/Button";
+import { DashboardImportsSkeleton } from "@/app/components/skeletons";
 import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
 export default function MyImportsPage() {
-  const { myImports, removeImport } = useProducts();
+  const { myImports, removeImport, loading } = useProducts();
   const [search, setSearch] = useState("");
   const [importToRemove, setImportToRemove] = useState<ImportedProduct | null>(null);
 
@@ -36,6 +37,10 @@ export default function MyImportsPage() {
     (acc, cur) => acc + cur.price * cur.importedQuantity,
     0
   );
+
+  if (loading) {
+    return <DashboardImportsSkeleton />;
+  }
 
   return (
     <div className={`${sansation.className} flex flex-col gap-6 pb-12`}>

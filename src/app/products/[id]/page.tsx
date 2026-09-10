@@ -36,6 +36,7 @@ import { Product, ProductReview } from "@/lib/productsData";
 import ProductCard from "@/app/components/products/ProductCard";
 import Button from "@/app/components/ui/Button";
 import AuthModal from "@/app/components/auth/AuthModal";
+import { ProductDetailSkeleton } from "@/app/components/skeletons";
 import { toast } from "gooey-toast";
 
 export default function ProductDetailsPage({
@@ -229,12 +230,7 @@ export default function ProductDetailsPage({
 
   if (!product) {
     if (productsLoading || isFetching) {
-      return (
-        <div className={`${sansation.className} mx-auto max-w-7xl px-4 py-24 flex flex-col items-center justify-center text-center gap-4`}>
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-foreground/60">Loading commodity details from global exchange...</p>
-        </div>
-      );
+      return <ProductDetailSkeleton />;
     }
 
     return (

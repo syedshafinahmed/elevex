@@ -19,6 +19,7 @@ import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import AdminGuard from "@/app/components/dashboard/AdminGuard";
 import { ManagedUser } from "@/lib/usersData";
+import { UsersTableSkeleton } from "@/app/components/skeletons";
 import { toast } from "gooey-toast";
 
 const roleOptions: DropdownOption<"ADMIN" | "USER">[] = [
@@ -70,6 +71,14 @@ export default function UsersManagementPage() {
       setIsUpdating(null);
     }
   };
+
+  if (loading && users.length === 0) {
+    return (
+      <AdminGuard>
+        <UsersTableSkeleton />
+      </AdminGuard>
+    );
+  }
 
   return (
     <AdminGuard>

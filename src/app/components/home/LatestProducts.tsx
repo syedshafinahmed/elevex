@@ -5,11 +5,17 @@ import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 import ProductCard from "@/app/components/products/ProductCard";
 import Button from "@/app/components/ui/Button";
+import { LatestProductsSkeleton } from "@/app/components/skeletons";
 
 export default function LatestProducts() {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
+
+  if (loading) {
+    return <LatestProductsSkeleton />;
+  }
 
   // 4 most recent products for a 4-card row (or 8 for two rows)
+
   const latestProducts = [...products]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 4);

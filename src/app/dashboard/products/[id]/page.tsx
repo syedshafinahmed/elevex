@@ -35,6 +35,7 @@ import { Product } from "@/lib/productsData";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import Button from "@/app/components/ui/Button";
+import { DashboardProductDetailSkeleton } from "@/app/components/skeletons";
 import { toast } from "gooey-toast";
 import { Sprout, Shirt, Utensils, Gem, FlaskConical, Cog } from "lucide-react";
 import { slugify } from "@/lib/utils";
@@ -116,12 +117,7 @@ export default function AdminProductDetailsPage({ params }: AdminProductDetailsP
 
   if (!product) {
     if (productsLoading || isFetching) {
-      return (
-        <div className={`${sansation.className} flex flex-col items-center justify-center py-24 text-center gap-4`}>
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-xs text-foreground/50">Loading commodity specifications...</p>
-        </div>
-      );
+      return <DashboardProductDetailSkeleton />;
     }
 
     return (

@@ -31,6 +31,8 @@ import AdminGuard from "@/app/components/dashboard/AdminGuard";
 import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 import { Sprout, Shirt, Utensils, Gem, FlaskConical, Cog } from "lucide-react";
+import { DashboardProductsTableSkeleton } from "@/app/components/skeletons";
+import Pagination from "@/app/components/ui/Pagination";
 
 const categoryOptions: DropdownOption[] = [
   { value: "Agricultural", label: "Agricultural", description: "Crops, grains, raw materials", icon: Sprout },
@@ -41,13 +43,21 @@ const categoryOptions: DropdownOption[] = [
   { value: "Machinery", label: "Machinery", description: "Industrial equipment, tools & parts", icon: Cog },
 ];
 
+const ITEMS_PER_PAGE = 10;
+
 export default function AdminProductsPage() {
-  const { products, deleteProduct } = useProducts();
+  const { products, deleteProduct, loading } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const categories = ["All", "Agricultural", "Textile", "Food", "Minerals", "Chemicals", "Machinery"];
+
+  // Reset to first page when search or category filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
 
   const filteredProducts = products.filter((item) => {
     const matchesSearch =
@@ -59,8 +69,20 @@ export default function AdminProductsPage() {
     return matchesSearch && matchesCategory;
   });
 
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   const totalInventoryUnits = products.reduce((acc, p) => acc + (p.availableQuantity || 0), 0);
   const totalValuation = products.reduce((acc, p) => acc + ((p.price || 0) * (p.availableQuantity || 0)), 0);
+
+  if (loading) {
+    return (
+      <AdminGuard>
+        <DashboardProductsTableSkeleton />
+      </AdminGuard>
+    );
+  }
 
   return (
     <AdminGuard>
@@ -169,7 +191,7 @@ export default function AdminProductsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-foreground/6">
-                  {filteredProducts.map((item) => (
+                  {paginatedProducts.map((item) => (
                     <tr key={item.id} className="hover:bg-foreground/3 transition-colors group">
                       {/* Product Image & Title */}
                       <td className="py-3.5 pl-6 pr-4">
@@ -268,6 +290,20 @@ export default function AdminProductsPage() {
               </table>
             </div>
           </div>
+        )}
+
+        {/* 4. Pagination Controls */}
+        {filteredProducts.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredProducts.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
         )}
 
         {/* Delete Confirmation Modal */}

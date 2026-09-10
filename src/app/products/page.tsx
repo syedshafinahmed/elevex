@@ -14,6 +14,7 @@ import { useProducts } from "@/context/ProductContext";
 import ProductCard from "@/app/components/products/ProductCard";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import Button from "@/app/components/ui/Button";
+import { ProductsPageSkeleton, ProductCardSkeleton } from "@/app/components/skeletons";
 
 type SortOption =
   | "featured"
@@ -33,7 +34,7 @@ const sortOptions: DropdownOption<SortOption>[] = [
 ];
 
 function ProductsContent() {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
 
@@ -138,6 +139,10 @@ function ProductsContent() {
     selectedCategory !== "All" ||
     selectedCountry !== "All" ||
     sortBy !== "newest";
+
+  if (loading) {
+    return <ProductsPageSkeleton />;
+  }
 
   return (
     <div className={`${sansation.className} mx-auto max-w-7xl px-4 pt-2 pb-12 sm:py-12 sm:px-6 lg:px-10 flex flex-col gap-8`}>
@@ -299,14 +304,9 @@ function ProductsContent() {
 
 export default function UserProductsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="mx-auto max-w-7xl px-4 py-24 flex items-center justify-center text-xs text-foreground/50">
-          Loading commodities catalog...
-        </div>
-      }
-    >
+    <Suspense fallback={<ProductsPageSkeleton />}>
       <ProductsContent />
     </Suspense>
   );
 }
+
