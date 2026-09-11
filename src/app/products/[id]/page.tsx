@@ -48,7 +48,7 @@ export default function ProductDetailsPage({
   const router = useRouter();
   const { data: session } = useSession();
   const [authOpen, setAuthOpen] = useState(false);
-  const { products, loading: productsLoading, importProduct, isInCart: checkIsInCart, addToCart, removeFromCart } = useProducts();
+  const { products, loading: productsLoading, isInCart: checkIsInCart, addToCart, removeFromCart } = useProducts();
   const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
@@ -195,24 +195,24 @@ export default function ProductDetailsPage({
 
     setIsSubmittingImport(true);
     try {
-      const res = await importProduct(product.id, importQty);
-      if (res.success) {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: [{ productId: product.id, quantity: importQty }] }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error({ title: err.error || "Failed to initiate payment" });
         setIsSubmittingImport(false);
-        setImportSuccessModal(true);
-        toast.success({
-          title: "Commodity Consignment Allocated",
-        });
-      } else {
-        setIsSubmittingImport(false);
-        toast.error({
-          title: res.error || "Failed to import commodity",
-        });
+        return;
       }
+
+      const { url } = await res.json();
+      if (url) window.location.href = url;
     } catch {
       setIsSubmittingImport(false);
-      toast.error({
-        title: "An unexpected error occurred",
-      });
+      toast.error({ title: "An unexpected error occurred" });
     }
   }
 

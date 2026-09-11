@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   ShoppingCart,
   Trash2,
@@ -26,8 +25,7 @@ import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
 export default function CartItemsPage() {
-  const router = useRouter();
-  const { products, cartItems, removeFromCart, updateCartQuantity, clearCart, importProduct } = useProducts();
+  const { products, cartItems, removeFromCart, updateCartQuantity, clearCart } = useProducts();
   const [itemToRemove, setItemToRemove] = useState<string | null>(null);
   const [isClearingCart, setIsClearingCart] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -55,12 +53,11 @@ export default function CartItemsPage() {
     updateCartQuantity(productId, clamped);
   }
 
-  function handleCheckoutAll() {
+  async function handleCheckoutAll() {
     if (resolvedCartItems.length === 0) return;
 
     setIsCheckingOut(true);
 
-    // Verify stock availability
     for (const item of resolvedCartItems) {
       if (item.quantity > item.product.availableQuantity) {
         toast.error({
@@ -73,20 +70,32 @@ export default function CartItemsPage() {
     }
 
     try {
-      for (const item of resolvedCartItems) {
-        importProduct(item.product.id, item.quantity);
-      }
-      clearCart();
-      toast.success({
-        title: "All Consignments Successfully Allocated",
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: resolvedCartItems.map((i) => ({
+            productId: i.product.id,
+            quantity: i.quantity,
+          })),
+        }),
       });
-      setTimeout(() => {
-        router.push("/dashboard/imports");
-      }, 800);
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error({ title: err.error || "Checkout failed" });
+        setIsCheckingOut(false);
+        return;
+      }
+
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+      }
     } catch {
       toast.error({
         title: "Checkout Failed",
-        description: "An error occurred while allocating your consignments.",
+        description: "An error occurred while initiating payment.",
       });
       setIsCheckingOut(false);
     }

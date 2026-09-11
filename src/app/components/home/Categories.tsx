@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { sansation } from "@/lib/fonts";
+import { sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 
 const CATEGORIES = [
@@ -99,7 +99,7 @@ export default function Categories() {
           <ChevronLeft className="h-4 w-4 stroke-[2]" />
         </button>
 
-        {/* Categories Track: Single scrollable row (3 per view) on mobile, 6-col grid on large screen */}
+        {/* Categories Track */}
         <div
           ref={scrollContainerRef}
           className="flex-1 flex overflow-x-auto scroll-smooth scrollbar-none snap-x snap-mandatory gap-2 sm:gap-3 lg:grid lg:grid-cols-6 lg:gap-4.5 py-1"
@@ -131,12 +131,12 @@ export default function Categories() {
                   />
                 </div>
 
-                {/* Category Name & Listing Count (Appears on Hover) */}
+                {/* Category Name & Listing Count  */}
                 <div className="flex flex-col items-center text-center mt-1.5 sm:mt-2.5 z-10 w-full">
-                  <span className="text-[10px] sm:text-xs lg:text-sm uppercase font-bold text-foreground/80 group-hover:text-primary transition-colors tracking-wide truncate w-full">
+                  <span className={`${trunkey.className} text-[10px] sm:text-xs lg:text-sm uppercase font-bold text-foreground/80 group-hover:text-primary transition-colors tracking-widest truncate w-full`}>
                     {cat.label}
                   </span>
-                  <span className="text-[8px] sm:text-[10px] text-foreground/50 group-hover:text-foreground/75 transition-opacity duration-300 font-medium mt-0.5 opacity-0 group-hover:opacity-100 truncate w-full">
+                  <span className="hidden lg:block text-[10px] text-foreground/50 group-hover:text-foreground/75 transition-opacity duration-300 font-medium mt-0.5 opacity-0 group-hover:opacity-100 truncate w-full">
                     {count} {count === 1 ? "listing" : "listings"}
                   </span>
                 </div>

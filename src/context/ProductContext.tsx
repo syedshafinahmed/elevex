@@ -27,6 +27,7 @@ interface ProductContextType {
   clearCart: () => void;
   isInCart: (productId: string) => boolean;
   refreshProducts: () => Promise<void>;
+  fetchImportsFromAPI: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -287,6 +288,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         isInCart,
         refreshProducts: fetchProductsFromAPI,
+        fetchImportsFromAPI,
       }}
     >
       {children}
