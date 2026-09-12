@@ -32,14 +32,13 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = "elevex_cart_items";
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [myImports, setMyImports] = useState<ImportedProduct[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
+
 
   // Fetch initial data from APIs
   async function fetchProductsFromAPI() {
@@ -66,29 +65,27 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (savedCart) {
-        setCartItems(JSON.parse(savedCart));
-      }
-    } catch {}
+  const { data: session } = useSession();
 
-    Promise.all([fetchProductsFromAPI(), fetchImportsFromAPI()]).finally(() => {
+  async function fetchCartFromAPI() {
+    try {
+      const res = await fetch("/api/cart");
+      if (res.ok) {
+        const data: { productId: string; quantity: number }[] = await res.json();
+        setCartItems(data.map((d) => ({ id: d.productId, quantity: d.quantity })));
+      }
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
+    }
+  }
+
+  useEffect(() => {
+    Promise.all([fetchProductsFromAPI(), fetchImportsFromAPI(), fetchCartFromAPI()]).finally(() => {
       setLoading(false);
-      setMounted(true);
     });
   }, []);
 
-  useEffect(() => {
-    if (mounted) {
-      try {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-      } catch {}
-    }
-  }, [cartItems, mounted]);
 
-  const { data: session } = useSession();
 
   // User's exports (strictly filtered by logged-in user)
   const myExports = useMemo(() => {
@@ -116,21 +113,30 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     const targetProduct = products.find((p) => p.id === productId || p.slug === productId);
     const defaultQty = targetProduct?.minOrderQty || 1;
     const itemQty = quantity && quantity > 0 ? quantity : defaultQty;
+    const resolvedId = targetProduct?.id || productId;
 
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === (targetProduct?.id || productId));
+      const existing = prev.find((item) => item.id === resolvedId);
       if (existing) {
-        return prev.map((item) =>
-          item.id === (targetProduct?.id || productId)
-            ? { ...item, quantity: item.quantity + itemQty }
-            : item
-        );
+        const newQty = existing.quantity + itemQty;
+        fetch(`/api/cart/${resolvedId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantity: newQty }),
+        }).catch(console.error);
+        return prev.map((item) => item.id === resolvedId ? { ...item, quantity: newQty } : item);
       }
-      return [...prev, { id: targetProduct?.id || productId, quantity: itemQty }];
+      fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: resolvedId, quantity: itemQty }),
+      }).catch(console.error);
+      return [...prev, { id: resolvedId, quantity: itemQty }];
     });
   }
 
   function removeFromCart(productId: string) {
+    fetch(`/api/cart/${productId}`, { method: "DELETE" }).catch(console.error);
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
   }
 
@@ -139,12 +145,18 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       removeFromCart(productId);
       return;
     }
+    fetch(`/api/cart/${productId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quantity }),
+    }).catch(console.error);
     setCartItems((prev) =>
       prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
     );
   }
 
   function clearCart() {
+    fetch("/api/cart", { method: "DELETE" }).catch(console.error);
     setCartItems([]);
   }
 

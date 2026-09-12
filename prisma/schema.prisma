@@ -23,11 +23,13 @@ model User {
   phone         String?
   company       String?
   designation   String?
-  accounts      Account[]
-  sessions      Session[]
-  products      Product[]
-  imports       ImportedProduct[]
-  userSessions  UserSession[]
+  accounts        Account[]
+  sessions        Session[]
+  products        Product[]
+  imports         ImportedProduct[]
+  userSessions    UserSession[]
+  cartItems       CartItem[]
+  paymentMethods  PaymentMethod[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,4 +138,35 @@ model ImportedProduct {
 
   userId           String?
   user             User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+}
+
+model PaymentMethod {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String
+  brand         String
+  name          String
+  last4         String
+  accountNumber String?
+  providerName  String?
+  accountType   String?
+  expDate       String?
+  bankName      String?
+  swiftCode     String?
+  isDefault     Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

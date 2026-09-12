@@ -67,6 +67,11 @@ export async function POST(req: Request) {
         },
       });
     }
+
+    // Clear the user's cart after successful payment
+    if (userId) {
+      await prisma.cartItem.deleteMany({ where: { userId } });
+    }
   }
 
   return NextResponse.json({ received: true });

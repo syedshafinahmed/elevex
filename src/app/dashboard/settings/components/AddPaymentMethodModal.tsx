@@ -102,7 +102,7 @@ export default function AddPaymentMethodModal({
     setExpDate(value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (methodType === "mfs") {
@@ -112,23 +112,35 @@ export default function AddPaymentMethodModal({
         return;
       }
       setIsSubmitting(true);
-      setTimeout(() => {
-        const newMethod: PaymentMethodItem = {
-          id: `pm-${Date.now()}`,
-          type: "mfs",
-          brand: mfsProvider,
-          name: mfsAccountName,
-          last4: cleanNum.slice(-4),
-          accountNumber: cleanNum,
-          providerName: mfsProvider.toUpperCase(),
-          accountType: mfsAccountType,
-          isDefault: setAsDefault,
-        };
+      try {
+        const res = await fetch("/api/payment-methods", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "mfs",
+            brand: mfsProvider,
+            name: mfsAccountName,
+            last4: cleanNum.slice(-4),
+            accountNumber: cleanNum,
+            providerName: mfsProvider.toUpperCase(),
+            accountType: mfsAccountType,
+            isDefault: setAsDefault,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error({ title: err.error || "Failed to add payment method" });
+          return;
+        }
+        const newMethod: PaymentMethodItem = await res.json();
         onAdd(newMethod);
-        setIsSubmitting(false);
         toast.success({ title: `${mfsProvider.toUpperCase()} Account Added Successfully` });
         onClose();
-      }, 300);
+      } catch {
+        toast.error({ title: "Failed to add payment method" });
+      } finally {
+        setIsSubmitting(false);
+      }
     } else if (methodType === "card") {
       const rawNum = cardNumber.replace(/\s/g, "");
       if (!cardHolder.trim() || rawNum.length < 16 || expDate.length < 5 || cvv.length < 3) {
@@ -136,43 +148,67 @@ export default function AddPaymentMethodModal({
         return;
       }
       setIsSubmitting(true);
-      setTimeout(() => {
-        const newMethod: PaymentMethodItem = {
-          id: `pm-${Date.now()}`,
-          type: "card",
-          brand: rawNum.startsWith("4") ? "visa" : rawNum.startsWith("5") ? "mastercard" : "visa",
-          name: cardHolder,
-          last4: rawNum.slice(-4),
-          expDate,
-          isDefault: setAsDefault,
-        };
+      try {
+        const res = await fetch("/api/payment-methods", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "card",
+            brand: rawNum.startsWith("4") ? "visa" : rawNum.startsWith("5") ? "mastercard" : "visa",
+            name: cardHolder,
+            last4: rawNum.slice(-4),
+            expDate,
+            isDefault: setAsDefault,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error({ title: err.error || "Failed to add payment method" });
+          return;
+        }
+        const newMethod: PaymentMethodItem = await res.json();
         onAdd(newMethod);
-        setIsSubmitting(false);
         toast.success({ title: "Card Added Successfully" });
         onClose();
-      }, 300);
+      } catch {
+        toast.error({ title: "Failed to add payment method" });
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       if (!bankName.trim() || !accountNumber.trim() || !swiftCode.trim() || !beneficiaryName.trim()) {
         toast.error({ title: "Please fill in all bank wire fields" });
         return;
       }
       setIsSubmitting(true);
-      setTimeout(() => {
-        const newMethod: PaymentMethodItem = {
-          id: `pm-${Date.now()}`,
-          type: "bank",
-          brand: "bank",
-          name: beneficiaryName,
-          last4: accountNumber.slice(-4),
-          bankName,
-          swiftCode,
-          isDefault: setAsDefault,
-        };
+      try {
+        const res = await fetch("/api/payment-methods", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "bank",
+            brand: "bank",
+            name: beneficiaryName,
+            last4: accountNumber.slice(-4),
+            bankName,
+            swiftCode,
+            isDefault: setAsDefault,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error({ title: err.error || "Failed to add payment method" });
+          return;
+        }
+        const newMethod: PaymentMethodItem = await res.json();
         onAdd(newMethod);
-        setIsSubmitting(false);
         toast.success({ title: "Bank Account Added Successfully" });
         onClose();
-      }, 300);
+      } catch {
+        toast.error({ title: "Failed to add payment method" });
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
