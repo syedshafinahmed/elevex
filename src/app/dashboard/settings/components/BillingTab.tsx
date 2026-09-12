@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   CreditCard,
   Plus,
-  Trash2,
   CheckCircle2,
   Building,
   Smartphone,
+  Wifi,
 } from "lucide-react";
 import { toast } from "gooey-toast";
 import Button from "@/app/components/ui/Button";
@@ -15,10 +16,12 @@ import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
 import AddPaymentMethodModal, {
   PaymentMethodItem,
 } from "./AddPaymentMethodModal";
+import PaymentMethodDetailModal from "./PaymentMethodDetailModal";
 
 export default function BillingTab() {
   const [methods, setMethods] = useState<PaymentMethodItem[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethodItem | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [methodToDelete, setMethodToDelete] = useState<PaymentMethodItem | null>(null);
 
@@ -39,6 +42,7 @@ export default function BillingTab() {
         return;
       }
       setMethods((prev) => prev.map((m) => ({ ...m, isDefault: m.id === id })));
+      setSelectedMethod((prev) => (prev?.id === id ? { ...prev, isDefault: true } : prev ? { ...prev, isDefault: false } : null));
       toast.success({ title: "Primary settlement method updated" });
     } catch {
       toast.error({ title: "Failed to update default" });
@@ -57,6 +61,9 @@ export default function BillingTab() {
         return;
       }
       setMethods((prev) => prev.filter((m) => m.id !== id));
+      if (selectedMethod?.id === id) {
+        setSelectedMethod(null);
+      }
       toast.success({ title: "Payment method removed" });
     } catch {
       toast.error({ title: "Failed to remove payment method" });
@@ -75,18 +82,9 @@ export default function BillingTab() {
     });
   };
 
-  const getMethodIcon = (type: PaymentMethodItem["type"]) => {
-    switch (type) {
-      case "mfs": return <Smartphone className="h-5 w-5 text-primary" />;
-      case "card": return <CreditCard className="h-5 w-5 text-primary" />;
-      case "bank": return <Building className="h-5 w-5 text-primary" />;
-    }
-  };
-
-  const getMethodTitle = (method: PaymentMethodItem) => {
-    if (method.type === "mfs") return method.providerName || method.brand.toUpperCase();
-    if (method.type === "card") return method.brand === "visa" ? "Visa Card" : method.brand === "mastercard" ? "Mastercard" : "Card";
-    return method.bankName || "Commercial Bank";
+  const handleDeleteFromDetail = (method: PaymentMethodItem) => {
+    setSelectedMethod(null);
+    setMethodToDelete(method);
   };
 
   const getMethodLabel = (m: PaymentMethodItem) =>
@@ -100,6 +98,15 @@ export default function BillingTab() {
         description={`Are you sure you want to remove this ${methodToDelete ? getMethodLabel(methodToDelete) : ""}?`}
         onConfirm={() => methodToDelete && handleRemove(methodToDelete.id)}
         onClose={() => setMethodToDelete(null)}
+      />
+
+      <PaymentMethodDetailModal
+        method={selectedMethod}
+        isOpen={selectedMethod !== null}
+        onClose={() => setSelectedMethod(null)}
+        onSetDefault={handleSetDefault}
+        onDelete={handleDeleteFromDetail}
+        isSettingDefault={loadingId === selectedMethod?.id}
       />
 
       {/* Saved Payment & Settlement Methods Section */}
@@ -136,90 +143,218 @@ export default function BillingTab() {
             <span>No payment methods added yet</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
-            {methods.map((method) => (
-              <div
-                key={method.id}
-                className={`relative flex flex-col justify-between rounded-2xl border p-5 transition-all overflow-hidden ${
-                  method.isDefault
-                    ? "border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-sm ring-1 ring-primary/20"
-                    : "border-foreground/10 bg-foreground/2 hover:border-foreground/20"
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground/5 border border-foreground/10 text-foreground">
-                        {getMethodIcon(method.type)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+            {methods.map((method) => {
+              if (method.type === "mfs") {
+                const isBkash = method.brand === "bkash";
+                const isNagad = method.brand === "nagad";
+                const isRocket = method.brand === "rocket";
+
+                return (
+                  <div
+                    key={method.id}
+                    onClick={() => setSelectedMethod(method)}
+                    className="relative flex flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-br from-[#0c0c0e] via-[#1a1b22] to-[#060608] p-5 text-white transition-all duration-300 cursor-pointer overflow-hidden group shadow-lg shadow-black/25 hover:-translate-y-1.5 hover:shadow-2xl active:scale-[0.99] min-h-[185px]"
+                  >
+                    {/* Corner Ambient Sheen */}
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/[0.04] blur-xl" />
+
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center p-1">
+                            {isBkash ? (
+                              <div className="relative h-7 w-7">
+                                <Image
+                                  src="https://res.cloudinary.com/dxipjzeda/image/upload/v1789217863/bkash_lystph.png"
+                                  alt="bKash"
+                                  fill
+                                  sizes="28px"
+                                  className="object-contain"
+                                />
+                              </div>
+                            ) : isNagad ? (
+                              <div className="relative h-7 w-7">
+                                <Image
+                                  src="https://res.cloudinary.com/dxipjzeda/image/upload/v1789217862/nagad_lj2vrk.png"
+                                  alt="Nagad"
+                                  fill
+                                  sizes="28px"
+                                  className="object-contain"
+                                />
+                              </div>
+                            ) : isRocket ? (
+                              <div className="relative h-7 w-7">
+                                <Image
+                                  src="https://res.cloudinary.com/dxipjzeda/image/upload/v1789217862/rocket_hemdcq.png"
+                                  alt="Rocket"
+                                  fill
+                                  sizes="28px"
+                                  className="object-contain"
+                                />
+                              </div>
+                            ) : (
+                              <Smartphone className="h-4 w-4 text-white/70" />
+                            )}
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-xs font-bold uppercase tracking-wider text-white truncate">
+                              {method.providerName || method.brand.toUpperCase()}
+                            </span>
+                            <span className="text-[10px] uppercase font-mono tracking-wider text-white/40 truncate">
+                              {method.accountType ? `${method.accountType} Wallet` : "Personal Wallet"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {method.isDefault && (
+                          <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-400/30 backdrop-blur-md shrink-0 shadow-sm">
+                            Primary
+                          </span>
+                        )}
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold uppercase tracking-wider text-foreground">
-                          {getMethodTitle(method)}
-                        </span>
-                        <span className="text-[10px] text-foreground/45 uppercase font-mono">
-                          {method.type === "mfs"
-                            ? `${method.accountType || "Mobile"} Wallet`
-                            : method.type === "card"
-                            ? "Debit/Credit"
-                            : "Bank Settlement"}
-                        </span>
+
+                      <div className="font-mono text-[15px] font-medium tracking-[0.14em] text-white/95 my-3.5 truncate">
+                        {method.accountNumber?.slice(0, 4) || "0171"} •••• {method.last4}
                       </div>
                     </div>
 
-                    {method.isDefault && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 border border-emerald-500/25">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Primary
-                      </span>
-                    )}
+                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                      <div className="min-w-0">
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block font-mono">Account Holder</span>
+                        <span className="text-xs font-medium text-white truncate max-w-[120px] block">
+                          {method.name}
+                        </span>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block font-mono">Status</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-white block">
+                          Active MFS
+                        </span>
+                      </div>
+                    </div>
                   </div>
+                );
+              }
 
-                  <div className="font-mono text-base font-bold text-foreground tracking-wider mb-2">
-                    {method.type === "mfs"
-                      ? `${method.accountNumber?.slice(0, 4) || "0171"} •••• ${method.last4}`
-                      : `•••• •••• •••• ${method.last4}`}
-                  </div>
-
-                  <div className="flex items-center justify-between text-[11px] text-foreground/60 mb-4">
-                    <span className="truncate max-w-[150px]">{method.name}</span>
-                    {method.expDate && <span>Expires {method.expDate}</span>}
-                    {method.bankName && <span className="truncate max-w-[130px] font-medium">{method.bankName}</span>}
-                    {method.type === "mfs" && <span className="text-emerald-500 font-semibold">Active MFS</span>}
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between border-t border-foreground/10 pt-3 text-xs">
-                  {!method.isDefault ? (
-                    <button
-                      type="button"
-                      onClick={() => handleSetDefault(method.id)}
-                      disabled={loadingId === method.id}
-                      className="text-[11px] font-semibold text-primary hover:underline cursor-pointer disabled:opacity-50"
-                    >
-                      Set as Primary
-                    </button>
-                  ) : (
-                    <span className="text-[11px] text-foreground/40 font-medium">Default settlement source</span>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={() => setMethodToDelete(method)}
-                    disabled={loadingId === method.id}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/40 hover:bg-red-500/10 hover:text-red-500 transition-colors cursor-pointer disabled:opacity-50"
-                    title="Remove Method"
+              if (method.type === "card") {
+                return (
+                  <div
+                    key={method.id}
+                    onClick={() => setSelectedMethod(method)}
+                    className="relative flex flex-col justify-between rounded-2xl border border-white/15 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 p-5 text-white transition-all duration-300 cursor-pointer overflow-hidden group shadow-lg shadow-black/25 hover:-translate-y-1.5 hover:shadow-2xl active:scale-[0.99] min-h-[185px]"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                    {/* Corner Ambient Sheen */}
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/[0.05] blur-xl" />
+
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3.5">
+                        <div className="flex items-center gap-2">
+                          <div className="relative h-6 w-8 rounded bg-gradient-to-tr from-amber-400/90 via-amber-200 to-amber-500/90 border border-amber-600/40 overflow-hidden shadow-inner flex items-center justify-center shrink-0">
+                            <div className="absolute inset-x-0 h-[1px] bg-amber-800/40" />
+                            <div className="absolute inset-y-0 w-[1px] bg-amber-800/40" />
+                            <div className="h-3 w-4 rounded-sm border border-amber-800/30 bg-transparent" />
+                          </div>
+                          <Wifi className="h-4 w-4 rotate-90 text-white/50 shrink-0" />
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          {method.isDefault && (
+                            <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-400/30 backdrop-blur-md shrink-0 shadow-sm">
+                              Primary
+                            </span>
+                          )}
+                          <span className="font-mono text-xs font-bold italic tracking-wider text-white/90">
+                            {method.brand === "visa" ? "VISA" : method.brand === "mastercard" ? "MC" : "CARD"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="font-mono text-[15px] font-medium tracking-[0.14em] text-white/95 my-3.5 truncate">
+                        •••• •••• •••• {method.last4}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                      <div className="min-w-0">
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block font-mono">Cardholder</span>
+                        <span className="text-xs font-medium uppercase text-white truncate max-w-[120px] block">
+                          {method.name}
+                        </span>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block font-mono">Expires</span>
+                        <span className="text-xs font-mono font-medium text-white/90 block">
+                          {method.expDate || "••/••"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              // Bank settlement card
+              return (
+                <div
+                  key={method.id}
+                  onClick={() => setSelectedMethod(method)}
+                  className="relative flex flex-col justify-between rounded-2xl border border-blue-500/25 bg-gradient-to-br from-[#0a1e38] via-[#143a66] to-[#040e1c] p-5 text-white transition-all duration-300 cursor-pointer overflow-hidden group shadow-lg shadow-black/25 hover:-translate-y-1.5 hover:shadow-2xl active:scale-[0.99] min-h-[185px]"
+                >
+                  {/* Corner Ambient Sheen */}
+                  <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-blue-400/[0.08] blur-xl" />
+
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400">
+                          <Building className="h-4 w-4" />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-xs font-bold text-white truncate max-w-[120px]">
+                            {method.bankName || "Commercial Bank"}
+                          </span>
+                          <span className="text-[10px] text-blue-200/50 uppercase font-mono tracking-wider truncate">
+                            Bank Settlement
+                          </span>
+                        </div>
+                      </div>
+
+                      {method.isDefault && (
+                        <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-400/30 backdrop-blur-md shrink-0 shadow-sm">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="font-mono text-[15px] font-medium tracking-[0.14em] text-white/95 my-3.5 truncate">
+                      AC // •••• •••• {method.last4}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                    <div className="min-w-0">
+                      <span className="text-[9px] uppercase tracking-wider text-white/40 block font-mono">Beneficiary</span>
+                      <span className="text-xs font-medium text-white truncate max-w-[120px] block">
+                        {method.name}
+                      </span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="text-[9px] uppercase tracking-wider text-white/40 block font-mono">
+                        {method.swiftCode ? "SWIFT" : "Routing"}
+                      </span>
+                      <span className="text-xs font-mono font-medium text-white/90 block truncate max-w-[90px]">
+                        {method.swiftCode || "Wire Transfer"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Modal */}
+      {/* Add Modal */}
       <AddPaymentMethodModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
