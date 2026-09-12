@@ -27,6 +27,16 @@ export async function POST(req: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
 
+    // Skip if already fulfilled via session redirect
+    if (session.metadata?.fulfilled === "true") {
+      return NextResponse.json({ received: true });
+    }
+
+    // Mark as fulfilled
+    await stripe.checkout.sessions.update(session.id, {
+      metadata: { ...session.metadata, fulfilled: "true" },
+    }).catch(() => {});
+
     const userId = session.metadata?.userId || null;
     const itemsRaw = session.metadata?.items;
 

@@ -21,7 +21,7 @@ interface ProductContextType {
   deleteProduct: (id: string) => Promise<void>;
   importProduct: (productId: string, quantity: number) => Promise<{ success: boolean; error?: string }>;
   removeImport: (id: string) => Promise<void>;
-  addToCart: (productId: string, quantity?: number) => void;
+  addToCart: (productId: string, quantity?: number) => boolean;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -109,7 +109,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     });
   }, [products, session]);
 
-  function addToCart(productId: string, quantity?: number) {
+  function addToCart(productId: string, quantity?: number): boolean {
+    if (!session?.user?.id) return false;
     const targetProduct = products.find((p) => p.id === productId || p.slug === productId);
     const defaultQty = targetProduct?.minOrderQty || 1;
     const itemQty = quantity && quantity > 0 ? quantity : defaultQty;
@@ -133,6 +134,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       }).catch(console.error);
       return [...prev, { id: resolvedId, quantity: itemQty }];
     });
+    return true;
   }
 
   function removeFromCart(productId: string) {

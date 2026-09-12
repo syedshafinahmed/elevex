@@ -67,6 +67,22 @@ export async function POST(req: Request) {
 
     const baseUrl = process.env.AUTH_URL || "http://localhost:3000";
 
+    let paymentMethodLabel = "";
+    if (session?.user?.id) {
+      const primary = await prisma.paymentMethod.findFirst({
+        where: { userId: session.user.id, isDefault: true },
+      });
+      if (primary) {
+        if (primary.type === "mfs") {
+          paymentMethodLabel = `${primary.providerName || primary.brand.toUpperCase()} ${primary.accountType || "Wallet"} •••• ${primary.last4}`;
+        } else if (primary.type === "card") {
+          paymentMethodLabel = `${primary.brand === "visa" ? "Visa" : primary.brand === "mastercard" ? "Mastercard" : "Card"} •••• ${primary.last4}`;
+        } else {
+          paymentMethodLabel = `${primary.bankName || "Bank"} •••• ${primary.last4}`;
+        }
+      }
+    }
+
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
@@ -76,6 +92,7 @@ export async function POST(req: Request) {
       metadata: {
         userId: session?.user?.id ?? "",
         items: JSON.stringify(resolvedItems),
+        paymentMethodLabel,
       },
     });
 

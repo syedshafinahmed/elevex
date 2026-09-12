@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,6 +16,7 @@ import {
   PackageCheck,
   Building,
   AlertCircle,
+  CreditCard,
 } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
@@ -29,6 +30,21 @@ export default function CartItemsPage() {
   const [itemToRemove, setItemToRemove] = useState<string | null>(null);
   const [isClearingCart, setIsClearingCart] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [primaryMethod, setPrimaryMethod] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/payment-methods")
+      .then((r) => r.json())
+      .then((data: { isDefault: boolean; type: string; providerName?: string; brand: string; accountType?: string; last4: string; bankName?: string }[]) => {
+        if (!Array.isArray(data)) return;
+        const pm = data.find((m) => m.isDefault);
+        if (!pm) return;
+        if (pm.type === "mfs") setPrimaryMethod(`${pm.providerName || pm.brand.toUpperCase()} ${pm.accountType || "Wallet"} •••• ${pm.last4}`);
+        else if (pm.type === "card") setPrimaryMethod(`${pm.brand === "visa" ? "Visa" : pm.brand === "mastercard" ? "Mastercard" : "Card"} •••• ${pm.last4}`);
+        else setPrimaryMethod(`${pm.bankName || "Bank"} •••• ${pm.last4}`);
+      })
+      .catch(() => {});
+  }, []);
 
   // Map cart items to real product records
   const resolvedCartItems = cartItems
@@ -394,6 +410,13 @@ export default function CartItemsPage() {
                     Allocating items will immediately reserve quantities from available inventory and record them in your <strong>My Imports</strong> portfolio.
                   </span>
                 </div>
+
+                {primaryMethod && (
+                  <div className="flex items-center gap-2 rounded-xl bg-foreground/5 border border-foreground/10 p-3 text-[11px] text-foreground/70">
+                    <CreditCard className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span><span className="font-semibold text-foreground">Primary:</span> {primaryMethod}</span>
+                  </div>
+                )}
 
                 <Button
                   onClick={handleCheckoutAll}

@@ -68,10 +68,12 @@ export default function ProductCard({
         title: "Removed from Cart",
       });
     } else {
-      addToCart(product.id, product.minOrderQty || 1);
-      toast.success({
-        title: "Added to Cart",
-      });
+      const added = addToCart(product.id, product.minOrderQty || 1);
+      if (!added) {
+        toast.error({ title: "Please log in to add items to cart" });
+      } else {
+        toast.success({ title: "Added to Cart" });
+      }
     }
   }
 

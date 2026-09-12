@@ -1,21 +1,31 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, ArrowRight, Package } from "lucide-react";
+import { CheckCircle2, ArrowRight, Package, CreditCard } from "lucide-react";
 import { pinkAverage, sansation } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
-  const { clearCart, fetchImportsFromAPI } = useProducts();
+  const { clearCart, fetchImportsFromAPI, refreshProducts } = useProducts();
+  const [paymentMethodLabel, setPaymentMethodLabel] = useState<string | null>(null);
 
   useEffect(() => {
     if (!sessionId) return;
-    clearCart();
-    fetchImportsFromAPI();
+    fetch(`/api/checkout/session?id=${sessionId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.paymentMethodLabel) setPaymentMethodLabel(data.paymentMethodLabel);
+      })
+      .catch(console.error)
+      .finally(() => {
+        clearCart();
+        fetchImportsFromAPI();
+        refreshProducts();
+      });
   }, [sessionId]);
 
   return (
@@ -33,6 +43,13 @@ function SuccessContent() {
             Your consignment has been allocated and payment confirmed. Your imported commodities are now available in your import portfolio.
           </p>
         </div>
+
+        {paymentMethodLabel && (
+          <div className="flex items-center gap-2 rounded-xl bg-foreground/5 border border-foreground/10 px-4 py-3 text-[11px] text-foreground/70 w-full justify-center">
+            <CreditCard className="h-3.5 w-3.5 shrink-0 text-primary" />
+            <span><span className="font-semibold text-foreground">Paid via:</span> {paymentMethodLabel}</span>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 w-full">
           <Link
