@@ -29,6 +29,7 @@ import ProductCard from "@/app/components/products/ProductCard";
 import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import Button from "@/app/components/ui/Button";
 import AuthModal from "@/app/components/auth/AuthModal";
+import Loader from "@/app/components/common/Loader";
 import { toast } from "gooey-toast";
 import { slugify } from "@/lib/utils";
 
@@ -370,9 +371,8 @@ export default function EditExportPage({ params }: EditExportPageProps) {
 
   if (productsLoading || isFetching) {
     return (
-      <div className={`${sansation.className} flex flex-col items-center justify-center py-24 text-center gap-4`}>
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <p className="text-xs text-foreground/50">Loading commodity data for editing...</p>
+      <div className={`${sansation.className} flex items-center justify-center py-24 text-center`}>
+        <Loader text="Loading commodity data for editing..." />
       </div>
     );
   }

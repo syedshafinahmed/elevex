@@ -1,0 +1,111 @@
+.styledWrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.styledWrapper :global(#svg-global) {
+  zoom: 1.2;
+  overflow: visible;
+}
+
+@keyframes fade-particles {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+
+.styledWrapper :global(#particles) {
+  animation: fade-particles 5s infinite alternate;
+}
+
+.styledWrapper :global(.particle) {
+  animation: floatUp linear infinite;
+}
+
+.styledWrapper :global(.p1) {
+  animation-duration: 2.2s;
+  animation-delay: 0s;
+}
+.styledWrapper :global(.p2) {
+  animation-duration: 2.5s;
+  animation-delay: 0.3s;
+}
+.styledWrapper :global(.p3) {
+  animation-duration: 2s;
+  animation-delay: 0.6s;
+}
+.styledWrapper :global(.p4) {
+  animation-duration: 2.8s;
+  animation-delay: 0.2s;
+}
+.styledWrapper :global(.p5) {
+  animation-duration: 2.3s;
+  animation-delay: 0.4s;
+}
+.styledWrapper :global(.p6) {
+  animation-duration: 3s;
+  animation-delay: 0.1s;
+}
+.styledWrapper :global(.p7) {
+  animation-duration: 2.1s;
+  animation-delay: 0.5s;
+}
+.styledWrapper :global(.p8) {
+  animation-duration: 2.6s;
+  animation-delay: 0.2s;
+}
+.styledWrapper :global(.p9) {
+  animation-duration: 2.4s;
+  animation-delay: 0.3s;
+}
+
+@keyframes bounce-lines {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.styledWrapper :global(#line-v1),
+.styledWrapper :global(#line-v2),
+.styledWrapper :global(#node-server),
+.styledWrapper :global(#panel-rigth),
+.styledWrapper :global(#reflectores),
+.styledWrapper :global(#particles) {
+  animation: bounce-lines 3s ease-in-out infinite alternate;
+}
+
+.styledWrapper :global(#line-v2) {
+  animation-delay: 0.2s;
+}
+
+.styledWrapper :global(#node-server),
+.styledWrapper :global(#panel-rigth),
+.styledWrapper :global(#reflectores),
+.styledWrapper :global(#particles) {
+  animation-delay: 0.4s;
+}

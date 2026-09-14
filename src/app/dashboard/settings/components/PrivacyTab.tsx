@@ -28,6 +28,7 @@ import {
   ActiveSessionData,
 } from "@/app/actions/security";
 import Button from "@/app/components/ui/Button";
+import Loader from "@/app/components/common/Loader";
 
 export default function PrivacyTab() {
   const { data: session } = useSession();
@@ -179,8 +180,7 @@ export default function PrivacyTab() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-12 rounded-3xl border border-foreground/10 bg-foreground/2">
-        <RefreshCw className="h-6 w-6 animate-spin text-primary mb-2" />
-        <span className="text-xs text-foreground/50">Loading security credentials & active sessions...</span>
+        <Loader />
       </div>
     );
   }

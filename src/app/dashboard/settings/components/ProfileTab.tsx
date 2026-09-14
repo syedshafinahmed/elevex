@@ -13,6 +13,7 @@ import {
 import { toast } from "gooey-toast";
 import { getUserProfile, updateUserProfile } from "@/app/actions/users";
 import Button from "@/app/components/ui/Button";
+import Loader from "@/app/components/common/Loader";
 
 export default function ProfileTab() {
   const { data: session, update: updateSession } = useSession();
@@ -131,8 +132,7 @@ export default function ProfileTab() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-12 rounded-3xl border border-foreground/10 bg-foreground/2">
-        <RefreshCw className="h-6 w-6 animate-spin text-primary mb-2" />
-        <span className="text-xs text-foreground/50">Loading profile data...</span>
+        <Loader />
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { useUserRole } from "@/context/UserRoleContext";
 import { ShieldAlert, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { pinkAverage, sansation } from "@/lib/fonts";
+import Loader from "@/app/components/common/Loader";
 
 interface AdminGuardProps {
   children: React.ReactNode;
@@ -47,9 +48,8 @@ export default function AdminGuard({ children }: AdminGuardProps) {
 
   if (!mounted || isLoading) {
     return (
-      <div className={`${sansation.className} flex flex-col items-center justify-center py-28 text-center gap-4`}>
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <p className="text-xs text-foreground/50">Verifying administrative credentials...</p>
+      <div className={`${sansation.className} flex items-center justify-center py-28 text-center`}>
+        <Loader text="Verifying administrative credentials..." />
       </div>
     );
   }
