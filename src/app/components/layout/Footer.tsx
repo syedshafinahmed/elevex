@@ -35,9 +35,8 @@ const resourceLinks = [
 ];
 
 const legalLinks = [
-  { label: "Privacy policy", href: "/privacy" },
-  { label: "Terms of service", href: "/terms" },
-  { label: "Compliance", href: "/compliance" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms & Conditions", href: "/terms" },
 ];
 
 const socialLinks = [

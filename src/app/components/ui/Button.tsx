@@ -3,7 +3,7 @@ import Link from "next/link";
 
 type ButtonProps = {
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "icon";
   href?: string;
   type?: "button" | "submit" | "reset";
   className?: string;
@@ -37,6 +37,7 @@ export default function Button({
   const sizes = {
     sm: "px-4 py-2.5 text-xs",
     md: "px-6 py-3 text-sm",
+    icon: "p-0",
   };
 
   const classes = `${base} ${variants[variant]} ${sizes[size]} ${className}`;

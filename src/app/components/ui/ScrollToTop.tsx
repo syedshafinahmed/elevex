@@ -20,11 +20,12 @@ export default function ScrollToTop() {
       <Button
         type="button"
         variant="ghost"
+        size="icon"
         ariaLabel="Scroll to top"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className="h-11 w-11 rounded-2xl bg-primary shadow-lg text-background border border-background backdrop-blur-sm"
       >
-        <ChevronUp className="h-6 w-6" aria-hidden="true" />
+        <ChevronUp className="h-6 w-6 shrink-0" aria-hidden="true" />
       </Button>
     </div>
   );
