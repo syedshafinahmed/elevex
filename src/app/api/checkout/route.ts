@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     // Resolve each product from DB
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-    const resolvedItems: { productId: string; name: string; price: number; unit: string; image: string; originCountry: string; rating: number; quantity: number }[] = [];
+    const resolvedItems: { productId: string; sellerId?: string | null; name: string; price: number; unit: string; image: string; originCountry: string; rating: number; quantity: number }[] = [];
 
     for (const item of items) {
       const product = await prisma.product.findFirst({
@@ -39,6 +39,7 @@ export async function POST(req: Request) {
 
       resolvedItems.push({
         productId: product.id,
+        sellerId: product.userId || null,
         name: product.name,
         price: product.price,
         unit: product.unit,

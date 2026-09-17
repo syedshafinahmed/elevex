@@ -6,9 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
-  Star,
   MapPin,
-  Building,
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
@@ -16,19 +14,19 @@ import {
   ArrowLeft,
   X,
   Package,
-  Clock,
   Share2,
   ShoppingCart,
   ChevronRight,
   Maximize2,
   Anchor,
-  FileText,
   BadgeCheck,
   Layers,
   Plus,
   Minus,
   Info,
   Lock,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
 import { useProducts } from "@/context/ProductContext";
@@ -52,22 +50,23 @@ export default function ProductDetailsPage({
   const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
-  // Find product by slug or id
-  useEffect(() => {
-    const existing = products.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id);
-    if (!existing) {
-      setIsFetching(true);
-      fetch(`/api/products/${resolvedParams.id}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (data) setFetchedProduct(data);
-        })
-        .catch(() => {})
-        .finally(() => setIsFetching(false));
-    }
-  }, [resolvedParams.id, products]);
+  // Find product by slug or id from context
+  const contextProduct = products.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id);
 
-  const product = products.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id) || fetchedProduct;
+  // Always fetch from API to get full user data (context products don't include user join)
+  useEffect(() => {
+    setIsFetching(true);
+    fetch(`/api/products/${resolvedParams.id}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setFetchedProduct(data);
+      })
+      .catch(() => {})
+      .finally(() => setIsFetching(false));
+  }, [resolvedParams.id]);
+
+  // Prefer the fetched version (has user data), fall back to context
+  const product = fetchedProduct || contextProduct;
 
   // Gallery & Lightbox State
   const gallery = useMemo(() => {
@@ -355,26 +354,104 @@ export default function ProductDetailsPage({
             </div>
           )}
 
-          {/* Trust Guarantees Grid */}
-          <div className="grid grid-cols-3 gap-3 pt-2 text-center text-xs">
-            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              <span className="font-bold text-foreground text-[11px]">100% Escrow</span>
-              <span className="text-[10px] text-foreground/50">Funds released on port receipt</span>
-            </div>
+          {/* Exporter Profile Card */}
+          {(product.exporterName || product.user) && (() => {
+            const exporterName = product.user?.name || product.exporterName || "Verified Exporter";
+            const exporterRating = product.exporterRating ?? 4.9;
+            const exporterShipments = product.exporterShipments ?? 0;
+            const exporterCompany = product.user?.company;
+            const exporterDesignation = product.user?.designation;
+            const exporterImage = product.user?.image;
+            const exporterEmail = product.user?.email;
+            const exporterPhone = product.user?.phone;
+            const exporterJoinedAt = product.user?.createdAt
+              ? new Date(product.user.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+              : null;
+            const initials = exporterName
+              .split(" ")
+              .map((w: string) => w[0])
+              .slice(0, 2)
+              .join("")
+              .toUpperCase();
 
-            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-              <BadgeCheck className="h-5 w-5 text-emerald-500" />
-              <span className="font-bold text-foreground text-[11px]">SGS Inspected</span>
-              <span className="text-[10px] text-foreground/50">Pre-shipment lot verification</span>
-            </div>
+            return (
+              <div className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/2 p-4 inset-shadow-foreground/30 inset-shadow-sm">
+                {/* Subtle gradient accent */}
+                <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
 
-            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/2 p-3.5 inset-shadow-foreground/30 inset-shadow-sm">
-              <FileText className="h-5 w-5 text-blue-500" />
-              <span className="font-bold text-foreground text-[11px]">Digital BoL</span>
-              <span className="text-[10px] text-foreground/50">Instant cryptographic release</span>
-            </div>
-          </div>
+                {/* Header label */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] uppercase font-bold tracking-wider text-foreground/45 ${trunkey.className}`}>Exporter Profile</span>
+                  </div>
+                  {exporterJoinedAt && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-foreground/50">
+                        Elevex Certified Member since <span className="font-semibold text-foreground/70">{exporterJoinedAt}</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Main exporter row */}
+                <div className="flex items-start gap-3.5">
+                  {/* Avatar */}
+                  <div className="relative shrink-0">
+                    {exporterImage ? (
+                      <Image
+                        src={exporterImage}
+                        alt={exporterName}
+                        width={56}
+                        height={56}
+                        className="h-14 w-14 rounded-xl object-cover ring-2 ring-primary/20"
+                      />
+                    ) : (
+                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 text-primary font-bold text-lg ring-2 ring-primary/20">
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-bold text-foreground text-sm leading-tight truncate">{exporterName}</span>
+                      <BadgeCheck className="h-3.5 w-3.5 text-primary shrink-0" />
+                    </div>
+                    {(exporterDesignation || exporterCompany) && (
+                      <p className="text-[11px] text-foreground/55 mt-0.5 leading-tight truncate">
+                        {exporterDesignation}{exporterDesignation && exporterCompany ? " at " : ""}{exporterCompany}
+                      </p>
+                    )}
+
+                    {/* Email and Phone */}
+                    {(exporterEmail || exporterPhone) && (
+                      <div className="flex items-center gap-3.5 mt-2 flex-wrap">
+                        {exporterEmail && (
+                          <a
+                            href={`mailto:${exporterEmail}`}
+                            className="flex items-center gap-1.5 text-[11px] text-foreground/70 hover:text-primary transition-colors"
+                          >
+                            <Mail className="h-3 w-3 text-primary shrink-0" />
+                            <span className="truncate">{exporterEmail}</span>
+                          </a>
+                        )}
+                        {exporterPhone && (
+                          <a
+                            href={`tel:${exporterPhone}`}
+                            className="flex items-center gap-1.5 text-[11px] text-foreground/70 hover:text-primary transition-colors"
+                          >
+                            <Phone className="h-3 w-3 text-primary shrink-0" />
+                            <span>{exporterPhone}</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Right: Product Details, Cost Calculator & Import Action */}

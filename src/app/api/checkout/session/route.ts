@@ -55,6 +55,47 @@ export async function GET(req: Request) {
               userId: userId || null,
             },
           });
+
+          const itemTotal = item.price * item.quantity;
+
+          // 1. Debit buyer (money deducted)
+          if (userId) {
+            await prisma.transaction.create({
+              data: {
+                userId,
+                type: "DEBIT",
+                amount: itemTotal,
+                currency: "BDT",
+                description: `Import Purchase: ${item.name} (${item.quantity} ${item.unit || "units"})`,
+                status: "COMPLETED",
+                referenceId: id,
+              },
+            });
+          }
+
+          // 2. Credit seller (money added when someone buys their stuff)
+          let sellerId = (item as { sellerId?: string | null }).sellerId;
+          if (!sellerId) {
+            const prod = await prisma.product.findUnique({
+              where: { id: item.productId },
+              select: { userId: true },
+            });
+            sellerId = prod?.userId ?? null;
+          }
+
+          if (sellerId) {
+            await prisma.transaction.create({
+              data: {
+                userId: sellerId,
+                type: "CREDIT",
+                amount: itemTotal,
+                currency: "BDT",
+                description: `Export Settlement: ${item.name} (${item.quantity} ${item.unit || "units"})`,
+                status: "COMPLETED",
+                referenceId: id,
+              },
+            });
+          }
         }
       }
 

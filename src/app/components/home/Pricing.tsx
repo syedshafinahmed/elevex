@@ -76,7 +76,7 @@ export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   return (
-    <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
+    <section id="pricing" className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10 scroll-mt-6`}>
       <div className="flex flex-col gap-8">
         {/* Heading + Toggle Tab */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

@@ -75,6 +75,38 @@ export async function POST(req: Request) {
       },
     });
 
+    const totalAmount = product.price * Number(quantity);
+
+    // 1. Debit buyer
+    if (session?.user?.id) {
+      await prisma.transaction.create({
+        data: {
+          userId: session.user.id,
+          type: "DEBIT",
+          amount: totalAmount,
+          currency: "BDT",
+          description: `Direct Import: ${product.name} (${quantity} ${product.unit || "units"})`,
+          status: "COMPLETED",
+          referenceId: createdImport.id,
+        },
+      });
+    }
+
+    // 2. Credit seller
+    if (product.userId) {
+      await prisma.transaction.create({
+        data: {
+          userId: product.userId,
+          type: "CREDIT",
+          amount: totalAmount,
+          currency: "BDT",
+          description: `Export Settlement: ${product.name} (${quantity} ${product.unit || "units"})`,
+          status: "COMPLETED",
+          referenceId: createdImport.id,
+        },
+      });
+    }
+
     return NextResponse.json(createdImport, { status: 201 });
   } catch (error) {
     console.error("POST /api/imports error:", error);

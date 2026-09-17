@@ -313,7 +313,7 @@ function HowItWorks() {
   }, [trackHeight]);
 
   return (
-    <div className="bg-amethyst px-4 py-12 sm:px-6 lg:px-10">
+    <div id="process" className="bg-amethyst px-4 py-12 sm:px-6 lg:px-10 scroll-mt-6">
       <section className={`${sansation.className} mx-auto max-w-7xl w-full`}>
         <div className="px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
           {/* Header */}
@@ -376,10 +376,10 @@ function HowItWorks() {
                         <h3 className={`${pinkAverage.className} text-xl text-background`}>{s.title}</h3>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.1em] text-background/70`}>
+                        <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.1em] text-background/90`}>
                           {s.tag}
                         </span>
-                        <span className={`${sansation.className} rounded-lg border border-background/10 bg-background/10 px-2.5 py-1 text-[9px] text-background/50`}>
+                        <span className={`${sansation.className} rounded-lg border border-background/10 bg-background/10 px-2.5 py-1 text-[9px] text-background/90`}>
                           {s.detail}
                         </span>
                       </div>

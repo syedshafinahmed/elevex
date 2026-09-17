@@ -109,7 +109,7 @@ export default function MyExportsPage() {
         </div>
       </div>
 
-      {/* Exports Grid (3-column layout matching requirements) */}
+      {/* Exports Grid */}
       {filteredExports.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-foreground/10 bg-foreground/2 text-center gap-3 inset-shadow-foreground/30 inset-shadow-sm">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -142,7 +142,7 @@ export default function MyExportsPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {filteredExports.map((item) => (
             <div
               key={item.id}
@@ -157,18 +157,26 @@ export default function MyExportsPage() {
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {/* Rating Pill */}
-                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-background/80 px-2.5 py-1 text-[11px] font-bold text-foreground backdrop-blur-md">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                    <span>{item.rating}</span>
-                  </div>
+                  {/* Category Badge */}
+                  {item.category && (
+                    <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-4 py-2 text-[8px] font-bold uppercase tracking-wider text-foreground inset-shadow-foreground/30 inset-shadow-sm">
+                      <span>{item.category}</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* 2. Product Name & 4. Origin Country */}
+                {/* 2. Product Name & 4. Origin Country & Rating */}
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-[11px] text-foreground/50">
-                    <MapPin className="h-3 w-3 text-primary" />
-                    <span>{item.originCountry}</span>
+                  <div className="flex justify-between items-center gap-2">
+                    <div className="flex items-center gap-1 text-[11px] text-foreground/50">
+                      <MapPin className="h-3 w-3 text-primary" />
+                      <span>{item.originCountry}</span>
+                    </div>
+                    {/* Rating Pill */}
+                    <div className="flex items-center gap-1 text-[11px] text-foreground/50">
+                      <Star className="h-3 w-3 fill-primary text-primary" />
+                      <span>{item.rating}</span>
+                    </div>
                   </div>
                   <h3 className="text-sm font-semibold text-foreground line-clamp-2 min-h-[40px] group-hover:text-primary transition-colors">
                     {item.name}
@@ -176,7 +184,7 @@ export default function MyExportsPage() {
                 </div>
 
                 {/* 3. Price & 7. Available Quantity */}
-                <div className="mt-3 flex items-center justify-between border-t border-b border-foreground/8 py-2.5 text-xs">
+                <div className="mt-3 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-[10px] text-foreground/45 block uppercase">Price</span>
                     <span className="font-bold text-primary text-sm">৳ {item.price.toLocaleString()}</span>

@@ -9,17 +9,39 @@ import {
   Building,
   Smartphone,
   Wifi,
+  Receipt,
 } from "lucide-react";
 import { toast } from "gooey-toast";
 import Button from "@/app/components/ui/Button";
 import DeleteConfirmModal from "@/app/components/dashboard/DeleteConfirmModal";
+import Dropdown, { DropdownOption } from "@/app/components/dashboard/Dropdown";
 import AddPaymentMethodModal, {
   PaymentMethodItem,
 } from "./AddPaymentMethodModal";
 import PaymentMethodDetailModal from "./PaymentMethodDetailModal";
 
+interface TransactionItem {
+  id: string;
+  type: string;
+  amount: number;
+  currency: string;
+  description: string;
+  status: string;
+  referenceId: string | null;
+  createdAt: string;
+}
+
+const typeFilterOptions: DropdownOption<"ALL" | "CREDIT" | "DEBIT">[] = [
+  { value: "ALL", label: "All Types", description: "Show all transactions" },
+  { value: "CREDIT", label: "Credit", description: "Money received" },
+  { value: "DEBIT", label: "Debit", description: "Money spent" },
+];
+
 export default function BillingTab() {
   const [methods, setMethods] = useState<PaymentMethodItem[]>([]);
+  const [transactions, setTransactions] = useState<TransactionItem[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(true);
+  const [typeFilter, setTypeFilter] = useState<"ALL" | "CREDIT" | "DEBIT">("ALL");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethodItem | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -30,7 +52,18 @@ export default function BillingTab() {
       .then((r) => r.json())
       .then((data) => setMethods(Array.isArray(data) ? data : []))
       .catch(console.error);
+
+    fetch("/api/transactions")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setTransactions(Array.isArray(data) ? data : []))
+      .catch(console.error)
+      .finally(() => setTransactionsLoading(false));
   }, []);
+
+  const filteredTransactions = transactions.filter((tx) => {
+    if (typeFilter === "ALL") return true;
+    return tx.type === typeFilter;
+  });
 
   const handleSetDefault = async (id: string) => {
     setLoadingId(id);
@@ -352,6 +385,129 @@ export default function BillingTab() {
             })}
           </div>
         )}
+      </div>
+
+      {/* Transaction History Section */}
+      <div className="flex flex-col gap-5 rounded-3xl border border-foreground/10 bg-foreground/2 p-6 inset-shadow-foreground/30 inset-shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-foreground/10 pb-4">
+          <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <Receipt className="h-4 w-4" />
+            </div>
+            <div>
+              <div>Transaction History</div>
+              <p className="text-[11px] font-normal text-foreground/50">
+                Log of purchase deductions and export trade settlement credits
+              </p>
+            </div>
+          </div>
+
+          <div className="self-start sm:self-auto">
+            <Dropdown<"ALL" | "CREDIT" | "DEBIT">
+              value={typeFilter}
+              options={typeFilterOptions}
+              onChange={(val) => setTypeFilter(val)}
+              className="w-36 sm:w-40"
+              triggerClassName="h-9 border-foreground/15 bg-background text-foreground/85 hover:border-foreground/30 hover:bg-foreground/5 text-xs"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/2 inset-shadow-foreground/30 inset-shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-foreground/10 bg-foreground/3 text-[10px] uppercase tracking-wider text-foreground/50 font-semibold">
+                  <th className="py-3.5 pl-6 pr-4">Transaction ID</th>
+                  <th className="py-3.5 px-4">Product</th>
+                  <th className="py-3.5 px-4">Type</th>
+                  <th className="py-3.5 px-4">Date</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 pr-6 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-foreground/6">
+                {transactionsLoading ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-foreground/40">
+                      Loading transactions...
+                    </td>
+                  </tr>
+                ) : filteredTransactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-foreground/40">
+                      {transactions.length === 0
+                        ? "No transactions recorded yet."
+                        : `No ${typeFilter === "ALL" ? "" : typeFilter.toLowerCase() + " "}transactions found.`}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTransactions.map((tx) => {
+                    const isCredit = tx.type === "CREDIT";
+
+                    let productName = tx.description;
+                    if (tx.description.includes(":")) {
+                      productName = tx.description.split(":").slice(1).join(":").trim();
+                    }
+                    const parenMatch = productName.match(/^(.*?)\s*\((.*?)\)$/);
+                    const parsedName = parenMatch ? parenMatch[1].trim() : productName;
+                    const parsedQty = parenMatch ? parenMatch[2].trim() : null;
+
+                    return (
+                      <tr key={tx.id} className="hover:bg-foreground/3 transition-colors group">
+                        <td className="py-3.5 pl-6 pr-4 whitespace-nowrap">
+                          <span className="font-mono text-[11px] text-foreground/70" title={tx.referenceId || tx.id}>
+                            {tx.referenceId ? (tx.referenceId.length > 18 ? `${tx.referenceId.slice(0, 16)}...` : tx.referenceId) : tx.id.slice(0, 12)}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-semibold text-foreground text-xs truncate max-w-xs">
+                              {parsedName}
+                            </span>
+                            {parsedQty && (
+                              <span className="text-[11px] text-foreground/45">
+                                {parsedQty}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                            isCredit
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                          }`}>
+                            {isCredit ? "Credit" : "Debit"}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-[11px] text-foreground/60 whitespace-nowrap">
+                          {new Date(tx.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-500">
+                            <CheckCircle2 className="h-3 w-3" />
+                            {tx.status}
+                          </span>
+                        </td>
+                        <td className="py-3.5 pr-6 text-right whitespace-nowrap">
+                          <span className={`font-bold text-sm ${isCredit ? "text-emerald-500" : "text-foreground"}`}>
+                            {isCredit ? "+" : "-"}৳ {tx.amount.toLocaleString()}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       {/* Add Modal */}

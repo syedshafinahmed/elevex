@@ -16,8 +16,8 @@ import { toast } from "gooey-toast";
 const platformLinks = [
   { label: "Explore products", href: "/products" },
   { label: "Add your export", href: "/dashboard/add-export", requiresAuth: true },
-  { label: "Pricing", href: "/pricing" },
-  { label: "How it works", href: "/how-it-works" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "How it works", href: "/services#process" },
 ];
 
 const companyLinks = [
@@ -31,7 +31,7 @@ const resourceLinks = [
   { label: "Trade guides", href: "/guides" },
   { label: "API docs", href: "/docs" },
   { label: "Verification process", href: "/verification" },
-  { label: "Help center", href: "/help" },
+  { label: "Help center", href: "/#help" },
 ];
 
 const legalLinks = [

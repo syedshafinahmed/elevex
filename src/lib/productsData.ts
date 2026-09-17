@@ -37,6 +37,16 @@ export interface Product {
   specs?: { label: string; value: string }[];
   reviews?: ProductReview[];
   userId?: string;
+  user?: {
+    id: string;
+    name?: string | null;
+    email: string;
+    image?: string | null;
+    company?: string | null;
+    designation?: string | null;
+    phone?: string | null;
+    createdAt: string;
+  } | null;
 }
 
 export interface ImportedProduct {

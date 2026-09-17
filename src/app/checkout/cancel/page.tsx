@@ -6,7 +6,7 @@ import { pinkAverage, sansation } from "@/lib/fonts";
 
 export default function CheckoutCancelPage() {
   return (
-    <div className={`${sansation.className} min-h-[70vh] flex items-center justify-center px-4`}>
+    <div className={`${sansation.className} min-h-screen flex items-center justify-center px-4`}>
       <div className="flex flex-col items-center gap-6 text-center max-w-md">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 text-red-500 ring-8 ring-red-500/5">
           <XCircle className="h-12 w-12" />

@@ -16,6 +16,20 @@ export async function GET(
       where: {
         OR: [{ slug: id }, { id: id }],
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            company: true,
+            designation: true,
+            phone: true,
+            createdAt: true,
+          },
+        },
+      },
     });
 
     if (!product) {

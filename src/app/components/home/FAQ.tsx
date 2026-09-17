@@ -47,7 +47,7 @@ export default function FAQ() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
+    <section id="help" className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10 scroll-mt-6`}>
       <div className="flex flex-col gap-8">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
