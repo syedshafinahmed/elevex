@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   ChevronRight,
   Info,
-  Clock,
   Sparkles,
   Zap,
   Building2,
@@ -270,28 +269,20 @@ export default function TermsAndConditionsPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--color-amethyst) 35%, transparent), transparent 55%), radial-gradient(circle at 85% 90%, color-mix(in srgb, var(--color-amethyst) 22%, transparent), transparent 50%)",
+              "radial-gradient(circle at 80% 15%, color-mix(in srgb, var(--color-amethyst) 18%, transparent), transparent 50%), radial-gradient(circle at 10% 85%, color-mix(in srgb, var(--color-amethyst) 12%, transparent), transparent 45%)",
           }}
         />
 
         <div className="relative z-10 px-6 py-10 sm:px-10 sm:py-14 lg:px-12">
           <div className="flex flex-col gap-4 max-w-3xl">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                <Sparkles className="h-3.5 w-3.5" />
-                Platform Contract
-              </span>
-              <span className="flex items-center gap-1.5 rounded-xl border border-foreground/10 bg-foreground/5 px-3 py-1 text-xs font-semibold text-foreground/60">
-                <Clock className="h-3.5 w-3.5" />
-                Updated Sept 14, 2026
-              </span>
-            </div>
-
+            <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-primary`}>
+              Platform Contract
+            </p>
             <h1 className={`${pinkAverage.className} text-4xl sm:text-6xl text-foreground leading-[1.08]`}>
               Terms & <span className="text-primary">Conditions</span>
             </h1>
 
-            <p className="text-sm sm:text-base text-foreground/65 leading-relaxed">
+            <p className={`${sansation.className} text-sm leading-relaxed text-foreground/60`}>
               Institutional trade protocol rules governing exporter listings, multi-sig escrow settlement, AIS cargo tracking, and customs compliance obligations.
             </p>
 
@@ -421,7 +412,6 @@ export default function TermsAndConditionsPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-primary">{sec.number}</span>
                           <h2 className={`${pinkAverage.className} text-xl sm:text-2xl text-foreground`}>
                             {sec.title}
                           </h2>
