@@ -1,24 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   Building2,
   Target,
   Eye,
   HeartHandshake,
-  ChevronDown,
   CheckCircle2,
-  MapPin,
   Compass,
   Users,
   Award,
-  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
 } from "lucide-react";
 import { RiLinkedinFill, RiFacebookFill } from "react-icons/ri";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
-import Globe from "../components/ui/Globe";
 import Button from "../components/ui/Button";
+import TradeCardSection from "../components/common/TradeCardSection";
 
 // ─── Company Highlights ─────────────────────────
 
@@ -123,38 +123,6 @@ const companyTenets = [
   },
 ];
 
-// ─── Global Presence / Hubs ───────────────────────────────────────────────────
-
-const regionalHubs = [
-  {
-    city: "Dhaka",
-    country: "Bangladesh",
-    role: "Global Headquarters & Tech Lab",
-    address: "Mirpur-2, Dhaka-1216",
-    status: "Headquarters",
-  },
-  {
-    city: "Singapore",
-    country: "Singapore",
-    role: "Asia-Pacific Trade Desk",
-    address: "Marina Bay Financial Centre",
-    status: "Regional Hub",
-  },
-  {
-    city: "Rotterdam",
-    country: "Netherlands",
-    role: "European Liaison & Port Clearing",
-    address: "Willemswerf, Boompjes",
-    status: "Liaison Office",
-  },
-  {
-    city: "Dubai",
-    country: "United Arab Emirates",
-    role: "Middle East & GCC Gateway",
-    address: "DIFC Gate Precinct",
-    status: "Trade Desk",
-  },
-];
 
 // ─── Core Values ─────────────────────────────────────────────────────────────
 
@@ -203,7 +171,7 @@ const teamMembers: TeamMember[] = [
     name: "Syed Shafin Ahmed",
     role: "Founder & Lead Architect",
     bio: "Systems engineer leading protocol design, distributed transaction pipelines, and core architecture.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
+    image: "https://res.cloudinary.com/dwi0rh2ti/image/upload/v1780848176/WhatsApp_Image_2026-05-23_at_11.03.38_PM2_jqqbti.jpg",
     socials: {
       linkedin: "https://www.linkedin.com/in/syed-shafin-ahmed/",
       facebook: "https://www.facebook.com/shafin.ahmed.3925/",
@@ -252,9 +220,189 @@ const teamMembers: TeamMember[] = [
 ];
 
 
+// ─── Origin Story Carousel Data & Component ─────────────────────────────────
+
+interface OriginStorySlide {
+  title: string;
+  subtitle: string;
+  location: string;
+  tag: string;
+  image: string;
+  alt: string;
+}
+
+const originStorySlides: OriginStorySlide[] = [
+  {
+    title: "Direct from Regional Origins",
+    subtitle: "High-altitude tea estates, organic spices, and agricultural cooperatives onboarding verified bulk crops directly for export.",
+    location: "Sylhet & Northern Highlands",
+    tag: "Agricultural Source",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=1600&auto=format&fit=crop&q=80",
+    alt: "Agricultural harvest in highland tea plantation",
+  },
+  {
+    title: "Precision Manufacturing & Mill Weaving",
+    subtitle: "Modernized regional textile mills producing premium raw cotton fabrics and industrial apparel for global tier-1 brands.",
+    location: "Dhaka & Narayanganj Industrial Corridor",
+    tag: "Textile Infrastructure",
+    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1600&auto=format&fit=crop&q=80",
+    alt: "Textile manufacturing and fabric weaving process",
+  },
+  {
+    title: "Deepwater Port Freight & Container Routing",
+    subtitle: "Coordinating multi-modal transit corridors and vessel manifests with real-time AIS telemetry and automated port clearance.",
+    location: "Chittagong Deepwater Terminal",
+    tag: "Maritime Logistics",
+    image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1600&auto=format&fit=crop&q=80",
+    alt: "Maritime cargo vessel loaded with freight containers",
+  },
+  {
+    title: "Assay Inspection & Cryptographic Bills",
+    subtitle: "Origin quality testing, botanical grading certificates, and smart-contract escrow releases backed by institutional guarantees.",
+    location: "Regional Trade Assay Labs",
+    tag: "Verification Standard",
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&auto=format&fit=crop&q=80",
+    alt: "Warehouse quality inspection and supply verification",
+  },
+  {
+    title: "Bulk Commodity Staging & Distribution",
+    subtitle: "Connecting raw commodity yields to international buyers without the multi-tiered spreads of predatory brokers.",
+    location: "Global South Export Nodes",
+    tag: "Marketplace Execution",
+    image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=1600&auto=format&fit=crop&q=80",
+    alt: "Bulk commodity preparation and global distribution",
+  },
+];
+
+function OriginStoryCarousel() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev === 0 ? originStorySlides.length - 1 : prev - 1));
+  }, []);
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev === originStorySlides.length - 1 ? 0 : prev + 1));
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [isPaused, nextSlide]);
+
+  const slide = originStorySlides[currentIndex];
+
+  return (
+    <div
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      className="group relative overflow-hidden rounded-3xl border border-foreground/10 bg-background inset-shadow-foreground/30 inset-shadow-sm transition-all hover:border-foreground/20"
+    >
+      {/* Aspect Ratio Container for Main Showcase Image */}
+      <div className="relative aspect-[16/10] sm:aspect-[21/9] w-full overflow-hidden">
+        {originStorySlides.map((s, idx) => (
+          <div
+            key={s.title}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+              idx === currentIndex ? "opacity-100 z-10 scale-100" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          >
+            <Image
+              src={s.image}
+              alt={s.alt}
+              fill
+              priority={idx === 0}
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+            />
+            {/* Cinematic Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent hidden sm:block" />
+          </div>
+        ))}
+
+        {/* Content Overlay */}
+        <div className="absolute inset-0 z-20 flex flex-col justify-between p-6 sm:p-8 lg:p-10 pointer-events-none">
+          {/* Top Bar: Location & Tag Badges + Index & Navigation Controls */}
+          <div className="flex items-center justify-between pointer-events-auto">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/85 px-3 py-1 text-[11px] font-semibold tracking-wider uppercase text-primary backdrop-blur-md">
+                <MapPin className="h-3 w-3 text-primary" />
+                {slide.location}
+              </span>
+              <span className="hidden sm:inline-flex items-center rounded-full border border-foreground/10 bg-background/70 px-2.5 py-1 text-[10px] uppercase font-bold tracking-widest text-foreground/60 backdrop-blur-md">
+                {slide.tag}
+              </span>
+            </div>
+
+            {/* Arrows & Counter */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-foreground/70 font-semibold px-1.5 py-0.5 rounded-md bg-background/70 backdrop-blur-md border border-foreground/10">
+                0{currentIndex + 1} <span className="text-foreground/30">/</span> 0{originStorySlides.length}
+              </span>
+              <button
+                type="button"
+                onClick={prevSlide}
+                aria-label="Previous origin slide"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-foreground/15 bg-background/80 text-foreground transition-all hover:bg-background hover:text-primary hover:border-primary/40 active:scale-95 cursor-pointer backdrop-blur-md"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={nextSlide}
+                aria-label="Next origin slide"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-foreground/15 bg-background/80 text-foreground transition-all hover:bg-background hover:text-primary hover:border-primary/40 active:scale-95 cursor-pointer backdrop-blur-md"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom Title & Description */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 max-w-4xl pointer-events-auto">
+            <div className="flex flex-col gap-1.5">
+              <p className={`${trunkey.className} text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-primary`}>
+                Trade Corridors In Action
+              </p>
+              <h3 className={`${pinkAverage.className} text-xl sm:text-3xl text-foreground font-semibold leading-tight`}>
+                {slide.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-foreground/75 leading-relaxed max-w-2xl">
+                {slide.subtitle}
+              </p>
+            </div>
+
+            {/* Progress indicators / dots */}
+            <div className="flex items-center gap-1.5 self-start sm:self-end pt-1">
+              {originStorySlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentIndex(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                    idx === currentIndex
+                      ? "w-8 bg-primary shadow-sm shadow-primary/40"
+                      : "w-2 bg-foreground/20 hover:bg-foreground/40"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 export default function AboutPage() {
   const [activeTenet, setActiveTenet] = useState("mission");
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const currentTenet =
     companyTenets.find((t) => t.id === activeTenet) || companyTenets[0];
@@ -395,13 +543,15 @@ export default function AboutPage() {
             </div>
           </div>
 
+          {/* Origin Story Image Showcase Carousel */}
+          <OriginStoryCarousel />
+
           {/* Founder Quote Card */}
           <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-background p-6 sm:p-8 inset-shadow-foreground/30 inset-shadow-sm">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex flex-col gap-2 max-w-2xl">
                 <p className={`${pinkAverage.className} text-lg sm:text-xl text-foreground italic leading-relaxed`}>
-                  &ldquo;We didn&apos;t build Elevex to be another trade broker. We built it so that authentic producers would
-                  never need an intermediary broker again.&rdquo;
+                  {"“We didn't build Elevex to be another trade broker. We built it so that authentic producers would never need an intermediary broker again.”"}
                 </p>
                 <p className="text-xs text-foreground/50">
                   — <span className="font-semibold text-foreground/80">Syed Shafin Ahmed</span>, Founder & Lead Architect
@@ -416,7 +566,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ─── 3. Mission, Vision & Commitment (Tab Switcher) ────────────────── */}
+      {/* ─── 3. Mission, Vision & Commitment  ────────────────── */}
       <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
         <div className="flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -438,11 +588,10 @@ export default function AboutPage() {
                     key={t.id}
                     type="button"
                     onClick={() => setActiveTenet(t.id)}
-                    className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                      active
+                    className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer ${active
                         ? "bg-background text-foreground shadow-sm"
                         : "text-foreground/50 hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     <t.icon className={`h-3.5 w-3.5 ${active ? "text-primary" : "text-foreground/40"}`} />
                     <span>{t.label}</span>
@@ -491,78 +640,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ─── 4. Global Presence & Reused 3D Globe ─────────────────────────── */}
-      <div className="bg-amethyst px-4 py-12 sm:px-6 lg:px-10">
-        <section className={`${sansation.className} mx-auto max-w-7xl w-full`}>
-          <div className="grid items-center gap-10 lg:grid-cols-12">
-            {/* Left Column: Hubs List */}
-            <div className="flex flex-col gap-6 lg:col-span-6">
-              <div className="flex flex-col gap-2">
-                <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-background`}>
-                  Global Footprint
-                </p>
-                <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-background/95 leading-tight`}>
-                  Rooted in Dhaka. Connected to the world.
-                </h2>
-              </div>
-
-              <p className="text-sm leading-relaxed text-background/80">
-                Elevex maintains regional operations and partner representations across strategic trading corridors.
-                Whether you require local trade desk consultation or cross-border logistics facilitation, our network is
-                always within reach.
-              </p>
-
-              {/* Hubs Cards Grid */}
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 pt-2">
-                {regionalHubs.map((hub) => (
-                  <div
-                    key={hub.city}
-                    className="flex flex-col gap-1 rounded-2xl border border-background/20 bg-background/10 p-3.5 backdrop-blur-sm transition-all hover:bg-background/15"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 text-background" />
-                        <span className={`${pinkAverage.className} text-sm font-semibold text-background`}>
-                          {hub.city}, {hub.country}
-                        </span>
-                      </div>
-                      <span className="rounded-md border border-background/25 bg-background/10 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-background">
-                        {hub.status}
-                      </span>
-                    </div>
-                    <span className="text-xs font-medium text-background/90 pt-0.5">
-                      {hub.role}
-                    </span>
-                    <span className="text-[10px] text-background/60">
-                      {hub.address}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-2">
-                <Button
-                  href="/contact"
-                  variant="secondary"
-                  size="sm"
-                  className="bg-background text-foreground hover:bg-background/90"
-                >
-                  Contact Our Trade Desks
-                </Button>
-              </div>
-            </div>
-
-            {/* Right Column: Clean 3D Earth Globe Canvas */}
-            <div className="relative flex flex-col items-center justify-center lg:col-span-6">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute h-72 w-72 sm:h-96 sm:w-96 rounded-full bg-background/20 blur-3xl"
-              />
-              <Globe className="w-full max-w-[340px] xs:max-w-[400px] sm:max-w-[480px] lg:max-w-[540px]" />
-            </div>
-          </div>
-        </section>
-      </div>
+      {/* ─── 4. Card UI Showcase / Secure Digital Settlement ──────────────── */}
+      <TradeCardSection />
 
       {/* ─── 5. Team Members of Elevex ───────────────────────────────────── */}
       <section className={`${sansation.className} mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10`}>
@@ -576,9 +655,6 @@ export default function AboutPage() {
                 The team behind Elevex.
               </h2>
             </div>
-            <p className="max-w-md text-xs sm:text-sm text-foreground/60 leading-relaxed">
-              Systems engineers, maritime logistics veterans, trade finance attorneys, and producer advocates working together to modernize international trade.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -605,10 +681,9 @@ export default function AboutPage() {
                       <h3 className={`${pinkAverage.className} text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1`}>
                         {member.name}
                       </h3>
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
                     </div>
 
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary line-clamp-1">
+                    <p className="text-[8px] font-semibold uppercase tracking-wider text-primary line-clamp-1">
                       {member.role}
                     </p>
 
