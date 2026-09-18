@@ -161,14 +161,14 @@ export default function Banner() {
                   } ${isLeaving ? "listing-out" : isNew ? "listing-in" : ""}`}
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-semibold text-foreground">
+                    <span className="text-[10px] md:text-xs line-clamp-1 max-w-[150px] md:max-w-xl font-semibold text-foreground">
                       {item.name}
                     </span>
                     <span className="text-[10px] text-foreground/45">
                       {item.origin} · {item.tag}
                     </span>
                   </div>
-                  <span className="text-base font-medium tracking-wider text-primary">
+                  <span className="text-xs md:text-base font-medium tracking-tighter text-primary">
                     {item.price}
                   </span>
                 </div>

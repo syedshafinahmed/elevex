@@ -66,7 +66,10 @@ export async function POST(req: Request) {
       });
     }
 
-    const baseUrl = process.env.AUTH_URL || "http://localhost:3000";
+    const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    const baseUrl = (process.env.AUTH_URL && !process.env.AUTH_URL.includes("localhost"))
+      ? process.env.AUTH_URL.replace(/\/api\/auth\/?$/, "")
+      : siteOrigin;
 
     let paymentMethodLabel = "";
     if (session?.user?.id) {

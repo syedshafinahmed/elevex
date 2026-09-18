@@ -147,7 +147,7 @@ export function CardFolder({
       data-details-visible={areDetailsVisible ? "true" : "false"}
       style={{ aspectRatio: "1029 / 592", perspective: "1200px" }}
       className={cn(
-        "relative aspect-[1029/592] w-96 max-w-full select-none [perspective:1200px]",
+        "relative aspect-[1029/592] w-full max-w-[384px] select-none [perspective:1200px]",
         className,
       )}
     >
