@@ -231,7 +231,7 @@ export default function AddPaymentMethodModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-foreground">Add Payment Method</h3>
-              <p className="text-[11px] text-foreground/50">Link an MFS wallet, credit/debit card, or bank account</p>
+              <p className="text-[11px] text-foreground/50">Link a wallet, card, or bank account</p>
             </div>
           </div>
           <button

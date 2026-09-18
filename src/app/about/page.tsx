@@ -293,10 +293,10 @@ function OriginStoryCarousel() {
     <div
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="group relative overflow-hidden rounded-3xl border border-foreground/10 bg-background inset-shadow-foreground/30 inset-shadow-sm transition-all hover:border-foreground/20"
+      className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-foreground/10 bg-background inset-shadow-foreground/30 inset-shadow-sm transition-all hover:border-foreground/20"
     >
       {/* Aspect Ratio Container for Main Showcase Image */}
-      <div className="relative aspect-[16/10] sm:aspect-[21/9] w-full overflow-hidden">
+      <div className="relative min-h-[420px] sm:min-h-0 aspect-[4/5] sm:aspect-[21/9] w-full overflow-hidden">
         {originStorySlides.map((s, idx) => (
           <div
             key={s.title}
@@ -313,40 +313,40 @@ function OriginStoryCarousel() {
               className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
             />
             {/* Cinematic Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 sm:via-background/60 to-transparent/20 sm:to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent hidden sm:block" />
           </div>
         ))}
 
         {/* Content Overlay */}
-        <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-8 lg:p-10 pointer-events-none">
+        <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 sm:p-8 lg:p-10 pointer-events-none">
 
           {/* Bottom Title & Description & Pills */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 w-full pointer-events-auto">
-            <div className="flex flex-col gap-1.5 max-w-5xl">
-              <p className={`${trunkey.className} text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-primary`}>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 w-full pointer-events-auto">
+            <div className="flex flex-col gap-1 sm:gap-1.5 max-w-5xl">
+              <p className={`${trunkey.className} text-[9px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-primary`}>
                 Trade Corridors In Action
               </p>
-              <h3 className={`${pinkAverage.className} text-xl sm:text-3xl text-foreground font-semibold leading-tight`}>
+              <h3 className={`${pinkAverage.className} text-lg sm:text-3xl text-foreground font-semibold leading-tight`}>
                 {slide.title}
               </h3>
-              <p className="text-xs sm:text-sm text-foreground/75 leading-relaxed">
+              <p className="text-xs sm:text-sm text-foreground/80 sm:text-foreground/75 leading-relaxed line-clamp-3 sm:line-clamp-none">
                 {slide.subtitle}
               </p>
             </div>
 
             {/* Progress indicators / dots at bottom right */}
-            <div className="flex items-center gap-1.5 self-start sm:self-end shrink-0 pb-1">
+            <div className="flex items-center gap-1.5 self-start sm:self-end shrink-0 pt-1 sm:pt-0 pb-1">
               {originStorySlides.map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setCurrentIndex(idx)}
                   aria-label={`Go to slide ${idx + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 cursor-pointer ${
                     idx === currentIndex
-                      ? "w-8 bg-primary shadow-sm shadow-primary/40"
-                      : "w-2 bg-foreground/20 hover:bg-foreground/40"
+                      ? "w-6 sm:w-8 bg-primary shadow-sm shadow-primary/40"
+                      : "w-1.5 sm:w-2 bg-foreground/30 sm:bg-foreground/20 hover:bg-foreground/50"
                   }`}
                 />
               ))}

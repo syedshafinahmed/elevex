@@ -48,7 +48,7 @@ export default function MyImportsPage() {
           className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
         >
           <ShoppingBag className="h-4 w-4" />
-          <span>Import More Products</span>
+          <span>Import</span>
         </Link>
       </div>
 

@@ -66,7 +66,7 @@ export default function DashboardPage() {
               className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4 stroke-[2.5]" />
-              <span>Add Export Product</span>
+              <span>Export Product</span>
             </Button>
             <Button
               href="/products"

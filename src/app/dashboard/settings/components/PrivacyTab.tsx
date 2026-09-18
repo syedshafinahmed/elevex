@@ -199,7 +199,7 @@ export default function PrivacyTab() {
             <div>Password & Security</div>
             <p className="text-[11px] font-normal text-foreground/50">
               {hasPassword
-                ? "Update your account credentials to keep your trading account secure"
+                ? "Update your credentials to keep your account secure"
                 : "Authentication is managed via third-party provider"}
             </p>
           </div>

@@ -152,7 +152,7 @@ export default function BillingTab() {
             <div>
               <div>Saved Payment & Settlement Methods</div>
               <p className="text-[11px] font-normal text-foreground/50">
-                Manage your MFS wallets, debit/credit cards, and bank settlement accounts
+                Manage your wallets, cards & settlement accounts
               </p>
             </div>
           </div>
@@ -397,7 +397,7 @@ export default function BillingTab() {
             <div>
               <div>Transaction History</div>
               <p className="text-[11px] font-normal text-foreground/50">
-                Log of purchase deductions and export trade settlement credits
+                Purchase deductions and export trade settlement credits
               </p>
             </div>
           </div>

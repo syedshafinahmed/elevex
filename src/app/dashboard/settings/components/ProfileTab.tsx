@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import {
   User,
-  Shield,
   Save,
   Camera,
   RefreshCw,
@@ -157,13 +156,9 @@ export default function ProfileTab() {
             </div>
             <div>
               <div>Trader Identity & Profile</div>
-              <p className="text-[11px] font-normal text-foreground/50">Personal credentials and contact points for global trade deals</p>
+              <p className="text-[11px] font-normal text-foreground/50">Personal credentials and contact for global trade deals</p>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-            <Shield className="h-3.5 w-3.5" />
-            Tier-2 KYC Verified
-          </span>
         </div>
 
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 pt-1">
