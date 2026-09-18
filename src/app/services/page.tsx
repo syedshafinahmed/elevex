@@ -290,20 +290,39 @@ function HowItWorks() {
     };
 
     updateTrackHeight();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateTrackHeight();
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
     window.addEventListener("resize", updateTrackHeight);
-    return () => window.removeEventListener("resize", updateTrackHeight);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateTrackHeight);
+    };
   }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!containerRef.current || !trackHeight) return;
-      const rect = containerRef.current.getBoundingClientRect();
+      if (!containerRef.current || !firstBubbleRef.current || !lastBubbleRef.current) return;
+      const firstRect = firstBubbleRef.current.getBoundingClientRect();
+      const lastRect = lastBubbleRef.current.getBoundingClientRect();
+
+      const firstCenter = firstRect.top + firstRect.height / 2;
+      const lastCenter = lastRect.top + lastRect.height / 2;
+      const totalDistance = lastCenter - firstCenter;
+
+      if (totalDistance <= 0) return;
+
       const windowHeight = window.innerHeight;
+      const viewportTrigger = windowHeight * 0.65;
+      const traveledDistance = viewportTrigger - firstCenter;
 
-      const startPoint = windowHeight * 0.7;
-      const currentScroll = startPoint - rect.top;
-
-      const currentProgress = Math.max(0, Math.min(1, currentScroll / trackHeight));
+      const currentProgress = Math.max(0, Math.min(1, traveledDistance / totalDistance));
       setProgress(currentProgress);
     };
 
@@ -313,15 +332,15 @@ function HowItWorks() {
   }, [trackHeight]);
 
   return (
-    <div id="process" className="bg-amethyst px-4 py-12 sm:px-6 lg:px-10 scroll-mt-6">
+    <div id="process" className="bg-amethyst px-3 py-6 sm:py-12 sm:px-6 lg:px-10 scroll-mt-6">
       <section className={`${sansation.className} mx-auto max-w-7xl w-full`}>
-        <div className="px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
+        <div className="px-4 py-6 sm:px-8 sm:py-10 lg:px-12">
           {/* Header */}
-          <div className="mb-8 flex flex-col gap-2">
-            <p className={`${trunkey.className} text-xs font-semibold uppercase tracking-[0.15em] text-background`}>
+          <div className="mb-6 sm:mb-8 flex flex-col gap-1.5 sm:gap-2">
+            <p className={`${trunkey.className} text-[11px] sm:text-xs font-semibold uppercase tracking-[0.15em] text-background`}>
               The Process
             </p>
-            <h2 className={`${pinkAverage.className} text-3xl sm:text-5xl text-background/90 leading-tight`}>
+            <h2 className={`${pinkAverage.className} text-2xl sm:text-5xl text-background/90 leading-tight`}>
               From listing to settlement.
             </h2>
           </div>
@@ -331,15 +350,18 @@ function HowItWorks() {
             {/* Background Track Line */}
             <div
               aria-hidden="true"
-              className="absolute left-[19px] top-[20px] hidden w-0.5 bg-background/20 sm:block"
+              className="absolute left-[19px] top-[20px] block w-0.5 bg-background/20 pointer-events-none"
               style={{ height: `${trackHeight}px` }}
             />
 
             {/* Animated Progress Line */}
             <div
               aria-hidden="true"
-              className="absolute left-[19px] top-[20px] hidden w-0.5 bg-background transition-all duration-150 ease-out sm:block"
-              style={{ height: `${progress * trackHeight}px` }}
+              className="absolute left-[19px] top-[20px] block w-0.5 bg-background transition-all duration-150 ease-out pointer-events-none"
+              style={{
+                height: `${Math.min(1, Math.max(0, progress)) * trackHeight}px`,
+                maxHeight: `${trackHeight}px`,
+              }}
             />
 
             {steps.map((s, i) => {
@@ -349,7 +371,7 @@ function HowItWorks() {
               const isLast = i === steps.length - 1;
 
               return (
-                <div key={s.step} className="relative grid gap-4 pb-8 sm:grid-cols-[auto_1fr] sm:gap-6 last:pb-0">
+                <div key={s.step} className="relative grid grid-cols-[auto_1fr] gap-3 sm:gap-6 pb-6 sm:pb-8 last:pb-0">
                   {/* Bubble */}
                   <div className="flex shrink-0 items-start">
                     <div
@@ -365,26 +387,26 @@ function HowItWorks() {
 
                   {/* Content Card */}
                   <div
-                    className={`rounded-2xl border p-5 transition-all duration-300 ${isStepPassed
+                    className={`rounded-2xl border p-4 sm:p-5 transition-all duration-300 ${isStepPassed
                       ? "border-background/20 bg-background/12 shadow-sm"
                       : "border-background/10 bg-background/6"
                       }`}
                   >
-                    <div className="mb-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <StepIcon className={`h-4 w-4 stroke-[1.75] transition-colors ${isStepPassed ? "text-background" : "text-background/50"}`} aria-hidden="true" />
-                        <h3 className={`${pinkAverage.className} text-xl text-background`}>{s.title}</h3>
+                    <div className="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+                      <div className="flex items-center gap-2.5 sm:gap-3">
+                        <StepIcon className={`h-4 w-4 shrink-0 stroke-[1.75] transition-colors ${isStepPassed ? "text-background" : "text-background/50"}`} aria-hidden="true" />
+                        <h3 className={`${pinkAverage.className} text-lg sm:text-xl text-background leading-tight`}>{s.title}</h3>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`${sansation.className} text-[10px] font-semibold uppercase tracking-[0.1em] text-background/90`}>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className={`${sansation.className} text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.1em] text-background/90`}>
                           {s.tag}
                         </span>
-                        <span className={`${sansation.className} rounded-lg border border-background/10 bg-background/10 px-2.5 py-1 text-[9px] text-background/90`}>
+                        <span className={`${sansation.className} rounded-lg border border-background/10 bg-background/10 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[8px] sm:text-[9px] text-background/90`}>
                           {s.detail}
                         </span>
                       </div>
                     </div>
-                    <p className={`${sansation.className} text-sm leading-relaxed text-background/65`}>
+                    <p className={`${sansation.className} text-xs sm:text-sm leading-relaxed text-background/65`}>
                       {s.desc}
                     </p>
                   </div>

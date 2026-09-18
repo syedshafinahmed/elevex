@@ -571,7 +571,7 @@ export default function AboutPage() {
                       }`}
                   >
                     <t.icon className={`h-3.5 w-3.5 ${active ? "text-primary" : "text-foreground/40"}`} />
-                    <span>{t.label}</span>
+                    <span className="text-[11.5px]">{t.label}</span>
                   </button>
                 );
               })}

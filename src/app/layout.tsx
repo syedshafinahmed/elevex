@@ -10,15 +10,17 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://elevex-ssa.vercel.app";
 
+const ogImageUrl = "https://res.cloudinary.com/dwi0rh2ti/image/upload/v1789729596/elevex-og_bi7pii.png";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 
   title: {
-    default: "Elevex — Direct-to-Producer Global Trade Exchange",
+    default: "Elevex — Global Trade Exchange",
     template: "%s | Elevex",
   },
   description:
-    "Elevex is a B2B cross-border trade platform connecting verified commodity producers across South Asia directly with international buyers. Zero broker intermediaries. Transparent pricing. Guaranteed settlement.",
+    "Elevex is a B2B cross-border trade platform connecting verified commodity producers directly with global buyers. Zero brokers. Guaranteed settlement.",
   keywords: [
     "Elevex",
     "B2B trade platform",
@@ -45,25 +47,25 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Elevex",
-    title: "Elevex — Direct-to-Producer Global Trade Exchange",
+    title: "Elevex — Global Trade Exchange",
     description:
-      "A modern B2B marketplace connecting verified commodity producers across South Asia directly with international buyers. No brokers. No spreads. Full transparency.",
+      "Elevex connects verified commodity producers directly with global buyers. Zero broker fees. Guaranteed trade settlement.",
     images: [
       {
-        url: `${siteUrl}/logo.png`,
+        url: ogImageUrl,
         width: 1200,
         height: 630,
-        alt: "Elevex — Direct-to-Producer Global Trade Exchange",
+        alt: "Elevex — Global Trade Exchange",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Elevex — Direct-to-Producer Global Trade Exchange",
+    title: "Elevex — Global Trade Exchange",
     description:
-      "A modern B2B marketplace connecting verified commodity producers across South Asia directly with international buyers. No brokers. No spreads. Full transparency.",
-    images: [`${siteUrl}/logo.png`],
+      "Elevex connects verified commodity producers directly with global buyers. Zero broker fees. Guaranteed trade settlement.",
+    images: [ogImageUrl],
   },
 
   robots: {
@@ -87,6 +89,12 @@ export const metadata: Metadata = {
     apple: [{ url: "/favicon.png" }],
   },
 
+  manifest: "/site.webmanifest",
+
+  other: {
+    "theme-color": "#542882",
+  },
+
   alternates: {
     canonical: siteUrl,
   },
@@ -101,6 +109,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("h-full antialiased scroll-smooth", "font-sans", inter.variable)} suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Elevex",
+              url: siteUrl,
+              logo: `${siteUrl}/favicon.png`,
+              description:
+                "Elevex is a B2B cross-border trade platform connecting verified commodity producers across South Asia directly with international buyers.",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Dhaka",
+                addressCountry: "BD",
+              },
+              sameAs: [
+                "https://github.com/syedshafinahmed/elevex",
+              ],
+            }),
+          }}
+        />
+      </head>
       <body className={`min-h-full flex flex-col ${pinkAverage.className}`}>
         <Providers>
           <AppShell>{children}</AppShell>

@@ -1,7 +1,7 @@
 <div align="center">
   <img alt="Elevex Logo" width="180" src="https://github.com/user-attachments/assets/6698ba37-d00e-4090-85aa-37e744ef3617" />
   
-  ## **Direct-to-Producer Global Trade Exchange — Zero Broker Spreads**
+  ## **Global Trade Exchange — Zero Broker Spreads**
 
 
   [![Next.js](https://img.shields.io/badge/Next.js-16.2.9-000000?style=flat-square&logo=next.js)](https://nextjs.org/)
