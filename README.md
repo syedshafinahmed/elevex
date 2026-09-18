@@ -1,30 +1,27 @@
 <div align="center">
+  <img alt="Elevex Logo" width="180" src="https://github.com/user-attachments/assets/6698ba37-d00e-4090-85aa-37e744ef3617" />
+  
+  ## **Direct-to-Producer Global Trade Exchange — Zero Broker Spreads**
 
-  <img src="https://raw.githubusercontent.com/syedshafinahmed/elevex/main/public/logo.png" alt="Elevex Logo" width="180"/>
-
-  # Elevex
-
-  **Direct-to-Producer Global Trade Exchange — Zero Broker Spreads**
-
-  🔗 [Live Demo](https://elevex-ssa.vercel.app/)
 
   [![Next.js](https://img.shields.io/badge/Next.js-16.2.9-000000?style=flat-square&logo=next.js)](https://nextjs.org/)
-  [![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)](https://react.dev/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
   [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
+  [![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)](https://react.dev/)
   [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
   [![Neon](https://img.shields.io/badge/Neon-Serverless-00E5BF?style=flat-square&logo=neon)](https://neon.tech/)
   [![Prisma](https://img.shields.io/badge/Prisma-6.19.3-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
   [![Auth.js](https://img.shields.io/badge/Auth.js-v5_beta-CC4A00?style=flat-square&logo=auth0)](https://authjs.dev/)
   [![Stripe](https://img.shields.io/badge/Stripe-Payments-635BFF?style=flat-square&logo=stripe)](https://stripe.com/)
   [![Motion](https://img.shields.io/badge/Motion-v13-FF0055?style=flat-square&logo=framer)](https://motion.dev/)
-  [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=flat-square&logo=vercel)](https://vercel.com/)
+  [![Vercel](https://img.shields.io/badge/Deployment-Vercel-000000?style=flat-square&logo=vercel)](https://vercel.com/)
 
 </div>
 
 
 ---
 
+### Live Demo → [elevex](https://elevex-ssa.vercel.app/)
 
 ## 📖 Overview
 
@@ -162,51 +159,51 @@ By combining an intuitive digital marketplace with institutional escrow-grade pa
 ```
 elevex/
 ├── prisma/
-│   └── schema.prisma          # Database schema (User, Product, Order, etc.)
-├── public/                    # Static assets
+│   └── schema.prisma               # Database schema (User, Product, Order, etc.)
+├── public/                         # Static assets
 ├── src/
 │   ├── app/
-│   │   ├── about/             # About & Origin Story page
-│   │   ├── actions/           # Next.js Server Actions
-│   │   ├── api/               # API Route Handlers
-│   │   │   ├── auth/          # Auth.js [...nextauth] handler
-│   │   │   ├── cart/          # Cart API
-│   │   │   ├── checkout/      # Checkout API
-│   │   │   ├── imports/       # Import orders API
+│   │   ├── about/                  # About & Origin Story page
+│   │   ├── actions/                # Next.js Server Actions
+│   │   ├── api/                    # API Route Handlers
+│   │   │   ├── auth/               # Auth.js [...nextauth] handler
+│   │   │   ├── cart/               # Cart API
+│   │   │   ├── checkout/           # Checkout API
+│   │   │   ├── imports/            # Import orders API
 │   │   │   ├── payment-methods/
-│   │   │   ├── products/      # Products API
-│   │   │   └── transactions/  # Transactions API
-│   │   ├── checkout/          # Checkout page
+│   │   │   ├── products/           # Products API
+│   │   │   └── transactions/       # Transactions API
+│   │   ├── checkout/               # Checkout page
 │   │   ├── components/
-│   │   │   ├── auth/          # Auth modals & forms
-│   │   │   ├── common/        # Shared page sections
-│   │   │   ├── dashboard/     # Dashboard components
-│   │   │   ├── home/          # Home page sections
-│   │   │   ├── layout/        # Navbar, Footer
-│   │   │   ├── motion/        # Animation components
-│   │   │   ├── products/      # Product cards & listing
-│   │   │   ├── skeletons/     # Loading skeletons
-│   │   │   └── ui/            # Core UI primitives (Button, Badge, etc.)
-│   │   ├── contact/           # Contact page
-│   │   ├── dashboard/         # Dashboard (buyer/seller/admin)
-│   │   ├── my-exports/        # Seller export management
-│   │   ├── my-imports/        # Buyer import management
-│   │   ├── privacy/           # Privacy policy
-│   │   ├── products/          # Products marketplace
-│   │   ├── services/          # Services page
-│   │   ├── terms/             # Terms of service
-│   │   ├── globals.css        # Global styles & design tokens
-│   │   ├── layout.tsx         # Root layout
-│   │   └── page.tsx           # Homepage
-│   ├── context/               # React Context (ProductContext, etc.)
+│   │   │   ├── auth/               # Auth modals & forms
+│   │   │   ├── common/             # Shared page sections
+│   │   │   ├── dashboard/          # Dashboard components
+│   │   │   ├── home/               # Home page sections
+│   │   │   ├── layout/             # Navbar, Footer
+│   │   │   ├── motion/             # Animation components
+│   │   │   ├── products/           # Product cards & listing
+│   │   │   ├── skeletons/          # Loading skeletons
+│   │   │   └── ui/                 # Core UI primitives (Button, Badge, etc.)
+│   │   ├── contact/                # Contact page
+│   │   ├── dashboard/              # Dashboard (buyer/seller/admin)
+│   │   ├── my-exports/             # Seller export management
+│   │   ├── my-imports/             # Buyer import management
+│   │   ├── privacy/                # Privacy policy
+│   │   ├── products/               # Products marketplace
+│   │   ├── services/               # Services page
+│   │   ├── terms/                  # Terms of service
+│   │   ├── globals.css             # Global styles & design tokens
+│   │   ├── layout.tsx              # Root layout
+│   │   └── page.tsx                # Homepage
+│   ├── context/                    # React Context (ProductContext, etc.)
 │   ├── lib/
-│   │   ├── auth.ts            # Auth.js configuration
-│   │   ├── fonts.ts           # Font definitions
-│   │   └── prisma.ts          # Prisma client singleton
-│   └── types/                 # TypeScript type definitions
-├── .env                       # Environment variables (not committed)
-├── next.config.ts             # Next.js configuration
-├── postcss.config.mjs         # PostCSS / TailwindCSS config
+│   │   ├── auth.ts                 # Auth.js configuration
+│   │   ├── fonts.ts                # Font definitions
+│   │   └── prisma.ts               # Prisma client singleton
+│   └── types/                      # TypeScript type definitions
+├── .env                            # Environment variables (not committed)
+├── next.config.ts                  # Next.js configuration
+├── postcss.config.mjs              # PostCSS / TailwindCSS config
 └── package.json
 ```
 
