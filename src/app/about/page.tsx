@@ -11,9 +11,6 @@ import {
   Compass,
   Users,
   Award,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
 } from "lucide-react";
 import { RiLinkedinFill, RiFacebookFill } from "react-icons/ri";
 import { pinkAverage, sansation, trunkey } from "@/lib/fonts";
@@ -234,23 +231,23 @@ interface OriginStorySlide {
 const originStorySlides: OriginStorySlide[] = [
   {
     title: "Direct from Regional Origins",
-    subtitle: "High-altitude tea estates, organic spices, and agricultural cooperatives onboarding verified bulk crops directly for export.",
+    subtitle: "We partner directly with high-altitude tea plantations, organic spice growers, and regional agricultural cooperatives across South Asia. By onboarding verified bulk harvests straight from the farmgate, Elevex eliminates predatory broker spreads and guarantees authentic provenance. Importers receive fresher crops with immutable batch tracing and transparent producer compensation.",
     location: "Sylhet & Northern Highlands",
     tag: "Agricultural Source",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=1600&auto=format&fit=crop&q=80",
+    image: "https://plus.unsplash.com/premium_photo-1661371394983-42485fed3a58",
     alt: "Agricultural harvest in highland tea plantation",
   },
   {
     title: "Precision Manufacturing & Mill Weaving",
-    subtitle: "Modernized regional textile mills producing premium raw cotton fabrics and industrial apparel for global tier-1 brands.",
+    subtitle: "Modernized spinning mills and specialized fabric weaving facilities transform raw commodities into high-grade commercial textiles. Through standardized digital spec sheets, global apparel brands and industrial importers inspect fabric density, tensile strength, and certified yarn counts prior to dispatch. Every production run adheres strictly to international compliance guidelines.",
     location: "Dhaka & Narayanganj Industrial Corridor",
     tag: "Textile Infrastructure",
-    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1600&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1542044801-30d3e45ae49a",
     alt: "Textile manufacturing and fabric weaving process",
   },
   {
     title: "Deepwater Port Freight & Container Routing",
-    subtitle: "Coordinating multi-modal transit corridors and vessel manifests with real-time AIS telemetry and automated port clearance.",
+    subtitle: "From inland staging yards to deepwater shipping berths, we coordinate multi-modal cargo transit across high-volume maritime corridors. Live AIS telemetry, consolidated container manifests, and pre-cleared customs documentation prevent costly port clearance bottlenecks. Consignees maintain complete live tracking from terminal loading through final open-ocean discharge.",
     location: "Chittagong Deepwater Terminal",
     tag: "Maritime Logistics",
     image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1600&auto=format&fit=crop&q=80",
@@ -258,7 +255,7 @@ const originStorySlides: OriginStorySlide[] = [
   },
   {
     title: "Assay Inspection & Cryptographic Bills",
-    subtitle: "Origin quality testing, botanical grading certificates, and smart-contract escrow releases backed by institutional guarantees.",
+    subtitle: "Independent accredited testing agencies conduct rigorous on-site sampling, chemical assays, and weight reconciliations prior to container sealing. Inspection certificates and digitized bills of lading are immutably registered to eradicate counterfeit documentation and trade fraud. Capital stays secured in institutional escrow until pre-agreed delivery specifications are fully verified.",
     location: "Regional Trade Assay Labs",
     tag: "Verification Standard",
     image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&auto=format&fit=crop&q=80",
@@ -266,7 +263,7 @@ const originStorySlides: OriginStorySlide[] = [
   },
   {
     title: "Bulk Commodity Staging & Distribution",
-    subtitle: "Connecting raw commodity yields to international buyers without the multi-tiered spreads of predatory brokers.",
+    subtitle: "Strategically positioned export consolidation hubs prepare raw commodities for containerized ocean dispatch and bulk vessel freight. Direct bilateral transaction channels empower cross-border buyers to secure reliable recurring supply contracts without multi-tiered broker markups. The result is a resilient, modern trade network engineered for transparent global commerce.",
     location: "Global South Export Nodes",
     tag: "Marketplace Execution",
     image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=1600&auto=format&fit=crop&q=80",
@@ -278,10 +275,6 @@ function OriginStoryCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev === 0 ? originStorySlides.length - 1 : prev - 1));
-  }, []);
-
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev === originStorySlides.length - 1 ? 0 : prev + 1));
   }, []);
@@ -290,7 +283,7 @@ function OriginStoryCarousel() {
     if (isPaused) return;
     const interval = setInterval(() => {
       nextSlide();
-    }, 5500);
+    }, 3200);
     return () => clearInterval(interval);
   }, [isPaused, nextSlide]);
 
@@ -326,59 +319,24 @@ function OriginStoryCarousel() {
         ))}
 
         {/* Content Overlay */}
-        <div className="absolute inset-0 z-20 flex flex-col justify-between p-6 sm:p-8 lg:p-10 pointer-events-none">
-          {/* Top Bar: Location & Tag Badges + Index & Navigation Controls */}
-          <div className="flex items-center justify-between pointer-events-auto">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 rounded-full border border-foreground/15 bg-background/85 px-3 py-1 text-[11px] font-semibold tracking-wider uppercase text-primary backdrop-blur-md">
-                <MapPin className="h-3 w-3 text-primary" />
-                {slide.location}
-              </span>
-              <span className="hidden sm:inline-flex items-center rounded-full border border-foreground/10 bg-background/70 px-2.5 py-1 text-[10px] uppercase font-bold tracking-widest text-foreground/60 backdrop-blur-md">
-                {slide.tag}
-              </span>
-            </div>
+        <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-8 lg:p-10 pointer-events-none">
 
-            {/* Arrows & Counter */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-foreground/70 font-semibold px-1.5 py-0.5 rounded-md bg-background/70 backdrop-blur-md border border-foreground/10">
-                0{currentIndex + 1} <span className="text-foreground/30">/</span> 0{originStorySlides.length}
-              </span>
-              <button
-                type="button"
-                onClick={prevSlide}
-                aria-label="Previous origin slide"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-foreground/15 bg-background/80 text-foreground transition-all hover:bg-background hover:text-primary hover:border-primary/40 active:scale-95 cursor-pointer backdrop-blur-md"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={nextSlide}
-                aria-label="Next origin slide"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-foreground/15 bg-background/80 text-foreground transition-all hover:bg-background hover:text-primary hover:border-primary/40 active:scale-95 cursor-pointer backdrop-blur-md"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Bottom Title & Description */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 max-w-4xl pointer-events-auto">
-            <div className="flex flex-col gap-1.5">
+          {/* Bottom Title & Description & Pills */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 w-full pointer-events-auto">
+            <div className="flex flex-col gap-1.5 max-w-5xl">
               <p className={`${trunkey.className} text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-primary`}>
                 Trade Corridors In Action
               </p>
               <h3 className={`${pinkAverage.className} text-xl sm:text-3xl text-foreground font-semibold leading-tight`}>
                 {slide.title}
               </h3>
-              <p className="text-xs sm:text-sm text-foreground/75 leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-foreground/75 leading-relaxed">
                 {slide.subtitle}
               </p>
             </div>
 
-            {/* Progress indicators / dots */}
-            <div className="flex items-center gap-1.5 self-start sm:self-end pt-1">
+            {/* Progress indicators / dots at bottom right */}
+            <div className="flex items-center gap-1.5 self-start sm:self-end shrink-0 pb-1">
               {originStorySlides.map((_, idx) => (
                 <button
                   key={idx}
@@ -547,20 +505,39 @@ export default function AboutPage() {
           <OriginStoryCarousel />
 
           {/* Founder Quote Card */}
-          <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-background p-6 sm:p-8 inset-shadow-foreground/30 inset-shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex flex-col gap-2 max-w-2xl">
-                <p className={`${pinkAverage.className} text-lg sm:text-xl text-foreground italic leading-relaxed`}>
+          <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-background p-6 sm:p-8 lg:p-10 inset-shadow-foreground/30 inset-shadow-sm">
+            {/* Ambient Watermark Quote Glyph */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-2 -bottom-6 select-none font-serif text-8xl sm:text-9xl text-foreground/[0.04] leading-none"
+            >
+              ”
+            </div>
+
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="flex flex-col gap-2 max-w-4xl">
+                <p className={`${pinkAverage.className} text-lg sm:text-xl lg:text-2xl text-foreground italic leading-tight`}>
                   {"“We didn't build Elevex to be another trade broker. We built it so that authentic producers would never need an intermediary broker again.”"}
                 </p>
-                <p className="text-xs text-foreground/50">
+                <p className="text-xs sm:text-sm text-foreground/50">
                   — <span className="font-semibold text-foreground/80">Syed Shafin Ahmed</span>, Founder & Lead Architect
                 </p>
               </div>
 
-              <Button href="/contact" variant="outline" size="sm" className="shrink-0">
-                Connect With Leadership
-              </Button>
+              {/* Charter Principle Badge */}
+              <div className="flex flex-col items-start sm:items-end justify-center shrink-0 gap-1 self-start sm:self-center border-t sm:border-t-0 sm:border-l border-foreground/10 pt-4 sm:pt-0 sm:pl-8">
+                <div className="flex items-center gap-2">
+                  <span className={`${trunkey.className} text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.16em] text-primary`}>
+                    Charter Principle
+                  </span>
+                </div>
+                <span className={`${pinkAverage.className} text-sm sm:text-base font-semibold text-foreground`}>
+                  Direct-to-Producer
+                </span>
+                <span className="text-[11px] text-foreground/45 font-mono">
+                  Zero Broker Spreads
+                </span>
+              </div>
             </div>
           </div>
         </div>
