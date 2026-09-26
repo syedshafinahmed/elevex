@@ -312,7 +312,7 @@ export function CardFolder({
             </span>
           </span>
           <span className="flex min-w-0 items-baseline justify-between gap-4">
-            <span className="truncate text-lg font-medium leading-tight text-foreground">
+            <span className="truncate text-xs sm:text-lg font-medium leading-tight text-foreground">
               {title}
             </span>
             <DigitSwap
